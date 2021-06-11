@@ -11,7 +11,7 @@
   ],
   "activationEvents": [
     "onCommand:vscode-ripgrep.shellThing",
-    "*"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -19,6 +19,12 @@
       {
         "command": "vscode-ripgrep.shellThing",
         "title": "shellThing"
+      }
+    ],
+    "keybindings":[
+      {
+        "command": "vscode-ripgrep.shellThing",
+        "key": "cmd+shift+j"
       }
     ]
   },
