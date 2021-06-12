@@ -3,6 +3,9 @@
 		{
 			"path": ".",
 		},
+		{
+			"path": "/Users/tomrijndorp/Dropbox/_ideas",
+		}
 	],
 	"settings": {
 		"typescript.tsc.autoDetect": "off"
