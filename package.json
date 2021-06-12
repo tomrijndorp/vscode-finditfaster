@@ -21,12 +21,37 @@
         "title": "shellThing"
       }
     ],
-    "keybindings":[
+    "keybindings": [
       {
         "command": "vscode-ripgrep.shellThing",
         "key": "cmd+shift+j"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "⚡ RIPPIT! ⚡",
+      "properties": {
+        "vscode-ripgrep.general.VS Code Path": {
+          "markdownDescription": "Unfortunately, we need this for various reasons, and we can't automatically read it.",
+          "type": "string",
+          "default": "/Applications/Visual Studio Code.app"
+        },
+        "vscode-ripgrep.general.maximizeTerminal": {
+          "description": "Maximize the terminal area when searching",
+          "type": "boolean",
+          "default": false
+        },
+        "vscode-ripgrep.general.showPreview": {
+          "description": "show a preview when using FZF",
+          "type": "boolean",
+          "default": true
+        },
+        "vscode-ripgrep.advanced.previewCommand": {
+          "markdownDescription": "Command that is used by `fzf` to produce the preview. Recommendation: install `bat` and have code highlighting!",
+          "type": "string",
+          "default": "bat --force-colorization --plain {}"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

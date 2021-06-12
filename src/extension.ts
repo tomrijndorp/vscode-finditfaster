@@ -8,6 +8,7 @@ import { cwd, uptime } from 'process';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 import { watch } from 'fs';
+import assert = require('assert');
 
 let term: vscode.Terminal;
 // const command = 'fzf --preview "bat --force-colorization --plain {}" | xargs -I{} open "vscode://file/$(pwd)/{}"; clear';
@@ -30,10 +31,20 @@ let term: vscode.Terminal;
  *    Therefore, we'll pass in the application path. Unfortunately, we can't use the `code` command
  *    for this either, and we'll have to know where VS Code is installed.
  */
+function getCFG<T>(key: string) {
+    // const userCfg = vscode.workspace.getConfiguration(CFG.extensionName);
+    const userCfg = vscode.workspace.getConfiguration();
+    console.log('user cfg', userCfg);
+    const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
+    assert(ret);
+    return ret;
+}
 
 const CFG: {
+    extensionName: string,
     folders: string[],
     vsCodePath: string,
+    showPreview: boolean,
     workspaceSettings: {
         folders: string[],
     },
@@ -41,8 +52,10 @@ const CFG: {
     terminalWasVisibleBeforeCommand: boolean | null,
     lastActiveTerminal: vscode.Terminal | undefined,
 } = {
+    extensionName: 'vscode-ripgrep',
     folders: [],
-    vsCodePath: '/Applications/Visual Studio Code.app',
+    vsCodePath: '',
+    showPreview: true,
     workspaceSettings: {
         folders: [],
     },
@@ -50,6 +63,11 @@ const CFG: {
     terminalWasVisibleBeforeCommand: null,
     lastActiveTerminal: undefined,
 };
+
+function updateConfigWithUserSettings() {
+    CFG.vsCodePath = getCFG('general.VS Code Path');
+    CFG.showPreview = getCFG('general.showPreview');
+}
 
 const getCommand = () => {
     const paths = CFG.folders.join(' ');
@@ -63,8 +81,7 @@ const getCommand = () => {
     xargs \
         -0 -I{} \
         open -a "${CFG.vsCodePath}" "vscode://file/{}"; \
-    echo $? > ${CFG.canaryFile}; \
-    clear
+    echo $? > ${CFG.canaryFile} && clear \
     `;
     console.log(cmd);
     return cmd;
@@ -111,10 +128,13 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {
+}
 
 function reinitialize() {
 
+    updateConfigWithUserSettings();
+    console.log('plugin config:' ,CFG);
     // CFG.folders = vscode.workspace.getConfiguration().get<any[]>('folders')?.map(x => x.path) || [];
     // console.log(`workspace folders: ${CFG.folders}`);
     // const x = vscode.workspace.getConfiguration().get('folders');
