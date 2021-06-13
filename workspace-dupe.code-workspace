@@ -8,6 +8,7 @@
 		}
 	],
 	"settings": {
-		"typescript.tsc.autoDetect": "off"
+		"typescript.tsc.autoDetect": "off",
+		"vscode-ripgrep.advanced.previewCommand": "bat --force-colorization"
 	},
 }

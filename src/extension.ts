@@ -31,7 +31,7 @@ let term: vscode.Terminal;
  *    Therefore, we'll pass in the application path. Unfortunately, we can't use the `code` command
  *    for this either, and we'll have to know where VS Code is installed.
  */
-function getCFG<T>(key: string) {
+function getCFG<T>(key: string, def?: T) {
     // const userCfg = vscode.workspace.getConfiguration(CFG.extensionName);
     const userCfg = vscode.workspace.getConfiguration();
     console.log('user cfg', userCfg);
@@ -45,6 +45,7 @@ const CFG: {
     folders: string[],
     vsCodePath: string,
     showPreview: boolean,
+    previewCommand: string,
     workspaceSettings: {
         folders: string[],
     },
@@ -56,6 +57,7 @@ const CFG: {
     folders: [],
     vsCodePath: '',
     showPreview: true,
+    previewCommand: '',
     workspaceSettings: {
         folders: [],
     },
@@ -64,25 +66,39 @@ const CFG: {
     lastActiveTerminal: undefined,
 };
 
+let count = 0;
+
 function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
     CFG.showPreview = getCFG('general.showPreview');
+    CFG.previewCommand = getCFG('general.previewCommand');
+
+    assert(CFG.previewCommand !== '');
 }
 
 const getCommand = () => {
     const paths = CFG.folders.join(' ');
-    const cmd = `
-    rg --files --hidden ${paths} 2>/dev/null | \
-    fzf \
+    const cmd = `bash -c '
+    set -uo pipefail
+    VAL=$( \
+    rg \
+        --files \
+        --hidden ${paths} 2>/dev/null \
+    | fzf \
         --multi \
         --print0 \
-        --preview "bat --force-colorization --plain {}" | \
-    tee /tmp/lastOutput |
-    xargs \
-        -0 -I{} \
-        open -a "${CFG.vsCodePath}" "vscode://file/{}"; \
-    echo $? > ${CFG.canaryFile} && clear \
-    `;
+        --preview "${CFG.previewCommand}" \
+    | tee /tmp/lastOutput )
+
+    if [[ -n "$VAL" ]]; then
+        open -a "${CFG.vsCodePath}" "vscode://file/$VAL" && \
+        echo "${count}" > ${CFG.canaryFile}
+        echo success
+    else
+        echo "no success"
+    fi
+    '`;
+    count++;
     console.log(cmd);
     return cmd;
 };
@@ -115,12 +131,19 @@ function handleWorkspaceFoldersChanges() {
     });
 }
 
+function handleWorkspaceSettingsChanges() {
+    vscode.workspace.onDidChangeConfiguration(e => {
+        updateConfigWithUserSettings();
+    });
+}
+
 
 export function activate(context: vscode.ExtensionContext) {
     // Because we can't determine what was going on in the terminal panel before,
     // let's just make it a setting for now.
     CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
     handleWorkspaceFoldersChanges();
+    handleWorkspaceSettingsChanges();
     reinitialize();
     vscode.commands.registerCommand('vscode-ripgrep.shellThing', () => {
         showNext();
@@ -149,6 +172,7 @@ function reinitialize() {
             vscode.window.showErrorMessage(`Failed to initialize plugin (failed to create file watcher: "${stdout}${stderr}")`);
         } else {
             CFG.canaryFile = stdout.trim();
+            console.log('canary file:', CFG.canaryFile);
             watcher = watch(CFG.canaryFile, (eventType, fileName) => {
                 if (eventType === 'change') {
                     // Switch back to the terminal the user was on before running our code
@@ -157,11 +181,13 @@ function reinitialize() {
                     //     // CFG.lastActiveTerminal.show();
                     // }
                     // CFG.lastActiveTerminal?.show();
+                    console.log('ping!');
                     if (CFG.terminalWasVisibleBeforeCommand === false) {
                         // console.log('hiding terminal', term);
                         // whichever one we just selected
                         // vscode.window.activeTerminal?.hide();
                         term.hide();
+                        console.log('file changed; hiding term');
                     }
                 }
             });
@@ -190,7 +216,8 @@ function showNext() {
     if (term.exitStatus !== undefined) {
         prepareTerminal();
     }
-    term.sendText(getCommand());
+    const cmd = getCommand();
+    term.sendText(cmd);
     // vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
     // We can't, with vscode's API, I think, determine whether the terminal panel was open or
     // not, or what it was showing before we took over. This is unfortunate, not sure how to

@@ -45,8 +45,8 @@
           "type": "boolean",
           "default": true
         },
-        "vscode-ripgrep.advanced.previewCommand": {
-          "markdownDescription": "Command that is used by `fzf` to produce the preview. Recommendation: install `bat` and have code highlighting!",
+        "vscode-ripgrep.general.previewCommand": {
+          "markdownDescription": "Command that is used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `cat {}`. Recommendation: install `bat` and have code highlighting using e.g. `bat --force-colorization --plain {}`!",
           "type": "string",
           "default": "bat --force-colorization --plain {}"
         }
