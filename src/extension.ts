@@ -20,6 +20,7 @@ let term: vscode.Terminal;
  * [ ] Linux support
  * [ ] Windows support
  * [ ] Preferences / options
+ * [ ] SSH sessions?
  */
 
 /**
@@ -34,9 +35,9 @@ let term: vscode.Terminal;
 function getCFG<T>(key: string, def?: T) {
     // const userCfg = vscode.workspace.getConfiguration(CFG.extensionName);
     const userCfg = vscode.workspace.getConfiguration();
-    console.log('user cfg', userCfg);
+    // console.log('user cfg', userCfg);
     const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
-    assert(ret);
+    assert(ret !== undefined);
     return ret;
 }
 
@@ -50,7 +51,8 @@ const CFG: {
         folders: string[],
     },
     canaryFile: string | null,
-    terminalWasVisibleBeforeCommand: boolean | null,
+    hideTerminalAfterUse: boolean,
+    maximizeTerminal: boolean,
     lastActiveTerminal: vscode.Terminal | undefined,
 } = {
     extensionName: 'vscode-ripgrep',
@@ -61,8 +63,9 @@ const CFG: {
     workspaceSettings: {
         folders: [],
     },
-    canaryFile: null,
-    terminalWasVisibleBeforeCommand: null,
+    canaryFile: '/tmp/canaryFile',
+    hideTerminalAfterUse: false,
+    maximizeTerminal: false,
     lastActiveTerminal: undefined,
 };
 
@@ -72,35 +75,42 @@ function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
     CFG.showPreview = getCFG('general.showPreview');
     CFG.previewCommand = getCFG('general.previewCommand');
+    CFG.hideTerminalAfterUse = getCFG('general.hideTerminalAfterUse');
+    CFG.maximizeTerminal = getCFG('general.maximizeTerminal');
 
     assert(CFG.previewCommand !== '');
 }
 
 const getCommand = () => {
     const paths = CFG.folders.join(' ');
-    const cmd = `bash -c '
-    set -uo pipefail
-    VAL=$( \
-    rg \
-        --files \
-        --hidden ${paths} 2>/dev/null \
-    | fzf \
-        --multi \
-        --print0 \
-        --preview "${CFG.previewCommand}" \
-    | tee /tmp/lastOutput )
+    // const cmd = `
+    // set -uo pipefail
+    // VAL=$( \
+    // rg \
+    //     --files \
+    //     --hidden ${paths} 2>/dev/null \
+    // | fzf \
+    //     --multi \
+    //     --preview "${CFG.previewCommand}" )
+    
+    // echo "$VAL" > /tmp/lastOutput
+    // echo "Got back:"
+    // set -x
+    // echo "$VAL"
 
-    if [[ -n "$VAL" ]]; then
-        open -a "${CFG.vsCodePath}" "vscode://file/$VAL" && \
-        echo "${count}" > ${CFG.canaryFile}
-        echo success
-    else
-        echo "no success"
-    fi
-    '`;
+    // if [[ -n "$VAL" ]]; then
+    //     echo $VAL | xargs -I{} echo '\-a "${CFG.vsCodePath}" "vscode://file/{}"' && \
+    //     echo "${count}" > ${CFG.canaryFile}
+    //     echo success
+    // else
+    //     echo "no success"
+    // fi
+    // `;
     count++;
-    console.log(cmd);
-    return cmd;
+    // const cmd2 = `bash -c '${cmd}'`;
+    const cmd2 = 'vscrg.sh';
+    console.log(cmd2);
+    return cmd2;
 };
 
 function handleWorkspaceFoldersChanges() {
@@ -141,7 +151,7 @@ function handleWorkspaceSettingsChanges() {
 export function activate(context: vscode.ExtensionContext) {
     // Because we can't determine what was going on in the terminal panel before,
     // let's just make it a setting for now.
-    CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
+    // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
     handleWorkspaceFoldersChanges();
     handleWorkspaceSettingsChanges();
     reinitialize();
@@ -167,11 +177,14 @@ function reinitialize() {
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
     let watcher;
-    cp.exec('mktemp', (err, stdout, stderr) => {
+    const cmd = CFG.canaryFile ? 'true' : 'mktemp';
+    cp.exec(cmd, (err, stdout, stderr) => {
         if (err) {
             vscode.window.showErrorMessage(`Failed to initialize plugin (failed to create file watcher: "${stdout}${stderr}")`);
         } else {
-            CFG.canaryFile = stdout.trim();
+            if (!CFG.canaryFile) {
+                CFG.canaryFile = stdout.trim();
+            }
             console.log('canary file:', CFG.canaryFile);
             watcher = watch(CFG.canaryFile, (eventType, fileName) => {
                 if (eventType === 'change') {
@@ -180,14 +193,8 @@ function reinitialize() {
                     //     console.log('A different terminal was active before. Focusing back on that one.', term);
                     //     // CFG.lastActiveTerminal.show();
                     // }
-                    // CFG.lastActiveTerminal?.show();
-                    console.log('ping!');
-                    if (CFG.terminalWasVisibleBeforeCommand === false) {
-                        // console.log('hiding terminal', term);
-                        // whichever one we just selected
-                        // vscode.window.activeTerminal?.hide();
+                    if (CFG.hideTerminalAfterUse) {
                         term.hide();
-                        console.log('file changed; hiding term');
                     }
                 }
             });
@@ -213,16 +220,18 @@ function prepareTerminal() {
 }
 
 function showNext() {
-    if (term.exitStatus !== undefined) {
+    if (!term || term.exitStatus !== undefined) {
         prepareTerminal();
     }
     const cmd = getCommand();
     term.sendText(cmd);
-    // vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
     // We can't, with vscode's API, I think, determine whether the terminal panel was open or
     // not, or what it was showing before we took over. This is unfortunate, not sure how to
     // fix it.
     // CFG.terminalWasVisibleBeforeCommand = 
     CFG.lastActiveTerminal = vscode.window.activeTerminal;
+    if (CFG.maximizeTerminal) {
+        vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+    }
     term.show();
 }
