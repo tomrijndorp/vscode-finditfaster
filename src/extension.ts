@@ -8,12 +8,6 @@ import { cwd, uptime } from 'process';
 import * as fs from 'fs';
 import assert = require('assert');
 
-let term: vscode.Terminal;
-// const command = 'fzf --preview "bat --force-colorization --plain {}" | xargs -I{} open "vscode://file/$(pwd)/{}"; clear';
-
-// console.log('cwd: ', process.cwd());
-// const scriptContents = fs.readFileSync('vscrg.sh', {encoding: 'utf-8'});
-// console.log('script contents: ', scriptContents);
 
 /**
  * TODO:
@@ -35,9 +29,7 @@ let term: vscode.Terminal;
  *    for this either, and we'll have to know where VS Code is installed.
  */
 function getCFG<T>(key: string, def?: T) {
-    // const userCfg = vscode.workspace.getConfiguration(CFG.extensionName);
     const userCfg = vscode.workspace.getConfiguration();
-    // console.log('user cfg', userCfg);
     const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
     assert(ret !== undefined);
     return ret;
@@ -55,7 +47,6 @@ const CFG: {
     canaryFile: string | null,
     hideTerminalAfterUse: boolean,
     maximizeTerminal: boolean,
-    lastActiveTerminal: vscode.Terminal | undefined,
     debug: object,
 } = {
     extensionName: 'vscode-ripgrep',
@@ -69,12 +60,14 @@ const CFG: {
     canaryFile: '/tmp/canaryFile',
     hideTerminalAfterUse: false,
     maximizeTerminal: false,
-    lastActiveTerminal: undefined,
     debug: {
         // Because debugging / iterating is such a pain, I'll only occasionally paste the script source in here.
         useExternalScript: true,
     }
 };
+
+// Reference to the terminal we use
+let term: vscode.Terminal;
 
 function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
@@ -88,9 +81,10 @@ function updateConfigWithUserSettings() {
 
 const getCommand = () => {
     // const paths = CFG.folders.join(' ');
-    const cmd = 'vscrg.sh';
+    const wsFoldersStr = CFG.folders.reduce((x, y) => x + `'${y}' `, '');
+    const cmd = `vscrg.sh ${wsFoldersStr}`;
     // const cmd = 'bash -c "$THE_SCRIPT"';
-    // console.log(cmd);
+    console.log(cmd);
     return cmd;
 };
 
@@ -164,11 +158,6 @@ function reinitialize() {
             console.log('canary file:', CFG.canaryFile);
             watcher = fs.watch(CFG.canaryFile, (eventType, fileName) => {
                 if (eventType === 'change') {
-                    // Switch back to the terminal the user was on before running our code
-                    // if (CFG.lastActiveTerminal !== term && CFG.lastActiveTerminal !== undefined) {
-                    //     console.log('A different terminal was active before. Focusing back on that one.', term);
-                    //     // CFG.lastActiveTerminal.show();
-                    // }
                     if (CFG.hideTerminalAfterUse) {
                         term.hide();
                     }
@@ -204,8 +193,6 @@ function showNext() {
     // We can't, with vscode's API, I think, determine whether the terminal panel was open or
     // not, or what it was showing before we took over. This is unfortunate, not sure how to
     // fix it.
-    // CFG.terminalWasVisibleBeforeCommand = 
-    CFG.lastActiveTerminal = vscode.window.activeTerminal;
     if (CFG.maximizeTerminal) {
         vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
     }
