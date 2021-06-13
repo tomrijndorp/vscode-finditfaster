@@ -1,8 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { workspace } from 'vscode';
-
 import * as cp from 'child_process';
 import { cwd, uptime } from 'process';
 // this method is called when your extension is activated
@@ -13,16 +11,17 @@ import assert = require('assert');
 let term: vscode.Terminal;
 // const command = 'fzf --preview "bat --force-colorization --plain {}" | xargs -I{} open "vscode://file/$(pwd)/{}"; clear';
 
-const scriptContents = fs.readFileSync('/Users/tomrijndorp/.dotfiles/system/bin/vscrg.sh', {encoding: 'utf-8'});
-console.log('script contents: ', scriptContents);
+// console.log('cwd: ', process.cwd());
+// const scriptContents = fs.readFileSync('vscrg.sh', {encoding: 'utf-8'});
+// console.log('script contents: ', scriptContents);
 
 /**
  * TODO:
  * [x] Auto hide terminal when done
- * [ ] Handle spaces in filenames
+ * [x] Handle spaces in filenames
  * [ ] Linux support
  * [ ] Windows support
- * [ ] Preferences / options
+ * [x] Preferences / options
  * [ ] SSH sessions?
  */
 
@@ -57,6 +56,7 @@ const CFG: {
     hideTerminalAfterUse: boolean,
     maximizeTerminal: boolean,
     lastActiveTerminal: vscode.Terminal | undefined,
+    debug: object,
 } = {
     extensionName: 'vscode-ripgrep',
     folders: [],
@@ -70,9 +70,11 @@ const CFG: {
     hideTerminalAfterUse: false,
     maximizeTerminal: false,
     lastActiveTerminal: undefined,
+    debug: {
+        // Because debugging / iterating is such a pain, I'll only occasionally paste the script source in here.
+        useExternalScript: true,
+    }
 };
-
-let count = 0;
 
 function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
@@ -85,36 +87,11 @@ function updateConfigWithUserSettings() {
 }
 
 const getCommand = () => {
-    const paths = CFG.folders.join(' ');
-    // const cmd = `
-    // set -uo pipefail
-    // VAL=$( \
-    // rg \
-    //     --files \
-    //     --hidden ${paths} 2>/dev/null \
-    // | fzf \
-    //     --multi \
-    //     --preview "${CFG.previewCommand}" )
-    
-    // echo "$VAL" > /tmp/lastOutput
-    // echo "Got back:"
-    // set -x
-    // echo "$VAL"
-
-    // if [[ -n "$VAL" ]]; then
-    //     echo $VAL | xargs -I{} echo '\-a "${CFG.vsCodePath}" "vscode://file/{}"' && \
-    //     echo "${count}" > ${CFG.canaryFile}
-    //     echo success
-    // else
-    //     echo "no success"
-    // fi
-    // `;
-    count++;
-    // const cmd2 = `bash -c '${cmd}'`;
-    // const cmd2 = 'vscrg.sh';
-    const cmd2 = 'bash -c "$THE_SCRIPT"';
-    console.log(cmd2);
-    return cmd2;
+    // const paths = CFG.folders.join(' ');
+    const cmd = 'vscrg.sh';
+    // const cmd = 'bash -c "$THE_SCRIPT"';
+    // console.log(cmd);
+    return cmd;
 };
 
 function handleWorkspaceFoldersChanges() {
@@ -172,11 +149,6 @@ function reinitialize() {
 
     updateConfigWithUserSettings();
     console.log('plugin config:' ,CFG);
-    // CFG.folders = vscode.workspace.getConfiguration().get<any[]>('folders')?.map(x => x.path) || [];
-    // console.log(`workspace folders: ${CFG.folders}`);
-    // const x = vscode.workspace.getConfiguration().get('folders');
-    // console.log('folders:', x);
-    // TODO figure this out
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
@@ -219,7 +191,7 @@ function prepareTerminal() {
         name: '⚡️',
         cwd: '/Users/tomrijndorp',  // TODO pref
         hideFromUser: true,
-        env: {THE_SCRIPT: scriptContents},
+        // env: {THE_SCRIPT: scriptContents},
     });
 }
 
