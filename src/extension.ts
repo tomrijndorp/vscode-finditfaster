@@ -7,11 +7,14 @@ import * as cp from 'child_process';
 import { cwd, uptime } from 'process';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-import { watch } from 'fs';
+import * as fs from 'fs';
 import assert = require('assert');
 
 let term: vscode.Terminal;
 // const command = 'fzf --preview "bat --force-colorization --plain {}" | xargs -I{} open "vscode://file/$(pwd)/{}"; clear';
+
+const scriptContents = fs.readFileSync('/Users/tomrijndorp/.dotfiles/system/bin/vscrg.sh', {encoding: 'utf-8'});
+console.log('script contents: ', scriptContents);
 
 /**
  * TODO:
@@ -108,7 +111,8 @@ const getCommand = () => {
     // `;
     count++;
     // const cmd2 = `bash -c '${cmd}'`;
-    const cmd2 = 'vscrg.sh';
+    // const cmd2 = 'vscrg.sh';
+    const cmd2 = 'bash -c "$THE_SCRIPT"';
     console.log(cmd2);
     return cmd2;
 };
@@ -186,7 +190,7 @@ function reinitialize() {
                 CFG.canaryFile = stdout.trim();
             }
             console.log('canary file:', CFG.canaryFile);
-            watcher = watch(CFG.canaryFile, (eventType, fileName) => {
+            watcher = fs.watch(CFG.canaryFile, (eventType, fileName) => {
                 if (eventType === 'change') {
                     // Switch back to the terminal the user was on before running our code
                     // if (CFG.lastActiveTerminal !== term && CFG.lastActiveTerminal !== undefined) {
@@ -215,7 +219,7 @@ function prepareTerminal() {
         name: '⚡️',
         cwd: '/Users/tomrijndorp',  // TODO pref
         hideFromUser: true,
-        env: {},
+        env: {THE_SCRIPT: scriptContents},
     });
 }
 
