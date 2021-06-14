@@ -44,8 +44,9 @@ const CFG: {
     workspaceSettings: {
         folders: string[],
     },
-    canaryFile: string | null,
+    canaryFile: string,
     hideTerminalAfterUse: boolean,
+    alsoHideTerminalAfterCancel: boolean,
     maximizeTerminal: boolean,
     debug: object,
 } = {
@@ -59,6 +60,7 @@ const CFG: {
     },
     canaryFile: '/tmp/canaryFile',
     hideTerminalAfterUse: false,
+    alsoHideTerminalAfterCancel: false,
     maximizeTerminal: false,
     debug: {
         // Because debugging / iterating is such a pain, I'll only occasionally paste the script source in here.
@@ -146,7 +148,7 @@ function reinitialize() {
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
-    let watcher;
+    let watcher: fs.FSWatcher;
     const cmd = CFG.canaryFile ? 'true' : 'mktemp';
     cp.exec(cmd, (err, stdout, stderr) => {
         if (err) {
@@ -159,7 +161,22 @@ function reinitialize() {
             watcher = fs.watch(CFG.canaryFile, (eventType, fileName) => {
                 if (eventType === 'change') {
                     if (CFG.hideTerminalAfterUse) {
-                        term.hide();
+                        if (CFG.alsoHideTerminalAfterCancel) {
+                            // always hide
+                            term.hide();
+                        } else {  // don't hide after cancel
+                            // we need to read the file to determine what to do
+                            fs.readFile(CFG.canaryFile, {encoding: 'utf-8'}, (err, data) => {
+                                if (err) {
+                                    // do nothing
+                                } else {
+                                    console.log('file contents: ', data);
+                                    if (data.length > 0 && data[0] === '0') {
+                                        term.hide();
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
             });
