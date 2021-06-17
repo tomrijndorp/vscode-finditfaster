@@ -1,8 +1,11 @@
 {
-  "name": "vscode-ripgrep",
-  "displayName": "vscode-ripgrep",
+  "name": "find-it-faster",
+  "displayName": "FindItFaster",
   "publisher": "xxx",
-  "description": "",
+  "repository": {
+    "url": "https://github.com/tomrijndorp/vscode-findfast"
+  },
+  "description": "Find it, but faster! Leveraging fzf and rg.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.56.0"
@@ -11,52 +14,52 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-ripgrep.shellThing",
+    "onCommand:find-it-faster.shellThing",
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-ripgrep.shellThing",
+        "command": "find-it-faster.invoke",
         "title": "shellThing"
       }
     ],
     "keybindings": [
       {
-        "command": "vscode-ripgrep.shellThing",
+        "command": "find-it-faster.invoke",
         "key": "cmd+shift+j"
       }
     ],
     "configuration": {
-      "title": "⚡ RIPPIT! ⚡",
+      "title": "FindItFaster",
       "properties": {
-        "vscode-ripgrep.general.VS Code Path": {
+        "find-it-faster.general.VS Code Path": {
           "markdownDescription": "Unfortunately, we need this for various reasons, and we can't automatically read it.",
           "type": "string",
           "default": "/Applications/Visual Studio Code.app"
         },
-        "vscode-ripgrep.general.maximizeTerminal": {
+        "find-it-faster.general.maximizeTerminal": {
           "description": "Maximize the terminal area when searching",
           "type": "boolean",
           "default": false
         },
-        "vscode-ripgrep.general.showPreview": {
+        "find-it-faster.general.showPreview": {
           "description": "show a preview when using FZF",
           "type": "boolean",
           "default": true
         },
-        "vscode-ripgrep.general.previewCommand": {
+        "find-it-faster.general.previewCommand": {
           "markdownDescription": "Command that is used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `cat {}`. Recommendation: install `bat` and have code highlighting using e.g. `bat --force-colorization --plain {}`! This option does not do anything if previews are turned off.",
           "type": "string",
           "default": "bat --force-colorization --plain {}"
         },
-        "vscode-ripgrep.general.hideTerminalAfterUse": {
+        "find-it-faster.general.hideTerminalAfterUse": {
           "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking this extension.",
           "type": "boolean",
           "default": false
         },
-        "vscode-ripgrep.general.alsoHideTerminalAfterCancel": {
+        "find-it-faster.general.alsoHideTerminalAfterCancel": {
           "markdownDescription": "Also hide the terminal after the command is canceled (e.g. by pressing escape while selecting files).",
           "type": "boolean",
           "default": false

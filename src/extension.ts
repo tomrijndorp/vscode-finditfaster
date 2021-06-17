@@ -19,25 +19,6 @@ import assert = require('assert');
  * [x] Preferences / options
  * [ ] SSH sessions?
  */
-export function activate(context: vscode.ExtensionContext) {
-    // Because we can't determine what was going on in the terminal panel before,
-    // let's just make it a setting for now.
-    // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
-    const scriptPath = vscode.Uri.file(
-        path.join(context.extensionPath, 'src/myScript.sh'));
-    vscode.window.showInformationMessage(scriptPath.toString());
-    handleWorkspaceFoldersChanges();
-    handleWorkspaceSettingsChanges();
-    reinitialize();
-    vscode.commands.registerCommand('vscode-ripgrep.shellThing', () => {
-        showNext();
-    });
-}
-
-// this method is called when your extension is deactivated
-export function deactivate() {
-}
-
 
 /**
  * Couple of observations:
@@ -69,8 +50,9 @@ const CFG: {
     alsoHideTerminalAfterCancel: boolean,
     maximizeTerminal: boolean,
     debug: object,
+    scriptUri: vscode.Uri | null,
 } = {
-    extensionName: 'vscode-ripgrep',
+    extensionName: 'find-it-faster',
     folders: [],
     vsCodePath: '',
     showPreview: true,
@@ -85,11 +67,30 @@ const CFG: {
     debug: {
         // Because debugging / iterating is such a pain, I'll only occasionally paste the script source in here.
         useExternalScript: true,
-    }
+    },
+    scriptUri: null,
 };
 
 // Reference to the terminal we use
 let term: vscode.Terminal;
+
+export function activate(context: vscode.ExtensionContext) {
+    // Because we can't determine what was going on in the terminal panel before,
+    // let's just make it a setting for now.
+    // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
+    CFG.scriptUri = vscode.Uri.file(
+        path.join(context.extensionPath, 'find_it_faster.sh'));
+    handleWorkspaceFoldersChanges();
+    handleWorkspaceSettingsChanges();
+    reinitialize();
+    vscode.commands.registerCommand(`${CFG.extensionName}.invoke`, () => {
+        showNext();
+    });
+}
+
+// this method is called when your extension is deactivated
+export function deactivate() {
+}
 
 function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
@@ -104,8 +105,10 @@ function updateConfigWithUserSettings() {
 
 const getCommand = () => {
     // const paths = CFG.folders.join(' ');
+    assert(CFG.scriptUri !== null);
+    const theScript = CFG.scriptUri.fsPath;
     const wsFoldersStr = CFG.folders.reduce((x, y) => x + `'${y}' `, '');
-    const cmd = `vscrg.sh ${wsFoldersStr}`;
+    const cmd = `${theScript} ${wsFoldersStr}`;
     // const cmd = 'bash -c "$THE_SCRIPT"';
     console.log(cmd);
     return cmd;
@@ -199,13 +202,14 @@ function reinitialize() {
 function prepareTerminal() {
     // TODO lazy instantiation in case terminal is closed (first use / user closed terminal)
     term = vscode.window.createTerminal({
-        name: '⚡️',
-        cwd: '/Users/tomrijndorp',  // TODO pref
+        name: '⚡ F️indItFaster',
         hideFromUser: true,
-        // env: {THE_SCRIPT: scriptContents},
         env: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             PREVIEW_COMMAND: CFG.previewCommand,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             VSCODE_PATH: CFG.vsCodePath,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             CANARY_FILE: CFG.canaryFile,
         }
     });

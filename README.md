@@ -1,4 +1,4 @@
-# FindFast
+# FindItFaster
 Find it, but faster.
 
 ## Features
