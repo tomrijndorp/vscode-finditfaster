@@ -1,6 +1,7 @@
 {
   "name": "vscode-ripgrep",
   "displayName": "vscode-ripgrep",
+  "publisher": "xxx",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -54,6 +55,11 @@
           "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking this extension.",
           "type": "boolean",
           "default": false
+        },
+        "vscode-ripgrep.general.alsoHideTerminalAfterCancel": {
+          "markdownDescription": "Also hide the terminal after the command is canceled (e.g. by pressing escape while selecting files).",
+          "type": "boolean",
+          "default": false
         }
       }
     }
@@ -64,7 +70,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "vscode:package": "vsce package"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

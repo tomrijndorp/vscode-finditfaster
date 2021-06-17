@@ -6,6 +6,7 @@ import { cwd, uptime } from 'process';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 import * as fs from 'fs';
+import * as path from 'path';
 import assert = require('assert');
 
 
@@ -18,6 +19,25 @@ import assert = require('assert');
  * [x] Preferences / options
  * [ ] SSH sessions?
  */
+export function activate(context: vscode.ExtensionContext) {
+    // Because we can't determine what was going on in the terminal panel before,
+    // let's just make it a setting for now.
+    // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
+    const scriptPath = vscode.Uri.file(
+        path.join(context.extensionPath, 'src/myScript.sh'));
+    vscode.window.showInformationMessage(scriptPath.toString());
+    handleWorkspaceFoldersChanges();
+    handleWorkspaceSettingsChanges();
+    reinitialize();
+    vscode.commands.registerCommand('vscode-ripgrep.shellThing', () => {
+        showNext();
+    });
+}
+
+// this method is called when your extension is deactivated
+export function deactivate() {
+}
+
 
 /**
  * Couple of observations:
@@ -77,6 +97,7 @@ function updateConfigWithUserSettings() {
     CFG.previewCommand = getCFG('general.previewCommand');
     CFG.hideTerminalAfterUse = getCFG('general.hideTerminalAfterUse');
     CFG.maximizeTerminal = getCFG('general.maximizeTerminal');
+    CFG.alsoHideTerminalAfterCancel = getCFG('general.alsoHideTerminalAfterCancel');
 
     assert(CFG.previewCommand !== '');
 }
@@ -124,22 +145,6 @@ function handleWorkspaceSettingsChanges() {
     });
 }
 
-
-export function activate(context: vscode.ExtensionContext) {
-    // Because we can't determine what was going on in the terminal panel before,
-    // let's just make it a setting for now.
-    // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
-    handleWorkspaceFoldersChanges();
-    handleWorkspaceSettingsChanges();
-    reinitialize();
-    vscode.commands.registerCommand('vscode-ripgrep.shellThing', () => {
-        showNext();
-    });
-}
-
-// this method is called when your extension is deactivated
-export function deactivate() {
-}
 
 function reinitialize() {
 
@@ -198,6 +203,11 @@ function prepareTerminal() {
         cwd: '/Users/tomrijndorp',  // TODO pref
         hideFromUser: true,
         // env: {THE_SCRIPT: scriptContents},
+        env: {
+            PREVIEW_COMMAND: CFG.previewCommand,
+            VSCODE_PATH: CFG.vsCodePath,
+            CANARY_FILE: CFG.canaryFile,
+        }
     });
 }
 
