@@ -1,23 +1,17 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
-import { cwd, uptime } from 'process';
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 import * as fs from 'fs';
 import * as path from 'path';
 import assert = require('assert');
-
 
 /**
  * TODO:
  * [x] Auto hide terminal when done
  * [x] Handle spaces in filenames
- * [ ] Linux support
- * [ ] Windows support
  * [x] Preferences / options
- * [ ] SSH sessions?
+ * [ ] Linux support
+ * [ ] SSH session support?
+ * [ ] Windows support
  */
 
 /**
@@ -50,7 +44,8 @@ const CFG: {
     alsoHideTerminalAfterCancel: boolean,
     maximizeTerminal: boolean,
     debug: object,
-    scriptUri: vscode.Uri | null,
+    scriptUri: vscode.Uri | undefined,
+    findWithinUri: vscode.Uri | undefined,
 } = {
     extensionName: 'find-it-faster',
     folders: [],
@@ -68,7 +63,6 @@ const CFG: {
         // Because debugging / iterating is such a pain, I'll only occasionally paste the script source in here.
         useExternalScript: true,
     },
-    scriptUri: null,
 };
 
 // Reference to the terminal we use
@@ -80,6 +74,8 @@ export function activate(context: vscode.ExtensionContext) {
     // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
     CFG.scriptUri = vscode.Uri.file(
         path.join(context.extensionPath, 'find_it_faster.sh'));
+    CFG.findWithinUri = vscode.Uri.file(
+        path.join(context.extensionPath, 'find_it_faster_within.sh'));
     handleWorkspaceFoldersChanges();
     handleWorkspaceSettingsChanges();
     reinitialize();
@@ -103,13 +99,26 @@ function updateConfigWithUserSettings() {
     assert(CFG.previewCommand !== '');
 }
 
-const getCommand = () => {
-    // const paths = CFG.folders.join(' ');
-    assert(CFG.scriptUri !== null);
-    const theScript = CFG.scriptUri.fsPath;
-    const wsFoldersStr = CFG.folders.reduce((x, y) => x + `'${y}' `, '');
+function getWorkspaceFoldersAsString() {
+    // For bash invocation
+    // return CFG.folders.reduce((x, y) => x + `'${y}' `, '');
+    return CFG.folders.reduce((x, y) => x + ` ${y}`);
+}
+
+function getFindWithinCommand() {
+    assert(CFG.findWithinUri !== undefined);
+    const theScript = CFG.findWithinUri.fsPath;
+    const wsFoldersStr = getWorkspaceFoldersAsString();
     const cmd = `${theScript} ${wsFoldersStr}`;
-    // const cmd = 'bash -c "$THE_SCRIPT"';
+    console.log(cmd);
+    return cmd;
+}
+
+const getCommand = () => {
+    assert(CFG.scriptUri !== undefined);
+    const theScript = CFG.scriptUri.fsPath;
+    const wsFoldersStr = getWorkspaceFoldersAsString();
+    const cmd = `${theScript} ${wsFoldersStr}`;
     console.log(cmd);
     return cmd;
 };
@@ -220,6 +229,7 @@ function showNext() {
         prepareTerminal();
     }
     const cmd = getCommand();
+    // const cmd = getFindWithinCommand();
     term.sendText(cmd);
     // We can't, with vscode's API, I think, determine whether the terminal panel was open or
     // not, or what it was showing before we took over. This is unfortunate, not sure how to

@@ -4,6 +4,9 @@
 			"path": ".",
 		},
 		{
+			"path": "./test folder with spaces",
+		},
+		{
 			"path": "/Users/tomrijndorp/Dropbox/_ideas/Shipping",
 		}
 	],
