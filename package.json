@@ -21,21 +21,21 @@
   "contributes": {
     "commands": [
       {
-        "command": "find-it-faster.invoke",
+        "command": "find-it-faster.findFiles",
         "title": "Find It Faster: search file"
       },
       {
-        "command": "find-it-faster.invokeWithin",
+        "command": "find-it-faster.findWithinFiles",
         "title": "Fint It Faster: search within files"
       }
     ],
     "keybindings": [
       {
-        "command": "find-it-faster.invoke",
+        "command": "find-it-faster.findFiles",
         "key": "cmd+shift+j"
       },
       {
-        "command": "find-it-faster.invokeWithin",
+        "command": "find-it-faster.findWithinFiles",
         "key": "cmd+shift+u"
       }
     ],

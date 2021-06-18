@@ -13,12 +13,12 @@ interface Command {
 interface Commands { [key: string]: Command };
 
 const commands: Commands = {
-    'invoke': {
-        script: 'find_it_faster.sh',
+    'findFiles': {
+        script: 'find_files.sh',
         uri: undefined,
     },
-    'invokeWithin': {
-        script: 'find_it_faster_within.sh',
+    'findWithinFiles': {
+        script: 'find_within_files.sh',
         uri: undefined,
     },
 };
@@ -32,9 +32,13 @@ function getCommandString(cmd: Command) {
 
 /**
  * TODO:
+ * [ ] Screenshots using asciinema / svg animations
  * [x] Auto hide terminal when done
  * [x] Handle spaces in filenames
  * [x] Preferences / options
+ * [ ] Make sure people can still run this if they don't have fd / rg / bat. Or maybe say screw it initially
+ *     and see if anybody actually requests it. They'll probably just not request it / install it / not use
+ *     this thing instead, which is fine.
  * [ ] Linux support
  * [ ] SSH session support?
  * [ ] Windows support
@@ -103,8 +107,8 @@ function setupConfig(context: vscode.ExtensionContext) {
     CFG.extensionName = PACKAGE.name;
     assert(CFG.extensionName);
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
-    commands.invoke.uri = local('find_it_faster.sh');
-    commands.invokeWithin.uri = local('find_it_faster_within.sh');
+    commands.findFiles.uri = local('find_files.sh');
+    commands.findWithinFiles.uri = local('find_within_files.sh');
 }
 
 function registerCommands() {
@@ -137,6 +141,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+    term.sendText('disposing this terminal...');
+    term.dispose();
 }
 
 function updateConfigWithUserSettings() {
@@ -260,15 +266,7 @@ function executeTerminalCommand(cmd: string) {
         createTerminal();
     }
 
-    switch (cmd) {
-        case 'invoke':
-            term.sendText(getCommandString(commands.invoke));
-            break;
-        case 'invokeWithin':
-            term.sendText(getCommandString(commands.invokeWithin));
-            break;
-        default:
-            assert(false);
-    }
+    assert(cmd in commands);
+    term.sendText(getCommandString(commands[cmd]));
     term.show();
 }
