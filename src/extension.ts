@@ -3,6 +3,32 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import assert = require('assert');
+// Let's keep it DRY and load the package here
+let PACKAGE: any;
+
+interface Command {
+    script: string,
+    uri: vscode.Uri | undefined,
+};
+interface Commands { [key: string]: Command };
+
+const commands: Commands = {
+    'invoke': {
+        script: 'find_it_faster.sh',
+        uri: undefined,
+    },
+    'invokeWithin': {
+        script: 'find_it_faster_within.sh',
+        uri: undefined,
+    },
+};
+
+function getCommandString(cmd: Command) {
+    assert(cmd.uri);
+    const str = cmd.uri.fsPath;
+    const dirs = getWorkspaceFoldersAsString();
+    return str + ' ' + dirs;
+}
 
 /**
  * TODO:
@@ -30,8 +56,10 @@ function getCFG<T>(key: string, def?: T) {
     return ret;
 }
 
-const CFG: {
-    extensionName: string,
+
+
+interface Config {
+    extensionName: string | undefined,
     folders: string[],
     vsCodePath: string,
     showPreview: boolean,
@@ -44,10 +72,9 @@ const CFG: {
     alsoHideTerminalAfterCancel: boolean,
     maximizeTerminal: boolean,
     debug: object,
-    scriptUri: vscode.Uri | undefined,
-    findWithinUri: vscode.Uri | undefined,
-} = {
-    extensionName: 'find-it-faster',
+};
+const CFG: Config = {
+    extensionName: undefined,
     folders: [],
     vsCodePath: '',
     showPreview: true,
@@ -65,6 +92,29 @@ const CFG: {
     },
 };
 
+function checkExposedFunctions() {
+    for (const x of PACKAGE.contributes.commands) {
+        const fName = x.command.substr(PACKAGE.name.length + '.'.length);
+        assert(fName in commands);
+    }
+}
+
+function setupConfig(context: vscode.ExtensionContext) {
+    CFG.extensionName = PACKAGE.name;
+    assert(CFG.extensionName);
+    const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
+    commands.invoke.uri = local('find_it_faster.sh');
+    commands.invokeWithin.uri = local('find_it_faster_within.sh');
+}
+
+function registerCommands() {
+    Object.entries(commands).map(([k, v]) => {
+        vscode.commands.registerCommand(`${CFG.extensionName}.${k}`, () => {
+            executeTerminalCommand(k);
+        });
+    });
+}
+
 // Reference to the terminal we use
 let term: vscode.Terminal;
 
@@ -72,16 +122,17 @@ export function activate(context: vscode.ExtensionContext) {
     // Because we can't determine what was going on in the terminal panel before,
     // let's just make it a setting for now.
     // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
-    CFG.scriptUri = vscode.Uri.file(
-        path.join(context.extensionPath, 'find_it_faster.sh'));
-    CFG.findWithinUri = vscode.Uri.file(
-        path.join(context.extensionPath, 'find_it_faster_within.sh'));
+    const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
+
+    PACKAGE = JSON.parse(fs.readFileSync(local('package.json').fsPath, 'utf-8'));
+    setupConfig(context);
+    checkExposedFunctions();
+
     handleWorkspaceFoldersChanges();
     handleWorkspaceSettingsChanges();
+
+    registerCommands();
     reinitialize();
-    vscode.commands.registerCommand(`${CFG.extensionName}.invoke`, () => {
-        showNext();
-    });
 }
 
 // this method is called when your extension is deactivated
@@ -93,7 +144,6 @@ function updateConfigWithUserSettings() {
     CFG.showPreview = getCFG('general.showPreview');
     CFG.previewCommand = getCFG('general.previewCommand');
     CFG.hideTerminalAfterUse = getCFG('general.hideTerminalAfterUse');
-    CFG.maximizeTerminal = getCFG('general.maximizeTerminal');
     CFG.alsoHideTerminalAfterCancel = getCFG('general.alsoHideTerminalAfterCancel');
 
     assert(CFG.previewCommand !== '');
@@ -105,23 +155,14 @@ function getWorkspaceFoldersAsString() {
     return CFG.folders.reduce((x, y) => x + ` ${y}`);
 }
 
-function getFindWithinCommand() {
-    assert(CFG.findWithinUri !== undefined);
-    const theScript = CFG.findWithinUri.fsPath;
-    const wsFoldersStr = getWorkspaceFoldersAsString();
-    const cmd = `${theScript} ${wsFoldersStr}`;
-    console.log(cmd);
-    return cmd;
-}
-
-const getCommand = () => {
-    assert(CFG.scriptUri !== undefined);
-    const theScript = CFG.scriptUri.fsPath;
-    const wsFoldersStr = getWorkspaceFoldersAsString();
-    const cmd = `${theScript} ${wsFoldersStr}`;
-    console.log(cmd);
-    return cmd;
-};
+// const getCommand = () => {
+//     assert(CFG.scriptUri !== undefined);
+//     const theScript = CFG.scriptUri.fsPath;
+//     const wsFoldersStr = getWorkspaceFoldersAsString();
+//     const cmd = `${theScript} ${wsFoldersStr}`;
+//     console.log(cmd);
+//     return cmd;
+// };
 
 function handleWorkspaceFoldersChanges() {
     const updateFolders = () => {
@@ -161,7 +202,7 @@ function handleWorkspaceSettingsChanges() {
 function reinitialize() {
 
     updateConfigWithUserSettings();
-    console.log('plugin config:' ,CFG);
+    console.log('plugin config:', CFG);
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
@@ -183,7 +224,7 @@ function reinitialize() {
                             term.hide();
                         } else {  // don't hide after cancel
                             // we need to read the file to determine what to do
-                            fs.readFile(CFG.canaryFile, {encoding: 'utf-8'}, (err, data) => {
+                            fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
                                 if (err) {
                                     // do nothing
                                 } else {
@@ -201,14 +242,14 @@ function reinitialize() {
             //
             // Prepare the terminal for first use. We already enter the command so the user doesn't have to wait.
             //
-            prepareTerminal();
+            createTerminal();
 
         }
     });
 
 }
 
-function prepareTerminal() {
+function createTerminal() {
     // TODO lazy instantiation in case terminal is closed (first use / user closed terminal)
     term = vscode.window.createTerminal({
         name: '⚡ F️indItFaster',
@@ -224,18 +265,39 @@ function prepareTerminal() {
     });
 }
 
-function showNext() {
+function executeTerminalCommand(cmd: string) {
     if (!term || term.exitStatus !== undefined) {
-        prepareTerminal();
+        createTerminal();
     }
-    const cmd = getCommand();
-    // const cmd = getFindWithinCommand();
-    term.sendText(cmd);
-    // We can't, with vscode's API, I think, determine whether the terminal panel was open or
-    // not, or what it was showing before we took over. This is unfortunate, not sure how to
-    // fix it.
-    if (CFG.maximizeTerminal) {
-        vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+
+    switch (cmd) {
+        case 'invoke':
+            term.sendText(getCommandString(commands.invoke));
+            break;
+        case 'invokeWithin':
+            term.sendText(getCommandString(commands.invokeWithin));
+            break;
+        default:
+            assert(false);
     }
+    // TODO figure out whether it's nicer UX to first send and then show or vice versa.
+    // term.sendText(cmd);
     term.show();
 }
+
+// function showNext() {
+//     if (!term || term.exitStatus !== undefined) {
+//         createTerminal();
+//     }
+//     const cmd = getCommand();
+//     // const cmd = getFindWithinCommand();
+//     term.sendText(cmd);
+//     // We can't, with vscode's API, I think, determine whether the terminal panel was open or
+//     // not, or what it was showing before we took over. This is unfortunate, not sure how to
+//     // fix it.
+//     // if (CFG.maximizeTerminal) {
+//     //     Can't do this because VS Code only exposes a toggle action. So we can't query the current state.
+//     //     vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+//     // }
+//     term.show();
+// }

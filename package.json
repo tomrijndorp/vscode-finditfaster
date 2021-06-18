@@ -22,13 +22,21 @@
     "commands": [
       {
         "command": "find-it-faster.invoke",
-        "title": "shellThing"
+        "title": "Find It Faster: search file"
+      },
+      {
+        "command": "find-it-faster.invokeWithin",
+        "title": "Fint It Faster: search within files"
       }
     ],
     "keybindings": [
       {
         "command": "find-it-faster.invoke",
         "key": "cmd+shift+j"
+      },
+      {
+        "command": "find-it-faster.invokeWithin",
+        "key": "cmd+shift+u"
       }
     ],
     "configuration": {
@@ -38,11 +46,6 @@
           "markdownDescription": "Unfortunately, we need this for various reasons, and we can't automatically read it.",
           "type": "string",
           "default": "/Applications/Visual Studio Code.app"
-        },
-        "find-it-faster.general.maximizeTerminal": {
-          "description": "Maximize the terminal area when searching",
-          "type": "boolean",
-          "default": false
         },
         "find-it-faster.general.showPreview": {
           "description": "show a preview when using FZF",
