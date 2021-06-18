@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -uo pipefail  # No -e to support write to canary file after cancel
 
 PREVIEW_COMMAND=${PREVIEW_COMMAND:-'bat --force-colorization --plain {}'}
 VSCODE_PATH=${VSCODE_PATH:-'/Applications/Visual Studio Code.app'}

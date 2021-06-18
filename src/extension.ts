@@ -68,9 +68,9 @@ interface Config {
         folders: string[],
     },
     canaryFile: string,
-    hideTerminalAfterUse: boolean,
+    hideTerminalAfterSuccess: boolean,
+    hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
-    alsoHideTerminalAfterCancel: boolean,
     maximizeTerminal: boolean,
     debug: object,
 };
@@ -84,9 +84,9 @@ const CFG: Config = {
         folders: [],
     },
     canaryFile: '/tmp/canaryFile',
-    hideTerminalAfterUse: false,
+    hideTerminalAfterSuccess: false,
+    hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
-    alsoHideTerminalAfterCancel: false,
     maximizeTerminal: false,
     debug: {
     },
@@ -143,8 +143,8 @@ function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
     CFG.showPreview = getCFG('general.showPreview');
     CFG.previewCommand = getCFG('general.previewCommand');
-    CFG.hideTerminalAfterUse = getCFG('general.hideTerminalAfterUse');
-    CFG.alsoHideTerminalAfterCancel = getCFG('general.alsoHideTerminalAfterCancel');
+    CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
+    CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
 
     assert(CFG.previewCommand !== '');
@@ -213,23 +213,24 @@ function reinitialize() {
                         term.sendText('clear');
                     }
 
-                    if (CFG.hideTerminalAfterUse) {
-                        if (CFG.alsoHideTerminalAfterCancel) {
-                            // always hide
-                            term.hide();
-                        } else {  // don't hide after cancel
-                            // we need to read the file to determine what to do
-                            fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
-                                if (err) {
-                                    // do nothing
+                    if (CFG.hideTerminalAfterSuccess && CFG.hideTerminalAfterFail) {
+                        term.hide();
+                    } else {
+                        // we need to read the file to determine what to do
+                        fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
+                            if (err) {
+                                // We shouldn't really end up here. Maybe leave the terminal around in this case...
+                            } else {
+                                const commandWasSuccess = data.length > 0 && data[0] === '0';
+                                if (commandWasSuccess && CFG.hideTerminalAfterSuccess) {
+                                    term.hide();
+                                } else if (!commandWasSuccess && CFG.hideTerminalAfterFail) {
+                                    term.hide();
                                 } else {
-                                    console.log('file contents: ', data);
-                                    if (data.length > 0 && data[0] === '0') {
-                                        term.hide();
-                                    }
+                                    // Don't hide the terminal and make clippy angry
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             });

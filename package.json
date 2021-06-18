@@ -57,13 +57,13 @@
           "type": "string",
           "default": "bat --force-colorization --plain {}"
         },
-        "find-it-faster.general.hideTerminalAfterUse": {
-          "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking this extension.",
+        "find-it-faster.general.hideTerminalAfterSuccess": {
+          "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking a command that fails / is canceled.",
           "type": "boolean",
           "default": false
         },
-        "find-it-faster.general.alsoHideTerminalAfterCancel": {
-          "markdownDescription": "Also hide the terminal after the command is canceled (e.g. by pressing escape while selecting files).",
+        "find-it-faster.general.hideTerminalAfterFail": {
+          "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking a command that succeeds.",
           "type": "boolean",
           "default": false
         },

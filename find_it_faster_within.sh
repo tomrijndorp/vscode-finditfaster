@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail  # No -e to support write to canary file after cancel
 
 # 1. Search for text in files using Ripgrep
 # 2. Interactively restart Ripgrep with reload action
