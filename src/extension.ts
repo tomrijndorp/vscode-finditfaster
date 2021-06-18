@@ -40,6 +40,11 @@ function getCommandString(cmd: Command) {
  *     and see if anybody actually requests it. They'll probably just not request it / install it / not use
  *     this thing instead, which is fine.
  * [ ] Linux support
+ *     [ ] C-K is default chord in VS Code, so can't use it to navigate up/down in fzf
+ *     [ ] bat: force-colorization doesn't work?
+ *     [ ] need xdg-open instead of open
+ *     [ ] `code` command is not always installed. Doesn't work with vscode:// uris.
+ *         But there is a code.url-handler binary that does.
  * [ ] SSH session support?
  */
 
@@ -159,8 +164,6 @@ function updateConfigWithUserSettings() {
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
-
-    assert(CFG.previewCommand !== '');
 }
 
 function getWorkspaceFoldersAsString() {

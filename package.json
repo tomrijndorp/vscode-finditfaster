@@ -14,8 +14,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:find-it-faster.shellThing",
-    "onStartupFinished"
+    "onCommand:find-it-faster.findFiles",
+    "onCommand:find-it-faster.findWithinFiles"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -26,17 +26,19 @@
       },
       {
         "command": "find-it-faster.findWithinFiles",
-        "title": "Fint It Faster: search within files"
+        "title": "Find It Faster: search within files"
       }
     ],
     "keybindings": [
       {
         "command": "find-it-faster.findFiles",
-        "key": "cmd+shift+j"
+        "key": "cmd+shift+j",
+        "linux": "ctrl+shift+j"
       },
       {
         "command": "find-it-faster.findWithinFiles",
-        "key": "cmd+shift+u"
+        "key": "cmd+shift+u",
+        "linux": "ctrl+shift+u"
       }
     ],
     "configuration": {
