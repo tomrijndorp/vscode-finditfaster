@@ -41,7 +41,6 @@ function getCommandString(cmd: Command) {
  *     this thing instead, which is fine.
  * [ ] Linux support
  * [ ] SSH session support?
- * [ ] Windows support
  */
 
 /**
@@ -67,7 +66,10 @@ interface Config {
     folders: string[],
     vsCodePath: string,
     showPreview: boolean,
-    previewCommand: string,
+    findFilesPreviewCommand: string,
+    findFilesPreviewWindowConfig: string,
+    findWithinFilesPreviewCommand: string,
+    findWithinFilesPreviewWindowConfig: string,
     workspaceSettings: {
         folders: string[],
     },
@@ -83,7 +85,10 @@ const CFG: Config = {
     folders: [],
     vsCodePath: '',
     showPreview: true,
-    previewCommand: '',
+    findFilesPreviewCommand: '',
+    findFilesPreviewWindowConfig: '',
+    findWithinFilesPreviewCommand: '',
+    findWithinFilesPreviewWindowConfig: '',
     workspaceSettings: {
         folders: [],
     },
@@ -141,14 +146,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-    term.sendText('disposing this terminal...');
-    term.dispose();
+    term?.dispose();
 }
 
 function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
     CFG.showPreview = getCFG('general.showPreview');
-    CFG.previewCommand = getCFG('general.previewCommand');
+    CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
+    CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
+    CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
+    CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
@@ -192,12 +199,16 @@ function handleWorkspaceFoldersChanges() {
 function handleWorkspaceSettingsChanges() {
     vscode.workspace.onDidChangeConfiguration(e => {
         updateConfigWithUserSettings();
+
+        // For good measure; we need to update the env vars in the terminal
+        reinitialize();
     });
 }
 
 
 function reinitialize() {
 
+    term?.dispose();
     updateConfigWithUserSettings();
     console.log('plugin config:', CFG);
     //
@@ -251,12 +262,14 @@ function createTerminal() {
         name: '⚡ F️indItFaster',
         hideFromUser: true,
         env: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            PREVIEW_COMMAND: CFG.previewCommand,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
+            /* eslint-disable @typescript-eslint/naming-convention */
+            FIND_FILES_PREVIEW_COMMAND: CFG.findFilesPreviewCommand,
+            FIND_FILES_PREVIEW_WINDOW_CONFIG: CFG.findFilesPreviewWindowConfig,
+            FIND_WITHIN_FILES_PREVIEW_COMMAND: CFG.findWithinFilesPreviewCommand,
+            FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
             VSCODE_PATH: CFG.vsCodePath,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
             CANARY_FILE: CFG.canaryFile,
+            /* eslint-enable @typescript-eslint/naming-convention */
         }
     });
 }

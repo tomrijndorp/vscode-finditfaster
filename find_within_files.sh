@@ -14,9 +14,9 @@ RG_PREFIX="rg \
     --colors 'path:fg:white' \
     --colors 'path:style:nobold' \
     "
-# full, plain, changes, header,  grid,  rule,
-#               numbers, snip
-BAT_CMD='bat --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'
+
+PREVIEW_CMD=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'cat'}
+PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right,50%,border-left,+{2}+3/3,~3'}
     
 # We match against the beginning of the line so everything matches but nothing gets highlighted
 INITIAL_REGEX="^"
@@ -32,8 +32,8 @@ IFS=: read -ra VAL < <(
       --disabled --query "" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $PATHS_STR || true" \
       --delimiter : \
-      --preview "$BAT_CMD" \
-      --preview-window 'right,50%,border-left,+{2}+3/3,~3'
+      --preview "$PREVIEW_CMD" \
+      --preview-window "$PREVIEW_WINDOW"
 )
 # Output is filename, line number, character, contents
 

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -uo pipefail  # No -e to support write to canary file after cancel
 
-PREVIEW_COMMAND=${PREVIEW_COMMAND:-'bat --force-colorization --plain {}'}
+PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'cat'}
+PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'50%,border-left'}
 VSCODE_PATH=${VSCODE_PATH:-'/Applications/Visual Studio Code.app'}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
 PATHS=("$@")
@@ -14,6 +15,7 @@ callfzf () {
     | fzf \
         --multi \
         --preview "$PREVIEW_COMMAND" \
+        --preview-window "$PREVIEW_WINDOW" \
     | tee /tmp/lastOutput
 }
 
