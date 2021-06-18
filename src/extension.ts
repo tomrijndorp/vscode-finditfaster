@@ -69,6 +69,7 @@ interface Config {
     },
     canaryFile: string,
     hideTerminalAfterUse: boolean,
+    clearTerminalAfterUse: boolean,
     alsoHideTerminalAfterCancel: boolean,
     maximizeTerminal: boolean,
     debug: object,
@@ -84,11 +85,10 @@ const CFG: Config = {
     },
     canaryFile: '/tmp/canaryFile',
     hideTerminalAfterUse: false,
+    clearTerminalAfterUse: false,
     alsoHideTerminalAfterCancel: false,
     maximizeTerminal: false,
     debug: {
-        // Because debugging / iterating is such a pain, I'll only occasionally paste the script source in here.
-        useExternalScript: true,
     },
 };
 
@@ -145,24 +145,15 @@ function updateConfigWithUserSettings() {
     CFG.previewCommand = getCFG('general.previewCommand');
     CFG.hideTerminalAfterUse = getCFG('general.hideTerminalAfterUse');
     CFG.alsoHideTerminalAfterCancel = getCFG('general.alsoHideTerminalAfterCancel');
+    CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
 
     assert(CFG.previewCommand !== '');
 }
 
 function getWorkspaceFoldersAsString() {
     // For bash invocation
-    // return CFG.folders.reduce((x, y) => x + `'${y}' `, '');
     return CFG.folders.reduce((x, y) => x + ` ${y}`);
 }
-
-// const getCommand = () => {
-//     assert(CFG.scriptUri !== undefined);
-//     const theScript = CFG.scriptUri.fsPath;
-//     const wsFoldersStr = getWorkspaceFoldersAsString();
-//     const cmd = `${theScript} ${wsFoldersStr}`;
-//     console.log(cmd);
-//     return cmd;
-// };
 
 function handleWorkspaceFoldersChanges() {
     const updateFolders = () => {
@@ -218,6 +209,10 @@ function reinitialize() {
             console.log('canary file:', CFG.canaryFile);
             watcher = fs.watch(CFG.canaryFile, (eventType, fileName) => {
                 if (eventType === 'change') {
+                    if (CFG.clearTerminalAfterUse) {
+                        term.sendText('clear');
+                    }
+
                     if (CFG.hideTerminalAfterUse) {
                         if (CFG.alsoHideTerminalAfterCancel) {
                             // always hide
@@ -238,12 +233,6 @@ function reinitialize() {
                     }
                 }
             });
-
-            //
-            // Prepare the terminal for first use. We already enter the command so the user doesn't have to wait.
-            //
-            createTerminal();
-
         }
     });
 
@@ -280,24 +269,5 @@ function executeTerminalCommand(cmd: string) {
         default:
             assert(false);
     }
-    // TODO figure out whether it's nicer UX to first send and then show or vice versa.
-    // term.sendText(cmd);
     term.show();
 }
-
-// function showNext() {
-//     if (!term || term.exitStatus !== undefined) {
-//         createTerminal();
-//     }
-//     const cmd = getCommand();
-//     // const cmd = getFindWithinCommand();
-//     term.sendText(cmd);
-//     // We can't, with vscode's API, I think, determine whether the terminal panel was open or
-//     // not, or what it was showing before we took over. This is unfortunate, not sure how to
-//     // fix it.
-//     // if (CFG.maximizeTerminal) {
-//     //     Can't do this because VS Code only exposes a toggle action. So we can't query the current state.
-//     //     vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
-//     // }
-//     term.show();
-// }

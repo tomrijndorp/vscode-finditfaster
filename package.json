@@ -53,7 +53,7 @@
           "default": true
         },
         "find-it-faster.general.previewCommand": {
-          "markdownDescription": "Command that is used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `cat {}`. Recommendation: install `bat` and have code highlighting using e.g. `bat --force-colorization --plain {}`! This option does not do anything if previews are turned off.",
+          "markdownDescription": "Command that is used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `cat {}`. Recommendation: install `bat` and have code highlighting using e.g. `bat --force-colorization --theme='1337' --plain {}`! This option does not do anything if previews are turned off.",
           "type": "string",
           "default": "bat --force-colorization --plain {}"
         },
@@ -64,6 +64,11 @@
         },
         "find-it-faster.general.alsoHideTerminalAfterCancel": {
           "markdownDescription": "Also hide the terminal after the command is canceled (e.g. by pressing escape while selecting files).",
+          "type": "boolean",
+          "default": false
+        },
+        "find-it-faster.general.clearTerminalAfterUse": {
+          "markdownDescription": "Sends a 'clear' command after invoking a terminal command for a cleaner look",
           "type": "boolean",
           "default": false
         }
