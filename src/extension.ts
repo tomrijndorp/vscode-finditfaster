@@ -3,14 +3,20 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import assert = require('assert');
-// Let's keep it DRY and load the package here
+// Let's keep it DRY and load the package here so we can reuse some data from it
 let PACKAGE: any;
 
 interface Command {
     script: string,
     uri: vscode.Uri | undefined,
-};
-interface Commands { [key: string]: Command };
+}
+interface Commands { [key: string]: Command }
+
+enum Platform {
+    mac,
+    linux,
+    windows,
+}
 
 //
 // Define the commands we expose. URIs are poopulated upon extension activation
@@ -37,9 +43,6 @@ const commands: Commands = {
  * [x] Auto hide terminal when done
  * [x] Handle spaces in filenames
  * [x] Preferences / options
- * [ ] Make sure people can still run this if they don't have fd / rg / bat. Or maybe say screw it initially
- *     and see if anybody actually requests it. They'll probably just not request it / install it / not use
- *     this thing instead, which is fine.
  * [ ] Linux support
  *     [ ] C-K is default chord in VS Code, so can't use it to navigate up/down in fzf
  *     [ ] bat: force-colorization doesn't work?
@@ -86,8 +89,12 @@ interface Config {
     hideTerminalAfterSuccess: boolean,
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
-    maximizeTerminal: boolean,
+    platform: Platform | undefined,
     debug: object,
+    isFirstExecution: boolean,
+    linuxVsCodeCommand: string,
+    macOsVsCodePath: string,
+    macOsVsCodeBundleIdentifier: string,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -104,9 +111,13 @@ const CFG: Config = {
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
-    maximizeTerminal: false,
+    platform: undefined,
     debug: {
     },
+    isFirstExecution: true,
+    linuxVsCodeCommand: '',
+    macOsVsCodePath: '',
+    macOsVsCodeBundleIdentifier: '',
 };
 
 function checkExposedFunctions() {
@@ -153,10 +164,10 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {
     term?.dispose();
+    // clean up canaryFile?
 }
 
 function updateConfigWithUserSettings() {
-    CFG.vsCodePath = getCFG('general.VS Code Path');
     CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
@@ -164,6 +175,9 @@ function updateConfigWithUserSettings() {
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
+    CFG.linuxVsCodeCommand = getCFG('linux.VS Code command');
+    CFG.macOsVsCodeBundleIdentifier = getCFG('macOS.VS Code bundle identifier');
+    CFG.macOsVsCodePath = getCFG('macOS.VS Code path');
 }
 
 function getWorkspaceFoldersAsString() {
@@ -208,13 +222,49 @@ function handleWorkspaceSettingsChanges() {
     });
 }
 
+function doFlightCheck() {
+    const parseKeyValue = (line: string) => {
+        return line.split(': ', 2);
+    };
+
+    try {
+        let errStr = '';
+        const kvs: any = {};
+        const out = cp.execFileSync(getCommandString(commands.flightCheck, false), { shell: true }).toString('utf-8');
+        out.split('\n').map(x => {
+            const maybeKV = parseKeyValue(x);
+            if (maybeKV.length === 2) {
+                kvs[maybeKV[0]] = maybeKV[1];
+            }
+        });
+        console.log(kvs);
+        if (kvs['which bat'] === undefined || kvs['which bat'] === '') {
+            errStr += 'bat not found on your PATH\n. ';
+        }
+        if (kvs['which fzf'] === undefined || kvs['which fzf'] === '') {
+            errStr += 'fzf not found on your PATH\n. ';
+        }
+        if (kvs['which rg'] === undefined || kvs['which rg'] === '') {
+            errStr += 'rg not found on your PATH\n. ';
+        }
+        if (errStr !== '') {
+            vscode.window.showErrorMessage(`Failed to activate plugin: ${errStr}\nMake sure you have the required command line tools installed as outlined in the README.`);
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to run checks before starting extension. Maybe this is helpful: ${error}`);
+    }
+}
+
 
 function reinitialize() {
 
     term?.dispose();
     updateConfigWithUserSettings();
     console.log('plugin config:', CFG);
-    executeTerminalCommand('flightCheck');
+    if (CFG.isFirstExecution) {
+        doFlightCheck();
+        CFG.isFirstExecution = false;
+    }
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
@@ -271,18 +321,25 @@ function createTerminal() {
             FIND_FILES_PREVIEW_WINDOW_CONFIG: CFG.findFilesPreviewWindowConfig,
             FIND_WITHIN_FILES_PREVIEW_COMMAND: CFG.findWithinFilesPreviewCommand,
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
+            LINUX_VSCODE_REF: CFG.linuxVsCodeCommand,
+            OSX_VSCODE_REF: CFG.macOsVsCodePath !== '' ? CFG.macOsVsCodePath
+                                                       : CFG.macOsVsCodeBundleIdentifier,
             VSCODE_PATH: CFG.vsCodePath,
             CANARY_FILE: CFG.canaryFile,
             /* eslint-enable @typescript-eslint/naming-convention */
-        }
+        },
     });
 }
 
-function getCommandString(cmd: Command) {
+function getCommandString(cmd: Command, withArgs: boolean = true) {
     assert(cmd.uri);
     const str = cmd.uri.fsPath;
-    const dirs = getWorkspaceFoldersAsString();
-    return str + ' ' + dirs;
+    if (withArgs) {
+        const dirs = getWorkspaceFoldersAsString();
+        return str + ' ' + dirs;
+    } else {
+        return str;
+    }
 }
 
 function executeTerminalCommand(cmd: string) {

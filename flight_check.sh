@@ -1,8 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
-clear
-echo "Flight check:"
+echo "Pre-Flight check:"
+echo "-----------------"
+
+echo "Checking you have the required command line tools installed..."
+echo "which bat: $(which bat)"
+echo "which fzf: $(which fzf)"
+echo "which rg: $(which rg)"
+echo "-----------------"
+
+echo "Checking versions of the installed command line tools..."
 echo "bat version: $(bat --version)"
 echo "fzf version: $(fzf --version)"
-echo "rg  version: $(rg --version)"
+echo "rg version: $(rg --version)"
+echo "-----------------"
+
+echo "OK"
