@@ -25,6 +25,10 @@ const commands: Commands = {
         script: 'find_within_files.sh',
         uri: undefined,
     },
+    'flightCheck': {
+        script: 'flight_check.sh',
+        uri: undefined,
+    }
 };
 
 /**
@@ -118,6 +122,7 @@ function setupConfig(context: vscode.ExtensionContext) {
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
     commands.findFiles.uri = local('find_files.sh');
     commands.findWithinFiles.uri = local('find_within_files.sh');
+    commands.flightCheck.uri = local('flight_check.sh');
 }
 
 function registerCommands() {
@@ -209,6 +214,7 @@ function reinitialize() {
     term?.dispose();
     updateConfigWithUserSettings();
     console.log('plugin config:', CFG);
+    executeTerminalCommand('flightCheck');
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //

@@ -15,9 +15,17 @@ RG_PREFIX="rg \
     --colors 'path:style:nobold' \
     "
 
-PREVIEW_CMD=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'cat'}
-PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right,50%,border-left,+{2}+3/3,~3'}
-    
+PREVIEW_CMD=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'cat {1}'}
+PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG}
+
+FZF_VER=$(fzf --version)
+FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
+FZF_VER_MIN=$(echo "$FZF_VER" | cut -d. -f2)
+if [[ $FZF_VER_MAJ -eq 0 && $FZF_VER_MIN -lt 26 ]]; then
+    PREVIEW_CMD='bat {1} --color=always --highlight-line {2} --line-range {2}:'
+    PREVIEW_WINDOW='right:50%'
+fi
+
 # We match against the beginning of the line so everything matches but nothing gets highlighted
 INITIAL_REGEX="^"
 PATHS=("$@")
@@ -29,15 +37,14 @@ PATHS_STR="${PATHS[*]}"
 IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$RG_PREFIX $INITIAL_REGEX $PATHS_STR" \
   fzf --ansi \
+      --delimiter : \
       --phony --query "" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $PATHS_STR || true" \
-      --delimiter : \
       --preview "$PREVIEW_CMD" \
       --preview-window "$PREVIEW_WINDOW"
 )
 # Output is filename, line number, character, contents
 
-# echo "We got ${VAL[*]}"
 if [[ ${#VAL[@]} -eq 0 ]]; then
     echo canceled
     echo "1" > "$CANARY_FILE"

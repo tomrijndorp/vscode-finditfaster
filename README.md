@@ -37,15 +37,19 @@ your time.
 
 ## Known Issues
 
-**See the GUI settings**. Things are as good as they can be, but VS Code has limited API functionality
-around how we can manage the terminal panel, so things are not _quite_ as polished as they could be
-in terms of managing e.g. editor focus, but it's close.
+**See the GUI settings**. VS Code has limited API functionality around how we can manage the
+terminal panel, so things are not _quite_ as polished as they could be in terms of managing e.g.
+editor focus, but it's close.
 
 **Not tested on Windows**. Likely won't work. I don't know enough about WSL to tell you whether this
 could work. If you want to contribute, this would be an awesome place to do it.  
 For completeness: this extension was tested in a limited capacity under the following
 configurations:
 - MacOS 11.0.1, VS Code 1.57.1 or thereabouts
+
+**Older `fzf` versions**. In order to limit some complexity, we ignore some user settings for the
+"Find Within Files" command when your `fzf` version is less than 0.26. Things will still work
+decently well though and this shouldn't affect most users.
 
 ## FAQ
 
