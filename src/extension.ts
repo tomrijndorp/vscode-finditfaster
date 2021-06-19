@@ -12,6 +12,10 @@ interface Command {
 };
 interface Commands { [key: string]: Command };
 
+//
+// Define the commands we expose. URIs are poopulated upon extension activation
+// because only then we'll know the actual paths.
+//
 const commands: Commands = {
     'findFiles': {
         script: 'find_files.sh',
@@ -22,13 +26,6 @@ const commands: Commands = {
         uri: undefined,
     },
 };
-
-function getCommandString(cmd: Command) {
-    assert(cmd.uri);
-    const str = cmd.uri.fsPath;
-    const dirs = getWorkspaceFoldersAsString();
-    return str + ' ' + dirs;
-}
 
 /**
  * TODO:
@@ -45,17 +42,21 @@ function getCommandString(cmd: Command) {
  *     [ ] need xdg-open instead of open
  *     [ ] `code` command is not always installed. Doesn't work with vscode:// uris.
  *         But there is a code.url-handler binary that does.
+ *     [ ] border-left etc is not supported on default 20.04 install... noborder does work.
  * [ ] SSH session support?
  */
 
 /**
  * Couple of observations:
- * 
- * 1. On Mac OS, opening using open with a URI is _way_ faster than using the `code` command.
- * 2. Depending on the file extension, XCode (?!) will complain that no application is registered,
- *    _even though_ the URI starts with vscode://.
- *    Therefore, we'll pass in the application path. Unfortunately, we can't use the `code` command
- *    for this either, and we'll have to know where VS Code is installed.
+ *
+ * 1. On Mac OS, opening using open with a URI is _way_ faster than using the
+ *    `code` command.
+ * 2. Depending on the file extension, XCode (?!) will complain that no
+ *    application is registered, _even though_ the URI starts with vscode://.
+ *    Therefore, we'll pass in the application path using open -a.
+ *    Unfortunately, we can't use the `code` command for this either, and we'll
+ *    have to know where VS Code is installed.
+ * 3. The same is kind of true for Linux, where we need to find code.url-handler.
  */
 function getCFG<T>(key: string, def?: T) {
     const userCfg = vscode.workspace.getConfiguration();
@@ -70,7 +71,6 @@ interface Config {
     extensionName: string | undefined,
     folders: string[],
     vsCodePath: string,
-    showPreview: boolean,
     findFilesPreviewCommand: string,
     findFilesPreviewWindowConfig: string,
     findWithinFilesPreviewCommand: string,
@@ -89,7 +89,6 @@ const CFG: Config = {
     extensionName: undefined,
     folders: [],
     vsCodePath: '',
-    showPreview: true,
     findFilesPreviewCommand: '',
     findFilesPreviewWindowConfig: '',
     findWithinFilesPreviewCommand: '',
@@ -133,9 +132,6 @@ function registerCommands() {
 let term: vscode.Terminal;
 
 export function activate(context: vscode.ExtensionContext) {
-    // Because we can't determine what was going on in the terminal panel before,
-    // let's just make it a setting for now.
-    // CFG.terminalWasVisibleBeforeCommand = false;  // so now we'll always close it
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
 
     PACKAGE = JSON.parse(fs.readFileSync(local('package.json').fsPath, 'utf-8'));
@@ -156,7 +152,6 @@ export function deactivate() {
 
 function updateConfigWithUserSettings() {
     CFG.vsCodePath = getCFG('general.VS Code Path');
-    CFG.showPreview = getCFG('general.showPreview');
     CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
@@ -275,6 +270,13 @@ function createTerminal() {
             /* eslint-enable @typescript-eslint/naming-convention */
         }
     });
+}
+
+function getCommandString(cmd: Command) {
+    assert(cmd.uri);
+    const str = cmd.uri.fsPath;
+    const dirs = getWorkspaceFoldersAsString();
+    return str + ' ' + dirs;
 }
 
 function executeTerminalCommand(cmd: string) {

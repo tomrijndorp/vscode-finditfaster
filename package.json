@@ -32,12 +32,12 @@
     "keybindings": [
       {
         "command": "find-it-faster.findFiles",
-        "key": "cmd+shift+j",
+        "mac": "cmd+shift+j",
         "linux": "ctrl+shift+j"
       },
       {
         "command": "find-it-faster.findWithinFiles",
-        "key": "cmd+shift+u",
+        "mac": "cmd+shift+u",
         "linux": "ctrl+shift+u"
       }
     ],
@@ -49,30 +49,25 @@
           "type": "string",
           "default": "/Applications/Visual Studio Code.app"
         },
-        "find-it-faster.general.showPreview": {
-          "description": "show a preview when using FZF",
-          "type": "boolean",
-          "default": true
-        },
         "find-it-faster.findFiles.previewCommand": {
           "markdownDescription": "Command that is used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `cat {}`. Recommendation: install `bat` and have code highlighting using e.g. `bat --force-colorization --theme='1337' --plain {}`! This option does not do anything if previews are turned off.",
           "type": "string",
-          "default": "bat --force-colorization --plain {} --theme='1337'"
+          "default": "bat --decorations=always --color=always --plain {} --theme=1337"
         },
         "find-it-faster.findFiles.previewWindowConfig": {
           "markdownDescription": "Used by `fzf` to determine position and look of the preview window. See the `fzf` documentation. Example for a horizontal split: `top,50%,border-bottom`",
           "type": "string",
-          "default": "right,50%,border-left"
+          "default": "right,50%"
         },
         "find-it-faster.findWithinFiles.previewCommand": {
           "markdownDescription": "Command that is used by `fzf` to produce the preview when searching within files. Use `{1}` to indicate the filename, `{2}` for the line number.",
           "type": "string",
-          "default": "bat --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid"
+          "default": "bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid"
         },
         "find-it-faster.findWithinFiles.previewWindowConfig": {
           "markdownDescription": "Used by `fzf` to determine position and look of the preview window. See the `fzf` documentation. Example for a horizontal split: `top,50%,border-bottom,+{2}+3/3,~3`",
           "type": "string",
-          "default": "right,50%,border-left,+{2}+3/3,~3"
+          "default": "right,50%,+{2}+3/3,~3"
         },
         "find-it-faster.general.hideTerminalAfterSuccess": {
           "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking a command that fails / is canceled.",

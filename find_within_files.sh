@@ -29,7 +29,7 @@ PATHS_STR="${PATHS[*]}"
 IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$RG_PREFIX $INITIAL_REGEX $PATHS_STR" \
   fzf --ansi \
-      --disabled --query "" \
+      --phony --query "" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $PATHS_STR || true" \
       --delimiter : \
       --preview "$PREVIEW_CMD" \
