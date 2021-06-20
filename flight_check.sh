@@ -4,6 +4,10 @@ set -euo pipefail
 echo "Pre-Flight check:"
 echo "-----------------"
 
+echo "Checking your OS version..."
+echo "OS: $(uname) $(uname -r)"
+echo "-----------------"
+
 echo "Checking you have the required command line tools installed..."
 echo "which bat: $(which bat)"
 echo "which fzf: $(which fzf)"

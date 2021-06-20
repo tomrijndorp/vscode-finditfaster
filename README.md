@@ -125,3 +125,21 @@ decently well though and this shouldn't affect most users.
 
 ### 0.0.1
 You gotta start somewhere!
+
+Tested on these configurations:
+
+**Mac OS**:
+```
+OS         : Darwin 20.1.0 (MacOS Big Sur 11.0.1)
+bat version: bat 0.18.0
+fzf version: 0.27.1 (brew)
+rg version : ripgrep 13.0.0
+```
+
+**Linux**:
+```
+OS         : Linux 5.8.0-55-generic (Ubuntu 20.04)
+bat version: bat 0.12.1
+fzf version: 0.20.0
+rg version : ripgrep 12.1.1 (rev 7cb211378a)
+```
