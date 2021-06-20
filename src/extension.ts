@@ -182,7 +182,7 @@ function updateConfigWithUserSettings() {
 
 function getWorkspaceFoldersAsString() {
     // For bash invocation
-    return CFG.folders.reduce((x, y) => x + ` ${y}`);
+    return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
 }
 
 function handleWorkspaceFoldersChanges() {
@@ -192,7 +192,7 @@ function handleWorkspaceFoldersChanges() {
             CFG.folders = ['.'];   // best we can do
         } else {
             CFG.folders = dirs.map(x => {
-                const uri = x.uri.toString();
+                const uri = decodeURI(x.uri.toString());
                 if (uri.substr(0, 7) === 'file://') {
                     return uri.substr(7);
                 } else {
@@ -336,7 +336,7 @@ function getCommandString(cmd: Command, withArgs: boolean = true) {
     const str = cmd.uri.fsPath;
     if (withArgs) {
         const dirs = getWorkspaceFoldersAsString();
-        return str + ' ' + dirs;
+        return `${str} ${dirs}`;
     } else {
         return str;
     }
