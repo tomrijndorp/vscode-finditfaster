@@ -6,6 +6,7 @@ set -uo pipefail  # No -e to support write to canary file after cancel
 # 3. Open the file in Vim
 RG_PREFIX="rg \
     --column \
+    --hidden \
     --line-number \
     --no-heading \
     --color=always \
@@ -29,19 +30,17 @@ fi
 # We match against the beginning of the line so everything matches but nothing gets highlighted
 INITIAL_REGEX="^"
 PATHS=("$@")
-PATHS_STR="${PATHS[*]}"
 
-# FZF_DEFAULT_COMMAND=
-FZF="$RG_PREFIX $INITIAL_REGEX"
-FZF="$FZF $(printf "'%s' " "${PATHS[@]}")"
-echo "$FZF"
+FZF_CMD="$RG_PREFIX $INITIAL_REGEX"
+FZF_CMD="$FZF_CMD $(printf "'%s' " "${PATHS[@]}")"
+echo "$FZF_CMD"
 # exit 1
 # IFS sets the delimiter
 # -r: raw
 # -a: array
 set -x
 IFS=: read -ra VAL < <(
-  FZF_DEFAULT_COMMAND="$FZF" \
+  FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
       --delimiter : \
       --phony --query "" \

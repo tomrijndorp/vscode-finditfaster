@@ -8,19 +8,6 @@ OSX_VSCODE_REF=${OSX_VSCODE_REF:-'com.microsoft.VSCode'}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
 PATHS=("$@")
 
-# exit 1
-# echo "<$PATHS>"
-# exit 1
-# IFS=: read -ra PATHS <<< "$PATHS"
-# echo "<<${PATHS[1]}>"
-# "$(while((${#PATHS})); do echo "\'${PATHS[0]}\'"; shift; done)"
-# PATHS=(one two three)
-# for P in "${PATHS[@]}"; do
-#     echo "$P"
-# done
-# PATHS=(one two three)
-# echo $(printf "'%s' " "${PATHS[@]}")
-
 callfzf () {
     rg \
         --files \
