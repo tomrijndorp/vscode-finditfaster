@@ -80,6 +80,11 @@
           "type": "boolean",
           "default": false
         },
+        "find-it-faster.general.showMaximizedTerminal": {
+          "markdownDescription": "Show the terminal in full screen. Works especially nicely if you set the \"hide after succes / fail\" options in these preferences.",
+          "type": "boolean",
+          "default": false
+        },
         "find-it-faster.linux.VS Code command": {
           "markdownDescription": "By default, we'll try to open files by invoking `code --goto PATH [...PATHS]`. If you use e.g. VS Code insiders and you use `code-insiders` to call it, specify that command here. Alternatively, specify the full path to your VS Code instance, e.g. `/snap/bin/code-insiders`.",
           "type": "string",

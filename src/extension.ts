@@ -95,6 +95,7 @@ interface Config {
     linuxVsCodeCommand: string,
     macOsVsCodePath: string,
     macOsVsCodeBundleIdentifier: string,
+    showMaximizedTerminal: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -118,6 +119,7 @@ const CFG: Config = {
     linuxVsCodeCommand: '',
     macOsVsCodePath: '',
     macOsVsCodeBundleIdentifier: '',
+    showMaximizedTerminal: false,
 };
 
 function checkExposedFunctions() {
@@ -175,6 +177,7 @@ function updateConfigWithUserSettings() {
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
+    CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
     CFG.linuxVsCodeCommand = getCFG('linux.VS Code command');
     CFG.macOsVsCodeBundleIdentifier = getCFG('macOS.VS Code bundle identifier');
     CFG.macOsVsCodePath = getCFG('macOS.VS Code path');
@@ -349,5 +352,8 @@ function executeTerminalCommand(cmd: string) {
 
     assert(cmd in commands);
     term.sendText(getCommandString(commands[cmd]));
+    if (CFG.showMaximizedTerminal) {
+        vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+    }
     term.show();
 }
