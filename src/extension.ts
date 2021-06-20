@@ -313,7 +313,7 @@ function reinitialize() {
 function createTerminal() {
     // TODO lazy instantiation in case terminal is closed (first use / user closed terminal)
     term = vscode.window.createTerminal({
-        name: '⚡ F️indItFaster',
+        name: 'F️indItFaster',
         hideFromUser: true,
         env: {
             /* eslint-disable @typescript-eslint/naming-convention */

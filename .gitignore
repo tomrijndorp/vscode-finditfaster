@@ -5,3 +5,4 @@ node_modules
 *.vsix
 **/*.swp
 **/.DS_Store
+releases

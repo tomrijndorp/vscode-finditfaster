@@ -50,9 +50,6 @@ editor focus, but it's close.
 
 **Not tested on Windows**. Likely won't work. I don't know enough about WSL to tell you whether this
 could work. If you want to contribute, this would be an awesome place to do it.  
-For completeness: this extension was tested in a limited capacity under the following
-configurations:
-- MacOS 11.0.1, VS Code 1.57.1 or thereabouts
 
 **Older `fzf` versions**. In order to limit some complexity, we ignore some user settings for the
 "Find Within Files" command when your `fzf` version is less than 0.26. Things will still work
@@ -60,13 +57,18 @@ decently well though and this shouldn't affect most users.
 
 <hr />
 
+## Planned features
+- Support for remote sessions: ssh (definitely), docker, codespaces (if it's little overhead)
+- See if it's possible to ignore the same files the project settings ignore
+
 ## FAQ
 
 ### 🕹 _How do I control the fuzzy finder view?_
 ➥ Whatever defaults are present on your system (and read by VS Code) are used. For `fzf`, this means
-&lt;Ctrl+K&gt; moves the selection up, &lt;Ctrl+J&gt; moves down, and &lt;Enter&gt; selects.
-&lt;TAB&gt; for multiple select when available. Read the excellent `fzf`
-[documentation](https://github.com/junegunn/fzf#readme) to learn more about it.
+&lt;Ctrl+K&gt; moves the selection up, &lt;Ctrl+J&gt; moves down, and &lt;Enter&gt; selects. You can
+also use the up and down arrows if that's your thing. &lt;TAB&gt; for multiple select when
+available. Read the excellent `fzf` [documentation](https://github.com/junegunn/fzf#readme) to learn
+more about using `fzf`.
 
 ### 🐞 _I found a bug!_  
 ➥ Yeah, that's not unlikely. There are a lot of edge cases with this sort of tooling. Three options:
@@ -92,14 +94,18 @@ decently well though and this shouldn't affect most users.
   ln -s ~/.vscode/extensions/<PLUGIN_NAME.VERSION>/find_files.sh /usr/local/bin/fif
   ```
   Or copy them, remix, and make your own, of course. These scripts were heavily inspired by
-  documentation on `fzf`, `rg`, and `bat` in the first place!
+  documentation on `fzf`, `rg`, and `bat` in the first place! Note: these scripts are currently
+  really only 50% written with the idea in mind, so you have to know some bash scripting in order
+  to get this to work. And really, when you strip out all the VS Code logic, there's not that much
+  left.
 
 ### 💩 _I don't like `fzf` / `rg` / `bat`. Can I just use `find`, `grep`, and `cat` or something else?_  
 ➥ This is not impossible for me to do, but realistically, there's little value to it. The experience
-  will never be quite as good, and won't be as performant either. `rg` especially is a beast that
-  outperforms `grep` and even tools like `ag`. Give them a try. Alternatively, create a Github issue
-  if it doesn't already exist, and I might do something if it's straightforward and enough people
-  give it a thumbs up.
+  will never be quite as good, and won't be as performant either.  
+  `rg` especially is a beast that outperforms `grep` and even tools like `ag`. Give them a try.
+  Plus, not supporting additional tools means more time to make this extension better and fewer
+  opportunities for creating bugs. You can file a Github issue and see if there's support for it,
+  but unless people _really_ want this it's unlikely I'll support it.
 
 ### 🧘 _Can you give focus back to my editor / my problems panel / other?_
 ➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
