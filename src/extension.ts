@@ -97,6 +97,7 @@ interface Config {
     macOsVsCodeBundleIdentifier: string,
     showMaximizedTerminal: boolean,
     flightCheckPassed: boolean,
+    defaultSearchLocation: string,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -122,6 +123,7 @@ const CFG: Config = {
     macOsVsCodeBundleIdentifier: '',
     showMaximizedTerminal: false,
     flightCheckPassed: false,
+    defaultSearchLocation: '',
 };
 
 function checkExposedFunctions() {
@@ -172,22 +174,32 @@ export function deactivate() {
 }
 
 function updateConfigWithUserSettings() {
-    CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
-    CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
-    CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
+    CFG.defaultSearchLocation              = getCFG('general.defaultSearchLocation');
+    CFG.hideTerminalAfterSuccess           = getCFG('general.hideTerminalAfterSuccess');
+    CFG.hideTerminalAfterFail              = getCFG('general.hideTerminalAfterFail');
+    CFG.clearTerminalAfterUse              = getCFG('general.clearTerminalAfterUse');
+    CFG.showMaximizedTerminal              = getCFG('general.showMaximizedTerminal');
+    CFG.findFilesPreviewCommand            = getCFG('findFiles.previewCommand');
+    CFG.findFilesPreviewWindowConfig       = getCFG('findFiles.previewWindowConfig');
+    CFG.findWithinFilesPreviewCommand      = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
-    CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
-    CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
-    CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
-    CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
-    CFG.linuxVsCodeCommand = getCFG('linux.VS Code command');
-    CFG.macOsVsCodeBundleIdentifier = getCFG('macOS.VS Code bundle identifier');
-    CFG.macOsVsCodePath = getCFG('macOS.VS Code path');
+    CFG.linuxVsCodeCommand                 = getCFG('linux.VS Code command');
+    CFG.macOsVsCodeBundleIdentifier        = getCFG('macOS.VS Code bundle identifier');
+    CFG.macOsVsCodePath                    = getCFG('macOS.VS Code path');
 }
 
 function getWorkspaceFoldersAsString() {
     // For bash invocation
     return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
+}
+
+function getOpenFilesAsString() {
+    // textDocuments seems to be a little buggy. When I have:
+    // - extension.ts, README.md, find_files.sh open, it returns:
+    // '/.../finditfaster/src/extension.ts' '/.../finditfaster/tsconfig.json' '/.../finditfaster/src/extension.ts.git'???
+    // I don't even know what that last file is.
+    const textDocs = vscode.workspace.textDocuments.map(x => x.fileName).filter(x => x.startsWith('/'));
+    return textDocs.reduce((x, y) => x + ` '${y}'`, '');
 }
 
 function handleWorkspaceFoldersChanges() {
@@ -348,14 +360,18 @@ function getCommandString(cmd: Command, withArgs: boolean = true) {
     assert(cmd.uri);
     const str = cmd.uri.fsPath;
     if (withArgs) {
-        const dirs = getWorkspaceFoldersAsString();
-        return `${str} ${dirs}`;
+        let paths = getWorkspaceFoldersAsString();
+        if (CFG.folders.length === 0) {  // no workspace folders
+            paths = CFG.defaultSearchLocation;
+        }
+        return `${str} ${paths}`;
     } else {
         return str;
     }
 }
 
 function executeTerminalCommand(cmd: string) {
+    console.log(vscode.workspace.textDocuments);
     if (!CFG.flightCheckPassed) {
         if (!reinitialize()) {
             return;
