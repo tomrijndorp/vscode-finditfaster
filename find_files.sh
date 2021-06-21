@@ -12,6 +12,7 @@ callfzf () {
     rg \
         --files \
         --hidden \
+        --glob '!**/.git/' \
         "${PATHS[@]}" \
     | fzf \
         --multi \
