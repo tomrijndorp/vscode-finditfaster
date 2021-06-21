@@ -65,7 +65,7 @@ const commands: Commands = {
  *    have to know where VS Code is installed.
  * 3. The same is kind of true for Linux, where we need to find code.url-handler.
  */
-function getCFG<T>(key: string, def?: T) {
+function getCFG<T>(key: string) {
     const userCfg = vscode.workspace.getConfiguration();
     const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
     assert(ret !== undefined);
@@ -139,7 +139,7 @@ function setupConfig(context: vscode.ExtensionContext) {
 }
 
 function registerCommands() {
-    Object.entries(commands).map(([k, v]) => {
+    Object.keys(commands).map((k) => {
         vscode.commands.registerCommand(`${CFG.extensionName}.${k}`, () => {
             executeTerminalCommand(k);
         });
@@ -217,7 +217,7 @@ function handleWorkspaceFoldersChanges() {
 }
 
 function handleWorkspaceSettingsChanges() {
-    vscode.workspace.onDidChangeConfiguration(e => {
+    vscode.workspace.onDidChangeConfiguration(_ => {
         updateConfigWithUserSettings();
 
         // For good measure; we need to update the env vars in the terminal
@@ -281,7 +281,7 @@ function reinitialize() {
                 CFG.canaryFile = stdout.trim();
             }
             console.log('canary file:', CFG.canaryFile);
-            watcher = fs.watch(CFG.canaryFile, (eventType, fileName) => {
+            watcher = fs.watch(CFG.canaryFile, (eventType, _) => {
                 if (eventType === 'change') {
                     if (CFG.clearTerminalAfterUse) {
                         term.sendText('clear');
