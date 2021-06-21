@@ -38,7 +38,6 @@ echo "$FZF_CMD"
 # IFS sets the delimiter
 # -r: raw
 # -a: array
-set -x
 IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
