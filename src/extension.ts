@@ -96,6 +96,7 @@ interface Config {
     macOsVsCodePath: string,
     macOsVsCodeBundleIdentifier: string,
     showMaximizedTerminal: boolean,
+    flightCheckPassed: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -120,6 +121,7 @@ const CFG: Config = {
     macOsVsCodePath: '',
     macOsVsCodeBundleIdentifier: '',
     showMaximizedTerminal: false,
+    flightCheckPassed: false,
 };
 
 function checkExposedFunctions() {
@@ -225,7 +227,7 @@ function handleWorkspaceSettingsChanges() {
     });
 }
 
-function doFlightCheck() {
+function doFlightCheck(): boolean {
     const parseKeyValue = (line: string) => {
         return line.split(': ', 2);
     };
@@ -253,8 +255,11 @@ function doFlightCheck() {
         if (errStr !== '') {
             vscode.window.showErrorMessage(`Failed to activate plugin: ${errStr}\nMake sure you have the required command line tools installed as outlined in the README.`);
         }
+
+        return errStr === '';
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to run checks before starting extension. Maybe this is helpful: ${error}`);
+        return false;
     }
 }
 
@@ -265,9 +270,14 @@ function reinitialize() {
     updateConfigWithUserSettings();
     console.log('plugin config:', CFG);
     if (CFG.isFirstExecution) {
-        doFlightCheck();
-        CFG.isFirstExecution = false;
+        CFG.flightCheckPassed = doFlightCheck();
     }
+
+    if (!CFG.flightCheckPassed) {
+        return false;
+    }
+
+    CFG.isFirstExecution = false;
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
@@ -310,7 +320,7 @@ function reinitialize() {
             });
         }
     });
-
+    return true;
 }
 
 function createTerminal() {
@@ -346,6 +356,12 @@ function getCommandString(cmd: Command, withArgs: boolean = true) {
 }
 
 function executeTerminalCommand(cmd: string) {
+    if (!CFG.flightCheckPassed) {
+        if (!reinitialize()) {
+            return;
+        }
+    }
+
     if (!term || term.exitStatus !== undefined) {
         createTerminal();
     }
