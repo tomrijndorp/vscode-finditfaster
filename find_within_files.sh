@@ -54,6 +54,6 @@ if [[ ${#VAL[@]} -eq 0 ]]; then
     echo "1" > "$CANARY_FILE"
     exit 1
 else
-    FILENAME=${VAL[0]}:${VAL[1]}
-    "$(dirname "$0")/open_file.sh" "$FILENAME"
+    FILENAME=${VAL[0]}:${VAL[1]}:${VAL[2]}
+    echo "$FILENAME" > "$CANARY_FILE"
 fi

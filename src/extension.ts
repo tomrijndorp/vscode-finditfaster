@@ -101,6 +101,7 @@ interface Config {
     showMaximizedTerminal: boolean,
     flightCheckPassed: boolean,
     defaultSearchLocation: string,
+    extensionPath: string,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -113,7 +114,7 @@ const CFG: Config = {
     workspaceSettings: {
         folders: [],
     },
-    canaryFile: '/tmp/canaryFile',
+    canaryFile: '',
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
@@ -127,6 +128,7 @@ const CFG: Config = {
     showMaximizedTerminal: false,
     flightCheckPassed: false,
     defaultSearchLocation: '',
+    extensionPath: '',
 };
 
 function checkExposedFunctions() {
@@ -157,7 +159,8 @@ function registerCommands() {
 let term: vscode.Terminal;
 
 export function activate(context: vscode.ExtensionContext) {
-    const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
+    CFG.extensionPath = context.extensionPath;
+    const local = (x: string) => vscode.Uri.file(path.join(CFG.extensionPath, x));
 
     PACKAGE = JSON.parse(fs.readFileSync(local('package.json').fsPath, 'utf-8'));
     setupConfig(context);
@@ -173,6 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {
     term?.dispose();
+    fs.rmSync(CFG.canaryFile, {force: true});
     // clean up canaryFile?
 }
 
@@ -295,24 +299,15 @@ function reinitialize() {
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
-    let watcher: fs.FSWatcher;
-    const cmd = CFG.canaryFile ? 'true' : 'mktemp';
-    cp.exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            vscode.window.showErrorMessage(`Failed to initialize plugin (failed to create file watcher: "${stdout}${stderr}")`);
-        } else {
-            if (!CFG.canaryFile) {
-                CFG.canaryFile = stdout.trim();
-            }
-            console.log('canary file:', CFG.canaryFile);
-            watcher = fs.watch(CFG.canaryFile, (eventType) => {
-                if (eventType === 'change') {
-                    handleCanaryFileChange();
-                    console.log('file changed');
-                } else if (eventType === 'rename') {
-                    console.log('file renamed');
-                }
-            });
+    CFG.canaryFile = path.join(CFG.extensionPath, '.snitch');
+    fs.writeFileSync(CFG.canaryFile, '');
+    console.log('canary file:', CFG.canaryFile);
+    fs.watch(CFG.canaryFile, (eventType) => {
+        if (eventType === 'change') {
+            handleCanaryFileChange();
+        } else if (eventType === 'rename') {
+            vscode.window.showErrorMessage('??');
+            console.log('file renamed');
         }
     });
     return true;
@@ -322,7 +317,18 @@ function openFiles(data: string) {
     const filePaths = data.split('\n').filter(s => s !== '');
     assert(filePaths.length > 0);
     filePaths.forEach(p => {
-        vscode.window.showTextDocument(vscode.Uri.file(p), {preview: false});
+        const [file, lineTmp, charTmp] = p.split(':', 3);
+        let line = 0, char = 0;
+        let range = new vscode.Range(0, 0, 0, 0);
+        if (lineTmp !== undefined) {
+            if (charTmp !== undefined) {
+                char = parseInt(charTmp) - 1;  // 1 based in rg, 0 based in VS Code
+            }
+            line = parseInt(lineTmp) - 1;  // 1 based in rg, 0 based in VS Code
+            assert(line >= 0);
+            assert(char >= 0);
+        }
+        vscode.window.showTextDocument(vscode.Uri.file(file), {preview: false, selection: new vscode.Range(line, char, line, char)});
     });
 }
 

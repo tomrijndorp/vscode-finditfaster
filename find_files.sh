@@ -27,8 +27,5 @@ if [[ -z "$VAL" ]]; then
     echo "1" > "$CANARY_FILE"
     exit 1
 else
-    # echo "$VAL" | while read -r FILENAME; do
-    #     "$(dirname "$0")/open_file.sh" "$FILENAME"
-    # done
     echo "$VAL" > "$CANARY_FILE"
 fi
