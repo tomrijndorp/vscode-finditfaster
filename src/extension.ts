@@ -12,12 +12,6 @@ interface Command {
 }
 interface Commands { [key: string]: Command }
 
-enum Platform {
-    mac,
-    linux,
-    windows,
-}
-
 //
 // Define the commands we expose. URIs are poopulated upon extension activation
 // because only then we'll know the actual paths.
@@ -40,7 +34,7 @@ const commands: Commands = {
 /**
  * TODO:
  * [ ] Screenshots using asciinema / svg animations
- * [ ] Remove open_file.sh. Instead, write file list to file and open them from within Code.
+ * [x] Remove open_file.sh. Instead, write file list to file and open them from within Code.
  *     How will this work with SSH sessions?
  * [ ] Show relative paths whenever possible
  * [x] Auto hide terminal when done
@@ -50,9 +44,9 @@ const commands: Commands = {
  *     [x] C-K is default chord in VS Code, so can't use it to navigate up/down in fzf
  *     [x] bat: force-colorization doesn't work?
  *     [x] need xdg-open instead of open
- *     [ ] `code` command is not always installed. Doesn't work with vscode:// uris.
+ *     [x] `code` command is not always installed. Doesn't work with vscode:// uris.
  *         But there is a code.url-handler binary that does.
- *     [ ] border-left etc is not supported on default 20.04 install... noborder does work.
+ *     [x] border-left etc is not supported on default 20.04 install... noborder does work.
  * [ ] SSH session support?
  */
 
@@ -92,8 +86,6 @@ interface Config {
     hideTerminalAfterSuccess: boolean,
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
-    platform: Platform | undefined,
-    debug: object,
     isFirstExecution: boolean,
     linuxVsCodeCommand: string,
     macOsVsCodePath: string,
@@ -118,9 +110,6 @@ const CFG: Config = {
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
-    platform: undefined,
-    debug: {
-    },
     isFirstExecution: true,
     linuxVsCodeCommand: '',
     macOsVsCodePath: '',
