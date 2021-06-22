@@ -1,4 +1,4 @@
-# `FindItFaster`
+# FindItFaster
 Finds it, but faster. Make sure to check the [requirements](#requirements) below.
 
 <hr />
@@ -10,6 +10,8 @@ slow), or when you simply love using `fzf` and `rg`.
 This extension exposes two commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 2. Search within files for text and open them. Uses of combination of `fzf`, `rg`, and `bat`.
+
+This extension has also been tested on remote workspaces (e.g. SSH sessions).
 
 <hr />
 

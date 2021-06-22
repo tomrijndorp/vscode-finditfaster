@@ -2,6 +2,7 @@
   "name": "find-it-faster",
   "displayName": "FindItFaster",
   "publisher": "xxx",
+  "icon": "icon.png",
   "repository": {
     "url": "https://github.com/tomrijndorp/vscode-findfast"
   },
@@ -48,17 +49,17 @@
         "find-it-faster.general.hideTerminalAfterSuccess": {
           "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking a command that fails / is canceled.",
           "type": "boolean",
-          "default": false
+          "default": true
         },
         "find-it-faster.general.hideTerminalAfterFail": {
           "markdownDescription": "Extensions have limited control over the terminal panel. Ideally, it would be possible to automatically switch back to the previous thing you were doing (e.g. hide the terminal, show the terminal you're working on, show the tasks panel if that's what you were on), but we can't. Select here whether you want the terminal to be hidden or remain shown after invoking a command that succeeds.",
           "type": "boolean",
-          "default": false
+          "default": true
         },
         "find-it-faster.general.clearTerminalAfterUse": {
           "markdownDescription": "Sends a 'clear' command after invoking a terminal command for a cleaner look",
           "type": "boolean",
-          "default": false
+          "default": true
         },
         "find-it-faster.general.showMaximizedTerminal": {
           "markdownDescription": "Show the terminal in full screen. Works especially nicely if you set the \"hide after succes / fail\" options in these preferences.",
@@ -89,21 +90,6 @@
           "markdownDescription": "Used by `fzf` to determine position and look of the preview window. See the `fzf` documentation. Example for a horizontal split: `top,50%,border-bottom,+{2}+3/3,~3`, **Note**: setting is ignored when `fzf --version` < 0.26.",
           "type": "string",
           "default": "right:50%:+{2}+3/3:~3"
-        },
-        "find-it-faster.linux.VS Code command": {
-          "markdownDescription": "By default, we'll try to open files by invoking `code --goto PATH [...PATHS]`. If you use e.g. VS Code insiders and you use `code-insiders` to call it, specify that command here. Alternatively, specify the full path to your VS Code instance, e.g. `/snap/bin/code-insiders`.",
-          "type": "string",
-          "default": "code"
-        },
-        "find-it-faster.macOS.VS Code path": {
-          "markdownDescription": "If somehow we open files in a new instance of VS Code on MacOS, try providing the path to the application here; e.g. `/Applications/Visual Studio Code.app`. If specified, it will override the bundle identifier field.",
-          "type": "string",
-          "default": ""
-        },
-        "find-it-faster.macOS.VS Code bundle identifier": {
-          "markdownDescription": "If you use the insiders (beta) version of VS Code, change this identifier to `com.microsoft.VSCodeInsiders`.",
-          "type": "string",
-          "default": "com.microsoft.VSCode"
         }
       }
     }

@@ -74,7 +74,6 @@ function getCFG<T>(key: string) {
 interface Config {
     extensionName: string | undefined,
     folders: string[],
-    vsCodePath: string,
     findFilesPreviewCommand: string,
     findFilesPreviewWindowConfig: string,
     findWithinFilesPreviewCommand: string,
@@ -87,9 +86,6 @@ interface Config {
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
     isFirstExecution: boolean,
-    linuxVsCodeCommand: string,
-    macOsVsCodePath: string,
-    macOsVsCodeBundleIdentifier: string,
     showMaximizedTerminal: boolean,
     flightCheckPassed: boolean,
     defaultSearchLocation: string,
@@ -98,7 +94,6 @@ interface Config {
 const CFG: Config = {
     extensionName: undefined,
     folders: [],
-    vsCodePath: '',
     findFilesPreviewCommand: '',
     findFilesPreviewWindowConfig: '',
     findWithinFilesPreviewCommand: '',
@@ -111,9 +106,6 @@ const CFG: Config = {
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
     isFirstExecution: true,
-    linuxVsCodeCommand: '',
-    macOsVsCodePath: '',
-    macOsVsCodeBundleIdentifier: '',
     showMaximizedTerminal: false,
     flightCheckPassed: false,
     defaultSearchLocation: '',
@@ -179,9 +171,6 @@ function updateConfigWithUserSettings() {
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
-    CFG.linuxVsCodeCommand = getCFG('linux.VS Code command');
-    CFG.macOsVsCodeBundleIdentifier = getCFG('macOS.VS Code bundle identifier');
-    CFG.macOsVsCodePath = getCFG('macOS.VS Code path');
 }
 
 function getWorkspaceFoldersAsString() {
@@ -295,7 +284,7 @@ function reinitialize() {
         if (eventType === 'change') {
             handleCanaryFileChange();
         } else if (eventType === 'rename') {
-            vscode.window.showErrorMessage('??');
+            vscode.window.showErrorMessage(`Issue detected with extension ${CFG.extensionName}. You may have to reload it.`);
             console.log('file renamed');
         }
     });
@@ -360,10 +349,6 @@ function createTerminal() {
             FIND_FILES_PREVIEW_WINDOW_CONFIG: CFG.findFilesPreviewWindowConfig,
             FIND_WITHIN_FILES_PREVIEW_COMMAND: CFG.findWithinFilesPreviewCommand,
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
-            LINUX_VSCODE_REF: CFG.linuxVsCodeCommand,
-            OSX_VSCODE_REF: CFG.macOsVsCodePath !== '' ? CFG.macOsVsCodePath
-                : CFG.macOsVsCodeBundleIdentifier,
-            VSCODE_PATH: CFG.vsCodePath,
             CANARY_FILE: CFG.canaryFile,
             /* eslint-enable @typescript-eslint/naming-convention */
         },
