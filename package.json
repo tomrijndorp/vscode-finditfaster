@@ -4,9 +4,10 @@
   "publisher": "xxx",
   "icon": "media/icon.png",
   "repository": {
-    "url": "https://github.com/tomrijndorp/vscode-findfast"
+    "url": "https://github.com/tomrijndorp/vscode-finditfaster"
   },
   "description": "Find it, but faster! Leveraging fzf and rg.",
+  "keywords": ["fuzzy", "finder", "fzf", "rg", "ripgrep", "bat", "batcat"],
   "version": "0.0.2",
   "engines": {
     "vscode": "^1.56.0"
