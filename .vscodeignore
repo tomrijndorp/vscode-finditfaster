@@ -13,3 +13,4 @@ vsc-extension-quickstart.md
 **/*.svg
 **/*.mov
 **/*.code-workspace
+media/convert_mov
