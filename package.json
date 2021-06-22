@@ -6,7 +6,7 @@
     "url": "https://github.com/tomrijndorp/vscode-findfast"
   },
   "description": "Find it, but faster! Leveraging fzf and rg.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.56.0"
   },

@@ -40,13 +40,16 @@ const commands: Commands = {
 /**
  * TODO:
  * [ ] Screenshots using asciinema / svg animations
+ * [ ] Remove open_file.sh. Instead, write file list to file and open them from within Code.
+ *     How will this work with SSH sessions?
+ * [ ] Show relative paths whenever possible
  * [x] Auto hide terminal when done
  * [x] Handle spaces in filenames
  * [x] Preferences / options
- * [ ] Linux support
- *     [ ] C-K is default chord in VS Code, so can't use it to navigate up/down in fzf
- *     [ ] bat: force-colorization doesn't work?
- *     [ ] need xdg-open instead of open
+ * [x] Linux support
+ *     [x] C-K is default chord in VS Code, so can't use it to navigate up/down in fzf
+ *     [x] bat: force-colorization doesn't work?
+ *     [x] need xdg-open instead of open
  *     [ ] `code` command is not always installed. Doesn't work with vscode:// uris.
  *         But there is a code.url-handler binary that does.
  *     [ ] border-left etc is not supported on default 20.04 install... noborder does work.
@@ -174,18 +177,18 @@ export function deactivate() {
 }
 
 function updateConfigWithUserSettings() {
-    CFG.defaultSearchLocation              = getCFG('general.defaultSearchLocation');
-    CFG.hideTerminalAfterSuccess           = getCFG('general.hideTerminalAfterSuccess');
-    CFG.hideTerminalAfterFail              = getCFG('general.hideTerminalAfterFail');
-    CFG.clearTerminalAfterUse              = getCFG('general.clearTerminalAfterUse');
-    CFG.showMaximizedTerminal              = getCFG('general.showMaximizedTerminal');
-    CFG.findFilesPreviewCommand            = getCFG('findFiles.previewCommand');
-    CFG.findFilesPreviewWindowConfig       = getCFG('findFiles.previewWindowConfig');
-    CFG.findWithinFilesPreviewCommand      = getCFG('findWithinFiles.previewCommand');
+    CFG.defaultSearchLocation = getCFG('general.defaultSearchLocation');
+    CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
+    CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
+    CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
+    CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
+    CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
+    CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
+    CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
-    CFG.linuxVsCodeCommand                 = getCFG('linux.VS Code command');
-    CFG.macOsVsCodeBundleIdentifier        = getCFG('macOS.VS Code bundle identifier');
-    CFG.macOsVsCodePath                    = getCFG('macOS.VS Code path');
+    CFG.linuxVsCodeCommand = getCFG('linux.VS Code command');
+    CFG.macOsVsCodeBundleIdentifier = getCFG('macOS.VS Code bundle identifier');
+    CFG.macOsVsCodePath = getCFG('macOS.VS Code path');
 }
 
 function getWorkspaceFoldersAsString() {
@@ -254,7 +257,6 @@ function doFlightCheck(): boolean {
                 kvs[maybeKV[0]] = maybeKV[1];
             }
         });
-        console.log(kvs);
         if (kvs['which bat'] === undefined || kvs['which bat'] === '') {
             errStr += 'bat not found on your PATH\n. ';
         }
@@ -303,36 +305,53 @@ function reinitialize() {
                 CFG.canaryFile = stdout.trim();
             }
             console.log('canary file:', CFG.canaryFile);
-            watcher = fs.watch(CFG.canaryFile, (eventType, _) => {
+            watcher = fs.watch(CFG.canaryFile, (eventType) => {
                 if (eventType === 'change') {
-                    if (CFG.clearTerminalAfterUse) {
-                        term.sendText('clear');
-                    }
-
-                    if (CFG.hideTerminalAfterSuccess && CFG.hideTerminalAfterFail) {
-                        term.hide();
-                    } else {
-                        // we need to read the file to determine what to do
-                        fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
-                            if (err) {
-                                // We shouldn't really end up here. Maybe leave the terminal around in this case...
-                            } else {
-                                const commandWasSuccess = data.length > 0 && data[0] === '0';
-                                if (commandWasSuccess && CFG.hideTerminalAfterSuccess) {
-                                    term.hide();
-                                } else if (!commandWasSuccess && CFG.hideTerminalAfterFail) {
-                                    term.hide();
-                                } else {
-                                    // Don't hide the terminal and make clippy angry
-                                }
-                            }
-                        });
-                    }
+                    handleCanaryFileChange();
+                    console.log('file changed');
+                } else if (eventType === 'rename') {
+                    console.log('file renamed');
                 }
             });
         }
     });
     return true;
+}
+
+function openFiles(data: string) {
+    const filePaths = data.split('\n').filter(s => s !== '');
+    assert(filePaths.length > 0);
+    filePaths.forEach(p => {
+        vscode.window.showTextDocument(vscode.Uri.file(p), {preview: false});
+    });
+}
+
+function handleCanaryFileChange() {
+    if (CFG.clearTerminalAfterUse) {
+        term.sendText('clear');
+    }
+
+    fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
+        if (err) {
+            // We shouldn't really end up here. Maybe leave the terminal around in this case...
+            vscode.window.showWarningMessage('Something went wrong but we don\'t know what... Did you clean out your /tmp folder?');
+        } else {
+            const commandWasSuccess = data.length > 0 && data[0] !== '1';
+
+            // open the file(s)
+            if (commandWasSuccess) {
+                openFiles(data);
+            }
+
+            if (commandWasSuccess && CFG.hideTerminalAfterSuccess) {
+                term.hide();
+            } else if (!commandWasSuccess && CFG.hideTerminalAfterFail) {
+                term.hide();
+            } else {
+                // Don't hide the terminal and make clippy angry
+            }
+        }
+    });
 }
 
 function createTerminal() {
@@ -348,7 +367,7 @@ function createTerminal() {
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
             LINUX_VSCODE_REF: CFG.linuxVsCodeCommand,
             OSX_VSCODE_REF: CFG.macOsVsCodePath !== '' ? CFG.macOsVsCodePath
-                                                       : CFG.macOsVsCodeBundleIdentifier,
+                : CFG.macOsVsCodeBundleIdentifier,
             VSCODE_PATH: CFG.vsCodePath,
             CANARY_FILE: CFG.canaryFile,
             /* eslint-enable @typescript-eslint/naming-convention */
@@ -371,7 +390,6 @@ function getCommandString(cmd: Command, withArgs: boolean = true) {
 }
 
 function executeTerminalCommand(cmd: string) {
-    console.log(vscode.workspace.textDocuments);
     if (!CFG.flightCheckPassed) {
         if (!reinitialize()) {
             return;
