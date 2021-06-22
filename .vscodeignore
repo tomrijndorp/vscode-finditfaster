@@ -2,7 +2,7 @@
 .vscode-test/**
 out/test/**
 
-# src/*.ts
+src/*.ts
 .gitignore
 .yarnrc
 vsc-extension-quickstart.md
@@ -11,3 +11,5 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/*.svg
+**/*.mov
+**/*.code-workspace

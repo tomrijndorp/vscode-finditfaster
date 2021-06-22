@@ -12,6 +12,12 @@ This extension exposes two commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 2. Search within files for text and open them. Uses of combination of `fzf`, `rg`, and `bat`.
 
+⬇️ **Find files**
+![Find Files](media/find_files.gif)
+
+⬇️ **Find text within files**
+![Find Within Files](media/find_within_files.gif)
+
 This extension has also been tested on remote workspaces (e.g. SSH sessions).
 
 <hr />
@@ -54,14 +60,21 @@ editor focus, but it's close.
 **Not tested on Windows**. Likely won't work. I don't know enough about WSL to tell you whether this
 could work. If you want to contribute, this would be an awesome place to do it.  
 
+**Not tested on Docker / Github code spaces**. Might actually work without issues as the
+functionality is very similiar to SSH sessions.
+
 **Older `fzf` versions**. In order to limit some complexity, we ignore some user settings for the
 "Find Within Files" command when your `fzf` version is less than 0.26. Things will still work
 decently well though and this shouldn't affect most users.
 
+**Various terminal issues**. VS Code gives developers little control over the terminal. We can't
+know if you typed text into the terminal we create, so that might interfere with the extension.
+There are various subtle ways in which in which things can break, many of which can't be detected.
+That said, if you don't touch the FindItFaster terminal, things should work well!
+
 <hr />
 
 ## Planned features
-- Support for remote sessions: ssh (definitely), docker, codespaces (if it's little overhead)
 - See if it's possible to ignore the same files the project settings ignore
 
 ## FAQ
@@ -128,9 +141,25 @@ more about using `fzf`.
 ### 🪚 _Can I  build in a feature myself / contribute in some way?_
 ➥ To minimize redundancy, have a look at `CONTRIBUTING.md`.
 
+### 🤑 _Do you take donations?_
+➥ Thanks for asking, but no. The amount of work that went into this extension is tiny compared to
+  the countless hours that have gone into the command line tools that are leveraged in this
+  extension. Please support those tools instead.  
+  What I do appreciate is if you'd help others find this extension by spreading the word and/or
+  leaving a rating!
+
 <hr />
 
 ## Release Notes
+
+### 0.0.2
+- SSH support 🎉
+- Ignore .git directory
+- Always show error dialog box when a dependency isn't found
+- Default search location preference for when a session has no workspace
+- Add screen captures showing functionality
+- Add an ugly icon
+- Various smaller fixes
 
 ### 0.0.1
 You gotta start somewhere!

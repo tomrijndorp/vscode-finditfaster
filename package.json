@@ -2,7 +2,7 @@
   "name": "find-it-faster",
   "displayName": "FindItFaster",
   "publisher": "xxx",
-  "icon": "icon.png",
+  "icon": "media/icon.png",
   "repository": {
     "url": "https://github.com/tomrijndorp/vscode-findfast"
   },
@@ -101,7 +101,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "vscode:package": "vsce package"
+    "vscode:package": "vsce package --githubBranch main"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

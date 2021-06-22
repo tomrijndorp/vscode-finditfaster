@@ -1,0 +1,23 @@
+{
+	"folders": [
+		// {
+		// 	"path": "/opt/blender"
+		// },
+		{
+			"path": ".",
+		},
+		// {
+		// 	"path": "/Users/tomrijndorp/Desktop/test folder with spaces",
+		// },
+		// {
+		// 	"path": "/Users/tomrijndorp/Dropbox/_ideas/Shipping",
+		// },
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off",
+		"vscode-ripgrep.advanced.previewCommand": "bat --force-colorization",
+		"files.associations": {
+			"vector": "cpp"
+		}
+	},
+}
