@@ -4,8 +4,9 @@ Finds it, but faster. Make sure to check the [requirements](#requirements) below
 <hr />
 
 ## Features
-This plugin is useful if you deal with very large projects with lots of files (which makes VS Code
-slow), or when you simply love using `fzf` and `rg`.
+This plugin is useful if you deal with very large projects with lots of files (which makes VS Code's
+search functionality quite slow), or when you simply love using `fzf` and `rg` and would like to
+bring those tools inside VS Code, similar to how the excellent `fzf.vim` plugin works for Vim.
 
 This extension exposes two commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
