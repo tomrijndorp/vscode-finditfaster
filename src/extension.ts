@@ -1,4 +1,4 @@
-import { tmpdir } from 'os'
+import { tmpdir } from 'os';
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as fs from 'fs';
@@ -34,6 +34,7 @@ const commands: Commands = {
 
 /**
  * TODO:
+ * [ ] Don't pollute command history
  * [x] Screenshots using asciinema / svg animations
  * [x] Remove open_file.sh. Instead, write file list to file and open them from within Code.
  *     How will this work with SSH sessions?
@@ -79,8 +80,11 @@ function getCFG<T>(key: string) {
 interface Config {
     extensionName: string | undefined,
     folders: string[],
+    disableStartupChecks: boolean,
+    findFilesPreviewEnabled: boolean,
     findFilesPreviewCommand: string,
     findFilesPreviewWindowConfig: string,
+    findWithinFilesPreviewEnabled: boolean,
     findWithinFilesPreviewCommand: string,
     findWithinFilesPreviewWindowConfig: string,
     workspaceSettings: {
@@ -99,8 +103,11 @@ interface Config {
 const CFG: Config = {
     extensionName: undefined,
     folders: [],
+    disableStartupChecks: false,
+    findFilesPreviewEnabled: true,
     findFilesPreviewCommand: '',
     findFilesPreviewWindowConfig: '',
+    findWithinFilesPreviewEnabled: true,
     findWithinFilesPreviewCommand: '',
     findWithinFilesPreviewWindowConfig: '',
     workspaceSettings: {
@@ -167,13 +174,16 @@ export function deactivate() {
 }
 
 function updateConfigWithUserSettings() {
+    CFG.disableStartupChecks = getCFG('advanced.disableStartupChecks');
     CFG.defaultSearchLocation = getCFG('general.defaultSearchLocation');
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
     CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
+    CFG.findFilesPreviewEnabled = getCFG('findFiles.showPreview');
     CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
+    CFG.findWithinFilesPreviewEnabled = getCFG('findWithinFiles.showPreview');
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
 }
@@ -261,11 +271,11 @@ function reinitialize() {
     term?.dispose();
     updateConfigWithUserSettings();
     console.log('plugin config:', CFG);
-    if (CFG.isFirstExecution) {
+    if (CFG.isFirstExecution && !CFG.disableStartupChecks) {
         CFG.flightCheckPassed = doFlightCheck();
     }
 
-    if (!CFG.flightCheckPassed) {
+    if (!CFG.flightCheckPassed && !CFG.disableStartupChecks) {
         return false;
     }
 
@@ -342,8 +352,10 @@ function createTerminal() {
         hideFromUser: true,
         env: {
             /* eslint-disable @typescript-eslint/naming-convention */
+            FIND_FILES_PREVIEW_ENABLED: CFG.findFilesPreviewEnabled ? '1' : '0',
             FIND_FILES_PREVIEW_COMMAND: CFG.findFilesPreviewCommand,
             FIND_FILES_PREVIEW_WINDOW_CONFIG: CFG.findFilesPreviewWindowConfig,
+            FIND_WITHIN_FILES_PREVIEW_ENABLED: CFG.findWithinFilesPreviewEnabled ? '1' : '0',
             FIND_WITHIN_FILES_PREVIEW_COMMAND: CFG.findWithinFilesPreviewCommand,
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
             CANARY_FILE: CFG.canaryFile,

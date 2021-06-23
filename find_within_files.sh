@@ -16,15 +16,21 @@ RG_PREFIX="rg \
     --colors 'path:style:nobold' \
     "
 
-PREVIEW_CMD=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'cat {1}'}
-PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG}
+PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
+PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'}
+PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
 
 FZF_VER=$(fzf --version)
 FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
 FZF_VER_MIN=$(echo "$FZF_VER" | cut -d. -f2)
 if [[ $FZF_VER_MAJ -eq 0 && $FZF_VER_MIN -lt 27 ]]; then
-    PREVIEW_CMD='bat {1} --color=always --highlight-line {2} --line-range {2}:'
+    PREVIEW_COMMAND='bat {1} --color=always --highlight-line {2} --line-range {2}:'
     PREVIEW_WINDOW='right:50%'
+fi
+
+PREVIEW_STR=()
+if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
+    PREVIEW_STR=(--preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW")
 fi
 
 # We match against the beginning of the line so everything matches but nothing gets highlighted
@@ -33,19 +39,19 @@ PATHS=("$@")
 
 FZF_CMD="$RG_PREFIX $INITIAL_REGEX"
 FZF_CMD="$FZF_CMD $(printf "'%s' " "${PATHS[@]}")"
-echo "$FZF_CMD"
 # exit 1
 # IFS sets the delimiter
 # -r: raw
 # -a: array
+# Quick note on ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}: Don't ask.
+# https://stackoverflow.com/q/7577052/888916
 IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
       --delimiter : \
       --phony --query "" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(printf "'%s' " "${PATHS[@]}") || true" \
-      --preview "$PREVIEW_CMD" \
-      --preview-window "$PREVIEW_WINDOW"
+      ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
 )
 # Output is filename, line number, character, contents
 
