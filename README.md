@@ -152,6 +152,13 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.3
+- Support multiple sessions at the same time without interfering with one another.
+- Option to disable checks (e.g. `which bat`). Useful if you want to use e.g. `cat` instead.
+- Option to disable previews for each of the find commands
+- Settings overhaul; they're now empty when default. Enables some more flexibility on the backend.
+- Cosmetic improvements if using fzf >= 0.27
+
 ### 0.0.2
 - SSH support 🎉
 - Ignore .git directory
