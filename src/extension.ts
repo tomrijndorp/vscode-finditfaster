@@ -1,3 +1,4 @@
+import { tmpdir } from 'os'
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as fs from 'fs';
@@ -33,7 +34,7 @@ const commands: Commands = {
 
 /**
  * TODO:
- * [ ] Screenshots using asciinema / svg animations
+ * [x] Screenshots using asciinema / svg animations
  * [x] Remove open_file.sh. Instead, write file list to file and open them from within Code.
  *     How will this work with SSH sessions?
  * [ ] Show relative paths whenever possible
@@ -47,7 +48,10 @@ const commands: Commands = {
  *     [x] `code` command is not always installed. Doesn't work with vscode:// uris.
  *         But there is a code.url-handler binary that does.
  *     [x] border-left etc is not supported on default 20.04 install... noborder does work.
- * [ ] SSH session support?
+ * [x] SSH session support?
+ * 
+ * Feature options:
+ * [ ] Buffer of open files / show currently open files / always show at bottom => workspace.textDocuments is a bit curious / borked
  */
 
 /**
@@ -178,15 +182,6 @@ function getWorkspaceFoldersAsString() {
     return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
 }
 
-function getOpenFilesAsString() {
-    // textDocuments seems to be a little buggy. When I have:
-    // - extension.ts, README.md, find_files.sh open, it returns:
-    // '/.../finditfaster/src/extension.ts' '/.../finditfaster/tsconfig.json' '/.../finditfaster/src/extension.ts.git'???
-    // I don't even know what that last file is.
-    const textDocs = vscode.workspace.textDocuments.map(x => x.fileName).filter(x => x.startsWith('/'));
-    return textDocs.reduce((x, y) => x + ` '${y}'`, '');
-}
-
 function handleWorkspaceFoldersChanges() {
     const updateFolders = () => {
         const dirs = vscode.workspace.workspaceFolders;
@@ -277,9 +272,10 @@ function reinitialize() {
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
-    CFG.canaryFile = path.join(CFG.extensionPath, '.snitch');
+    const tmpDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
+    CFG.canaryFile = path.join(tmpDir, 'snitch');
     fs.writeFileSync(CFG.canaryFile, '');
-    console.log('canary file:', CFG.canaryFile);
+    console.log(`CanaryFile is ${CFG.canaryFile}`);
     fs.watch(CFG.canaryFile, (eventType) => {
         if (eventType === 'change') {
             handleCanaryFileChange();
