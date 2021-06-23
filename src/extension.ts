@@ -38,6 +38,7 @@ const commands: Commands = {
  * [x] Remove open_file.sh. Instead, write file list to file and open them from within Code.
  *     How will this work with SSH sessions?
  * [ ] Show relative paths whenever possible
+ *     - This might be tricky. I could figure out the common base path of all dirs we search, I guess?
  * [x] Auto hide terminal when done
  * [x] Handle spaces in filenames
  * [x] Preferences / options
