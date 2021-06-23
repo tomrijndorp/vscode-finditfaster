@@ -94,7 +94,6 @@ interface Config {
     hideTerminalAfterSuccess: boolean,
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
-    isFirstExecution: boolean,
     showMaximizedTerminal: boolean,
     flightCheckPassed: boolean,
     defaultSearchLocation: string,
@@ -117,7 +116,6 @@ const CFG: Config = {
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
-    isFirstExecution: true,
     showMaximizedTerminal: false,
     flightCheckPassed: false,
     defaultSearchLocation: '',
@@ -271,7 +269,7 @@ function reinitialize() {
     term?.dispose();
     updateConfigWithUserSettings();
     console.log('plugin config:', CFG);
-    if (CFG.isFirstExecution && !CFG.disableStartupChecks) {
+    if (!CFG.flightCheckPassed && !CFG.disableStartupChecks) {
         CFG.flightCheckPassed = doFlightCheck();
     }
 
@@ -279,7 +277,6 @@ function reinitialize() {
         return false;
     }
 
-    CFG.isFirstExecution = false;
     //
     // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
     //
@@ -379,7 +376,7 @@ function getCommandString(cmd: Command, withArgs: boolean = true) {
 }
 
 function executeTerminalCommand(cmd: string) {
-    if (!CFG.flightCheckPassed) {
+    if (!CFG.flightCheckPassed && !CFG.disableStartupChecks) {
         if (!reinitialize()) {
             return;
         }
