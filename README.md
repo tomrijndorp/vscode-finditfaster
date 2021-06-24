@@ -13,12 +13,12 @@ bring those tools inside VS Code, similar to how the excellent `fzf.vim` plugin 
 
 This extension exposes two commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
-2. Search within files for text and open them. Uses of combination of `fzf`, `rg`, and `bat`.
+2. Search within files for text and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 
-⬇️  **Find files**
+⬇️ &nbsp;**Find files**
 ![Find Files](media/find_files.gif)
 
-⬇️  **Find text within files**
+⬇️ &nbsp;**Find text within files**
 ![Find Within Files](media/find_within_files.gif)
 
 This extension has also been tested on remote workspaces (e.g. SSH sessions).
@@ -56,10 +56,6 @@ your time.
 
 ## Known Issues
 
-**See the GUI settings**. VS Code has limited API functionality around how we can manage the
-terminal panel, so things are not _quite_ as polished as they could be in terms of managing e.g.
-editor focus, but it's close.
-
 **Not tested on Windows**. Likely won't work. I don't know enough about WSL to tell you whether this
 could work. If you want to contribute, this would be an awesome place to do it.  
 
@@ -82,6 +78,17 @@ also use the up and down arrows if that's your thing. &lt;TAB&gt; for multiple s
 available. Read the excellent `fzf` [documentation](https://github.com/junegunn/fzf#readme) to learn
 more about using `fzf`.
 
+### ⬆️ _I'm on Linux and I can't use Ctrl+K to navigate upwards in `fzf`._
+➥ Probably VS Code is waiting for you to complete a multi-step keyboard shortcut (chord). Change the
+  following setting in your preferences to disable chords:
+  ```
+  "terminal.integrated.allowChords": false
+  ```
+
+### 🧘 _Can you give focus back to my editor / my problems panel / other?_
+➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
+  I'll try to make this better.
+
 ### 🐞 _I found a bug!_  
 ➥ Yeah, that's not unlikely. There are a lot of edge cases with this sort of tooling. Three options:
   1. Shrug :)
@@ -98,19 +105,6 @@ more about using `fzf`.
      do even for a trivial fix, and consider that this is just a tiny side project for me. I might
      not respond that quickly.
 
-### 🖥 _Can I use the scripts you probably run in this extension on the command line, outside of VS Code?_  
-➥ You can, actually. Perhaps the easiest thing you can do is give them a more convenient name, so
-  you can easily get to them. For instance, you could create a symlink called `fif` (Find In Files)
-  somewhere on your `PATH`. Example (you'll need to look up where VS Code stores your extensions!):
-  ```bash
-  ln -s ~/.vscode/extensions/<PLUGIN_NAME.VERSION>/find_files.sh /usr/local/bin/fif
-  ```
-  Or copy them, remix, and make your own, of course. These scripts were heavily inspired by
-  documentation on `fzf`, `rg`, and `bat` in the first place! Note: these scripts are currently
-  really only 50% written with the idea in mind, so you have to know some bash scripting in order
-  to get this to work. And really, when you strip out all the VS Code logic, there's not that much
-  left.
-
 ### 💩 _I don't like `fzf` / `rg` / `bat`. Can I just use `find`, `grep`, and `cat` or something else?_  
 ➥ This is not impossible for me to do, but realistically, there's little value to it. The experience
   will never be quite as good, and won't be as performant either.  
@@ -120,17 +114,6 @@ more about using `fzf`.
   but unless people _really_ want this it's unlikely I'll support it.  
   You _can_ actually already use other preview tools than `bat`, e.g. `cat`. I've left some hints in
   the settings.
-
-### 🧘 _Can you give focus back to my editor / my problems panel / other?_
-➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
-  I'll try to make this better.
-
-### ⬆️ _I'm on Linux and I can't use Ctrl+K to navigate upwards in `fzf`._
-➥ Probably VS Code is waiting for you to complete a multi-step keyboard shortcut (chord). Change the
-  following setting in your preferences to disable chords:
-  ```
-  "terminal.integrated.allowChords": false
-  ```
 
 ### 🎄 <i>I'd like to customize this tool a little but I need access to &lt;insert something here&gt;. Can you expose that?</i>  
 ➥ I probably can. Maybe create a Github issue and ask for it? Especially if other people vote on it,
@@ -150,7 +133,7 @@ more about using `fzf`.
 
 ## Release Notes
 
-### 0.0.5
+### 0.0.6
 - Honor search.exclude setting and add option to disable
 - Don't store command history
 - Always run bash in terminal, add warning to PS1
