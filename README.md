@@ -1,6 +1,9 @@
 # FindItFaster
 Finds it, but faster. Make sure to check the [requirements](#requirements) below.
 
+Default key bindings: cmd+shift+j / ctrl+shift+j to search files, cmd+shift+u / ctrl+shift+u to
+search for text within files. You can change these using VS Code's keyboard shortcuts.
+
 <hr />
 
 ## Features
@@ -12,10 +15,10 @@ This extension exposes two commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 2. Search within files for text and open them. Uses of combination of `fzf`, `rg`, and `bat`.
 
-⬇️ **Find files**
+⬇️  **Find files**
 ![Find Files](media/find_files.gif)
 
-⬇️ **Find text within files**
+⬇️  **Find text within files**
 ![Find Within Files](media/find_within_files.gif)
 
 This extension has also been tested on remote workspaces (e.g. SSH sessions).
@@ -30,8 +33,8 @@ running these commands directly in your terminal. If those work, this plugin wil
 
 If you're not familiar with these command line tools, you might want to check them out. They are
 awesome tools that can be individually used and make you more productive. And when combined such as
-in this extension, they're amazing. They're available for many platforms and easy to install using
-package managers or by installing a simple binary.
+for instance in this extension, they're very powerful. They're available for many platforms and easy
+to install using package managers or by simply installing a binary.
 
 - [`fzf` ("command-line fuzzy finder")](https://github.com/junegunn/fzf)
 - [`rg` ("ripgrep")](https://github.com/BurntSushi/ripgrep)
@@ -63,19 +66,12 @@ could work. If you want to contribute, this would be an awesome place to do it.
 **Not tested on Docker / Github code spaces**. Might actually work without issues as the
 functionality is very similiar to SSH sessions.
 
-**Older `fzf` versions**. In order to limit some complexity, we ignore some user settings for the
-"Find Within Files" command when your `fzf` version is less than 0.26. Things will still work
-decently well though and this shouldn't affect most users.
-
 **Various terminal issues**. VS Code gives developers little control over the terminal. We can't
 know if you typed text into the terminal we create, so that might interfere with the extension.
 There are various subtle ways in which in which things can break, many of which can't be detected.
 That said, if you don't touch the FindItFaster terminal, things should work well!
 
 <hr />
-
-## Planned features
-- See if it's possible to ignore the same files the project settings ignore
 
 ## FAQ
 
@@ -121,7 +117,9 @@ more about using `fzf`.
   `rg` especially is a beast that outperforms `grep` and even tools like `ag`. Give them a try.
   Plus, not supporting additional tools means more time to make this extension better and fewer
   opportunities for creating bugs. You can file a Github issue and see if there's support for it,
-  but unless people _really_ want this it's unlikely I'll support it.
+  but unless people _really_ want this it's unlikely I'll support it.  
+  You _can_ actually already use other preview tools than `bat`, e.g. `cat`. I've left some hints in
+  the settings.
 
 ### 🧘 _Can you give focus back to my editor / my problems panel / other?_
 ➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
@@ -151,6 +149,11 @@ more about using `fzf`.
 <hr />
 
 ## Release Notes
+
+### 0.0.4
+- Honor search.exclude setting and add option to disable
+- Don't store command history
+- Always run bash in terminal, add warning to PS1
 
 ### 0.0.3
 - Support multiple sessions at the same time without interfering with one another.

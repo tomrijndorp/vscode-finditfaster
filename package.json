@@ -1,14 +1,14 @@
 {
   "name": "find-it-faster",
   "displayName": "FindItFaster",
-  "publisher": "xxx",
+  "publisher": "TomRijndorp",
   "icon": "media/icon.png",
   "repository": {
     "url": "https://github.com/tomrijndorp/vscode-finditfaster"
   },
   "description": "Find it, but faster! Leveraging fzf and rg.",
   "keywords": ["fuzzy", "finder", "fzf", "rg", "ripgrep", "bat", "batcat"],
-  "version": "0.0.3",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.56.0"
   },
@@ -98,7 +98,7 @@
           "default": true 
         },
         "find-it-faster.findWithinFiles.previewCommand": {
-          "markdownDescription": "When populated: Used by `fzf` to produce the preview when searching within files. Use `{1}` to indicate the filename, `{2}` for the line number.",
+          "markdownDescription": "When populated: Used by `fzf` to produce the preview when searching within files. Use `{1}` to indicate the filename, `{2}` for the line number. Example using `cat` and `awk` instead of `bat`: `cat {1} | awk '{if (NR>={2}) print}'`.",
           "type": "string",
           "default": ""
         },

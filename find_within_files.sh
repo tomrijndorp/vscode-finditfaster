@@ -33,8 +33,12 @@ FZF_VER=$(fzf --version)
 FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
 FZF_VER_MIN=$(echo "$FZF_VER" | cut -d. -f2)
 if [[ $FZF_VER_MAJ -eq 0 && $FZF_VER_MIN -lt 27 ]]; then
-    PREVIEW_COMMAND='bat {1} --color=always --highlight-line {2} --line-range {2}:'
-    PREVIEW_WINDOW='right:50%'
+    if [[ "$PREVIEW_COMMAND" != "$FIND_WITHIN_FILES_PREVIEW_COMMAND" ]]; then
+        PREVIEW_COMMAND='bat {1} --color=always --highlight-line {2} --line-range {2}:'
+    fi
+    if [[ "$PREVIEW_WINDOW" != "$FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" ]]; then
+        PREVIEW_WINDOW='right:50%'
+    fi
 fi
 
 PREVIEW_STR=()
