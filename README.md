@@ -150,7 +150,7 @@ more about using `fzf`.
 
 ## Release Notes
 
-### 0.0.4
+### 0.0.5
 - Honor search.exclude setting and add option to disable
 - Don't store command history
 - Always run bash in terminal, add warning to PS1

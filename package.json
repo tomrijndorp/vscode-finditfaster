@@ -8,7 +8,7 @@
   },
   "description": "Find it, but faster! Leveraging fzf and rg.",
   "keywords": ["fuzzy", "finder", "fzf", "rg", "ripgrep", "bat", "batcat"],
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.56.0"
   },
