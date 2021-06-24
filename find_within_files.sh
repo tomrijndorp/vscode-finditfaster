@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -uo pipefail  # No -e to support write to canary file after cancel
 
+IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
+GLOBS=()
+for ENTRY in ${GLOB_PATTERNS[@]+"${GLOB_PATTERNS[@]}"}; do
+    GLOBS+=("--glob")
+    GLOBS+=("$ENTRY")
+done
 # 1. Search for text in files using Ripgrep
 # 2. Interactively restart Ripgrep with reload action
 # 3. Open the file in Vim
@@ -14,7 +20,10 @@ RG_PREFIX="rg \
     --colors 'match:fg:green' \
     --colors 'path:fg:white' \
     --colors 'path:style:nobold' \
+    --glob '!**/.git/' \
+    $(printf "'%s' " "${GLOBS[@]}") \
     "
+echo "$RG_PREFIX"
 
 PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'}

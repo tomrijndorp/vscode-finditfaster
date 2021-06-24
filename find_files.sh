@@ -7,6 +7,13 @@ PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'right:50%:border-left'}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
 PATHS=("$@")
 
+IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
+GLOBS=()
+for ENTRY in ${GLOB_PATTERNS[@]+"${GLOB_PATTERNS[@]}"}; do
+    GLOBS+=("--glob")
+    GLOBS+=("$ENTRY")
+done
+
 # Some backwards compatibility stuff
 FZF_VER=$(fzf --version)
 FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
@@ -22,11 +29,13 @@ fi
 
 # Quick note on ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}: Don't ask.
 # https://stackoverflow.com/q/7577052/888916
+set -x
 callfzf () {
     rg \
         --files \
         --hidden \
         --glob '!**/.git/' \
+        ${GLOBS[@]+"${GLOBS[@]}"} \
         "${PATHS[@]}" \
     | fzf \
         --multi \

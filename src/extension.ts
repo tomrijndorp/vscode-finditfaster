@@ -34,7 +34,7 @@ const commands: Commands = {
 
 /**
  * TODO:
- * [ ] Don't pollute command history
+ * [x] Don't pollute command history
  * [x] Screenshots using asciinema / svg animations
  * [x] Remove open_file.sh. Instead, write file list to file and open them from within Code.
  *     How will this work with SSH sessions?
@@ -81,6 +81,7 @@ interface Config {
     extensionName: string | undefined,
     folders: string[],
     disableStartupChecks: boolean,
+    useWorkspaceSearchExcludes: boolean,
     findFilesPreviewEnabled: boolean,
     findFilesPreviewCommand: string,
     findFilesPreviewWindowConfig: string,
@@ -103,6 +104,7 @@ const CFG: Config = {
     extensionName: undefined,
     folders: [],
     disableStartupChecks: false,
+    useWorkspaceSearchExcludes: true,
     findFilesPreviewEnabled: true,
     findFilesPreviewCommand: '',
     findFilesPreviewWindowConfig: '',
@@ -167,12 +169,13 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {
     term?.dispose();
-    fs.rmSync(CFG.canaryFile, {force: true});
+    fs.rmSync(CFG.canaryFile, { force: true });
     // clean up canaryFile?
 }
 
 function updateConfigWithUserSettings() {
     CFG.disableStartupChecks = getCFG('advanced.disableStartupChecks');
+    CFG.useWorkspaceSearchExcludes = getCFG('general.useWorkspaceSearchExcludes');
     CFG.defaultSearchLocation = getCFG('general.defaultSearchLocation');
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
@@ -310,7 +313,7 @@ function openFiles(data: string) {
             assert(line >= 0);
             assert(char >= 0);
         }
-        vscode.window.showTextDocument(vscode.Uri.file(file), {preview: false, selection: new vscode.Range(line, char, line, char)});
+        vscode.window.showTextDocument(vscode.Uri.file(file), { preview: false, selection: new vscode.Range(line, char, line, char) });
     });
 }
 
@@ -343,7 +346,6 @@ function handleCanaryFileChange() {
 }
 
 function createTerminal() {
-    // TODO lazy instantiation in case terminal is closed (first use / user closed terminal)
     term = vscode.window.createTerminal({
         name: 'F️indItFaster',
         hideFromUser: true,
@@ -357,6 +359,7 @@ function createTerminal() {
             FIND_WITHIN_FILES_PREVIEW_ENABLED: CFG.findWithinFilesPreviewEnabled ? '1' : '0',
             FIND_WITHIN_FILES_PREVIEW_COMMAND: CFG.findWithinFilesPreviewCommand,
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
+            GLOBS: CFG.useWorkspaceSearchExcludes ? getIgnoreString() : '',
             CANARY_FILE: CFG.canaryFile,
             /* eslint-enable @typescript-eslint/naming-convention */
         },
@@ -377,7 +380,26 @@ function getCommandString(cmd: Command, withArgs: boolean = true) {
     }
 }
 
+function getIgnoreGlobs() {
+    const exclude = vscode.workspace.getConfiguration('search.exclude');  // doesn't work though the docs say it should?
+    console.log(`exclude: ${exclude}`);
+    const globs: string[] = [];
+    Object.entries(exclude).forEach(([k, v]) => {
+        // Messy proxy object stuff
+        if (typeof v === 'function') { return; }
+        if (v) { globs.push(`!${k}`); }
+    });
+    return globs;
+    // console.log(`globs: ${globs}`);
+}
+
+function getIgnoreString() {
+    const globs = getIgnoreGlobs();
+    return globs.reduce((x, y) => x + `${y}:`, '');
+}
+
 function executeTerminalCommand(cmd: string) {
+    getIgnoreGlobs();
     if (!CFG.flightCheckPassed && !CFG.disableStartupChecks) {
         if (!reinitialize()) {
             return;

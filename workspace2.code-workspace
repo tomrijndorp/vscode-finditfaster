@@ -18,6 +18,15 @@
 		"vscode-ripgrep.advanced.previewCommand": "bat --force-colorization",
 		"files.associations": {
 			"vector": "cpp"
-		}
+		},
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/bower_components": true,
+			"**/*.code-search": true,
+			"**/*.json": false,
+			"**/*.svg": true,
+		},
+		"find-it-faster.general.clearTerminalAfterUse": false,
+		"find-it-faster.general.hideTerminalAfterFail": false
 	},
 }
