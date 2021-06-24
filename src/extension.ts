@@ -349,6 +349,8 @@ function createTerminal() {
         hideFromUser: true,
         env: {
             /* eslint-disable @typescript-eslint/naming-convention */
+            HISTCONTROL: 'ignoreboth',  // bash
+            // HISTORY_IGNORE: '*',        // zsh
             FIND_FILES_PREVIEW_ENABLED: CFG.findFilesPreviewEnabled ? '1' : '0',
             FIND_FILES_PREVIEW_COMMAND: CFG.findFilesPreviewCommand,
             FIND_FILES_PREVIEW_WINDOW_CONFIG: CFG.findFilesPreviewWindowConfig,
@@ -384,6 +386,7 @@ function executeTerminalCommand(cmd: string) {
 
     if (!term || term.exitStatus !== undefined) {
         createTerminal();
+        term.sendText('PS1="::: Terminal allocated for FindItFaster. Do not use. ::: " bash');
     }
 
     assert(cmd in commands);
