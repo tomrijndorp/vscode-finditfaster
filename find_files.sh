@@ -9,6 +9,8 @@ PATHS=("$@")
 
 IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
 GLOBS=()
+# Quick note on ${X[@]+"${X[@]}"}: It's complicated.
+# https://stackoverflow.com/q/7577052/888916
 for ENTRY in ${GLOB_PATTERNS[@]+"${GLOB_PATTERNS[@]}"}; do
     GLOBS+=("--glob")
     GLOBS+=("$ENTRY")
@@ -27,8 +29,6 @@ if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
     PREVIEW_STR=(--preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW")
 fi
 
-# Quick note on ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}: Don't ask.
-# https://stackoverflow.com/q/7577052/888916
 callfzf () {
     rg \
         --files \

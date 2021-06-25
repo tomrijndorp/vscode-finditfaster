@@ -18,15 +18,15 @@ interface Commands { [key: string]: Command }
 // because only then we'll know the actual paths.
 //
 const commands: Commands = {
-    'findFiles': {
+    findFiles: {
         script: 'find_files.sh',
         uri: undefined,
     },
-    'findWithinFiles': {
+    findWithinFiles: {
         script: 'find_within_files.sh',
         uri: undefined,
     },
-    'flightCheck': {
+    flightCheck: {
         script: 'flight_check.sh',
         uri: undefined,
     }
@@ -34,40 +34,13 @@ const commands: Commands = {
 
 /**
  * TODO:
- * [x] Don't pollute command history
- * [x] Screenshots using asciinema / svg animations
- * [x] Remove open_file.sh. Instead, write file list to file and open them from within Code.
- *     How will this work with SSH sessions?
  * [ ] Show relative paths whenever possible
  *     - This might be tricky. I could figure out the common base path of all dirs we search, I guess?
- * [x] Auto hide terminal when done
- * [x] Handle spaces in filenames
- * [x] Preferences / options
- * [x] Linux support
- *     [x] C-K is default chord in VS Code, so can't use it to navigate up/down in fzf
- *     [x] bat: force-colorization doesn't work?
- *     [x] need xdg-open instead of open
- *     [x] `code` command is not always installed. Doesn't work with vscode:// uris.
- *         But there is a code.url-handler binary that does.
- *     [x] border-left etc is not supported on default 20.04 install... noborder does work.
- * [x] SSH session support?
  * 
  * Feature options:
  * [ ] Buffer of open files / show currently open files / always show at bottom => workspace.textDocuments is a bit curious / borked
  */
 
-/**
- * Couple of observations:
- *
- * 1. On Mac OS, opening using open with a URI is _way_ faster than using the
- *    `code` command.
- * 2. Depending on the file extension, XCode (?!) will complain that no
- *    application is registered, _even though_ the URI starts with vscode://.
- *    Therefore, we'll pass in the application path using open -a.
- *    Unfortunately, we can't use the `code` command for this either, and we'll
- *    have to know where VS Code is installed.
- * 3. The same is kind of true for Linux, where we need to find code.url-handler.
- */
 function getCFG<T>(key: string) {
     const userCfg = vscode.workspace.getConfiguration();
     const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
@@ -135,9 +108,9 @@ function setupConfig(context: vscode.ExtensionContext) {
     CFG.extensionName = PACKAGE.name;
     assert(CFG.extensionName);
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
-    commands.findFiles.uri = local('find_files.sh');
-    commands.findWithinFiles.uri = local('find_within_files.sh');
-    commands.flightCheck.uri = local('flight_check.sh');
+    commands.findFiles.uri = local(commands.findFiles.script);
+    commands.findWithinFiles.uri = local(commands.findWithinFiles.script);
+    commands.flightCheck.uri = local(commands.flightCheck.script);
 }
 
 function registerCommands() {
