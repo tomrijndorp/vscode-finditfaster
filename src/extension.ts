@@ -1,3 +1,12 @@
+/**
+ * TODO:
+ * [ ] Show relative paths whenever possible
+ *     - This might be tricky. I could figure out the common base path of all dirs we search, I guess?
+ *
+ * Feature options:
+ * [ ] Buffer of open files / show currently open files / always show at bottom => workspace.textDocuments is a bit curious / borked
+ */
+
 import { tmpdir } from 'os';
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
@@ -6,18 +15,18 @@ import * as path from 'path';
 import assert = require('assert');
 // Let's keep it DRY and load the package here so we can reuse some data from it
 let PACKAGE: any;
-
-interface Command {
-    script: string,
-    uri: vscode.Uri | undefined,
-}
-interface Commands { [key: string]: Command }
+// Reference to the terminal we use
+let term: vscode.Terminal;
 
 //
 // Define the commands we expose. URIs are poopulated upon extension activation
 // because only then we'll know the actual paths.
 //
-const commands: Commands = {
+interface Command {
+    script: string,
+    uri: vscode.Uri | undefined,
+}
+const commands: { [key: string]: Command } = {
     findFiles: {
         script: 'find_files.sh',
         uri: undefined,
@@ -32,24 +41,7 @@ const commands: Commands = {
     }
 };
 
-/**
- * TODO:
- * [ ] Show relative paths whenever possible
- *     - This might be tricky. I could figure out the common base path of all dirs we search, I guess?
- * 
- * Feature options:
- * [ ] Buffer of open files / show currently open files / always show at bottom => workspace.textDocuments is a bit curious / borked
- */
-
-function getCFG<T>(key: string) {
-    const userCfg = vscode.workspace.getConfiguration();
-    const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
-    assert(ret !== undefined);
-    return ret;
-}
-
-
-
+/** Global variable cesspool erm, I mean, Configuration Data Structure! It does the job for now. */
 interface Config {
     extensionName: string | undefined,
     folders: string[],
@@ -97,6 +89,7 @@ const CFG: Config = {
     extensionPath: '',
 };
 
+/** Ensure that whatever command we expose in package.json actually exists */
 function checkExposedFunctions() {
     for (const x of PACKAGE.contributes.commands) {
         const fName = x.command.substr(PACKAGE.name.length + '.'.length);
@@ -104,6 +97,7 @@ function checkExposedFunctions() {
     }
 }
 
+/** We need the extension context to get paths to our scripts. We do that here. */
 function setupConfig(context: vscode.ExtensionContext) {
     CFG.extensionName = PACKAGE.name;
     assert(CFG.extensionName);
@@ -113,6 +107,7 @@ function setupConfig(context: vscode.ExtensionContext) {
     commands.flightCheck.uri = local(commands.flightCheck.script);
 }
 
+/** Register the commands we defined with VS Code so users have access to them */
 function registerCommands() {
     Object.keys(commands).map((k) => {
         vscode.commands.registerCommand(`${CFG.extensionName}.${k}`, () => {
@@ -121,13 +116,12 @@ function registerCommands() {
     });
 }
 
-// Reference to the terminal we use
-let term: vscode.Terminal;
-
+/** Entry point called by VS Code */
 export function activate(context: vscode.ExtensionContext) {
     CFG.extensionPath = context.extensionPath;
     const local = (x: string) => vscode.Uri.file(path.join(CFG.extensionPath, x));
 
+    // Load our package.json
     PACKAGE = JSON.parse(fs.readFileSync(local('package.json').fsPath, 'utf-8'));
     setupConfig(context);
     checkExposedFunctions();
@@ -139,14 +133,21 @@ export function activate(context: vscode.ExtensionContext) {
     reinitialize();
 }
 
-// this method is called when your extension is deactivated
+/* Called when extension is deactivated by VS Code */
 export function deactivate() {
     term?.dispose();
     fs.rmSync(CFG.canaryFile, { force: true });
-    // clean up canaryFile?
 }
 
+/** Map settings from the user-configurable settings to our internal data structure */
 function updateConfigWithUserSettings() {
+    function getCFG<T>(key: string) {
+        const userCfg = vscode.workspace.getConfiguration();
+        const ret = userCfg.get<T>(`${CFG.extensionName}.${key}`);
+        assert(ret !== undefined);
+        return ret;
+    }
+
     CFG.disableStartupChecks = getCFG('advanced.disableStartupChecks');
     CFG.useWorkspaceSearchExcludes = getCFG('general.useWorkspaceSearchExcludes');
     CFG.defaultSearchLocation = getCFG('general.defaultSearchLocation');
@@ -160,11 +161,6 @@ function updateConfigWithUserSettings() {
     CFG.findWithinFilesPreviewEnabled = getCFG('findWithinFiles.showPreview');
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
-}
-
-function getWorkspaceFoldersAsString() {
-    // For bash invocation
-    return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
 }
 
 function handleWorkspaceFoldersChanges() {
@@ -198,12 +194,12 @@ function handleWorkspaceFoldersChanges() {
 function handleWorkspaceSettingsChanges() {
     vscode.workspace.onDidChangeConfiguration(_ => {
         updateConfigWithUserSettings();
-
-        // For good measure; we need to update the env vars in the terminal
+        // We need to update the env vars in the terminal
         reinitialize();
     });
 }
 
+/** Check seat belts are on. Also, check terminal commands are on PATH */
 function doFlightCheck(): boolean {
     const parseKeyValue = (line: string) => {
         return line.split(': ', 2);
@@ -239,7 +235,10 @@ function doFlightCheck(): boolean {
     }
 }
 
-
+/**
+ * All the logic that's the same between starting the plugin and re-starting
+ * after user settings change
+ */
 function reinitialize() {
 
     term?.dispose();
@@ -254,7 +253,9 @@ function reinitialize() {
     }
 
     //
-    // Set up a file watcher. Any time there is output to our "canary file", we hide the terminal (because the command was completed)
+    // Set up a file watcher. Its contents tell us what files the user selected.
+    // It also means the command was completed so we can do stuff like
+    // optionally hiding the terminal.
     //
     const tmpDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
     CFG.canaryFile = path.join(tmpDir, 'snitch');
@@ -271,6 +272,7 @@ function reinitialize() {
     return true;
 }
 
+/** Interpreting the terminal output and turning them into a vscode command */
 function openFiles(data: string) {
     const filePaths = data.split('\n').filter(s => s !== '');
     assert(filePaths.length > 0);
@@ -286,10 +288,13 @@ function openFiles(data: string) {
             assert(line >= 0);
             assert(char >= 0);
         }
-        vscode.window.showTextDocument(vscode.Uri.file(file), { preview: false, selection: new vscode.Range(line, char, line, char) });
+        vscode.window.showTextDocument(
+            vscode.Uri.file(file),
+            { preview: false, selection: new vscode.Range(line, char, line, char) });
     });
 }
 
+/** Logic of what to do when the user completed a command invocation on the terminal */
 function handleCanaryFileChange() {
     if (CFG.clearTerminalAfterUse) {
         term.sendText('clear');
@@ -339,6 +344,12 @@ function createTerminal() {
     });
 }
 
+function getWorkspaceFoldersAsString() {
+    // For bash invocation. Need to wrap in quotes so spaces within paths don't
+    // split the path into two strings.
+    return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
+}
+
 function getCommandString(cmd: Command, withArgs: boolean = true) {
     assert(cmd.uri);
     const str = cmd.uri.fsPath;
@@ -363,11 +374,11 @@ function getIgnoreGlobs() {
         if (v) { globs.push(`!${k}`); }
     });
     return globs;
-    // console.log(`globs: ${globs}`);
 }
 
 function getIgnoreString() {
     const globs = getIgnoreGlobs();
+    // We separate by colons so we can have spaces in the globs
     return globs.reduce((x, y) => x + `${y}:`, '');
 }
 
