@@ -29,7 +29,6 @@ fi
 
 # Quick note on ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}: Don't ask.
 # https://stackoverflow.com/q/7577052/888916
-set -x
 callfzf () {
     rg \
         --files \
@@ -39,8 +38,7 @@ callfzf () {
         "${PATHS[@]}" \
     | fzf \
         --multi \
-        ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
-    | tee /tmp/lastOutput
+        ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
 }
 
 VAL=$(callfzf)
