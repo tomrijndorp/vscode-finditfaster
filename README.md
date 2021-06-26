@@ -15,6 +15,9 @@ This extension exposes two commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 2. Search within files for text and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 
+If your active text editor has a selection, it will be used as the initial query (you can disable
+this setting).
+
 ⬇️ &nbsp;**Find files**
 ![Find Files](media/find_files.gif)
 
@@ -62,10 +65,10 @@ could work. If you want to contribute, this would be an awesome place to do it.
 **Not tested on Docker / Github code spaces**. Might actually work without issues as the
 functionality is very similiar to SSH sessions.
 
-**Various terminal issues**. VS Code gives developers little control over the terminal. We can't
-know if you typed text into the terminal we create, so that might interfere with the extension.
-There are various subtle ways in which in which things can break, many of which can't be detected.
-That said, if you don't touch the FindItFaster terminal, things should work well!
+**Various small terminal issues**. VS Code gives developers little control over the terminal. We
+can't know if you typed text into the terminal we create, so that might interfere with the
+extension. There are various subtle ways in which in which things can break, many of which can't be
+detected. That said, if you don't touch the FindItFaster terminal, things should work well!
 
 <hr />
 
@@ -132,6 +135,11 @@ more about using `fzf`.
 <hr />
 
 ## Release Notes
+
+### 0.0.7
+- Text selections: if you have text selected, we'll use that to fill `fzf`'s query. There's an
+  option to disable it.
+- Clean up some terminal spam
 
 ### 0.0.6
 - Honor search.exclude setting and add option to disable

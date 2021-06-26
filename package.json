@@ -7,8 +7,23 @@
     "url": "https://github.com/tomrijndorp/vscode-finditfaster"
   },
   "description": "Find it, but faster! Leveraging fzf and rg.",
-  "keywords": ["fuzzy", "finder", "fzf", "rg", "ripgrep", "bat", "batcat"],
-  "version": "0.0.6",
+  "keywords": [
+    "ag",
+    "bat",
+    "batcat",
+    "find it faster",
+    "find",
+    "finder",
+    "fuzzy",
+    "fzf",
+    "grep",
+    "open",
+    "rg",
+    "ripgrep",
+    "search",
+    "within"
+  ],
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.56.0"
   },
