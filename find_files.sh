@@ -4,8 +4,14 @@ set -uo pipefail  # No -e to support write to canary file after cancel
 PREVIEW_ENABLED=${FIND_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {} --theme=1337'}
 PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'right:50%:border-left'}
+HAS_SELECTION=${HAS_SELECTION:-}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
 PATHS=("$@")
+QUERY=''
+
+if [[ "$HAS_SELECTION" -eq 1 ]]; then
+    QUERY="$(cat "$SELECTION_FILE")"
+fi
 
 IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
 GLOBS=()
@@ -38,6 +44,7 @@ callfzf () {
         "${PATHS[@]}" \
     | fzf \
         --multi \
+        --query "${QUERY}"
         ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
 }
 

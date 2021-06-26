@@ -28,6 +28,12 @@ echo "$RG_PREFIX"
 PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'}
 PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
+HAS_SELECTION=${HAS_SELECTION:-}
+QUERY=''
+
+if [[ "$HAS_SELECTION" -eq 1 ]]; then
+    QUERY="$(cat "$SELECTION_FILE")"
+fi
 
 FZF_VER=$(fzf --version)
 FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
@@ -62,7 +68,7 @@ IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
       --delimiter : \
-      --phony --query "" \
+      --phony --query "$QUERY" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(printf "'%s' " "${PATHS[@]}") || true" \
       ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
 )

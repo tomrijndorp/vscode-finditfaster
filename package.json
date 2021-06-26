@@ -111,6 +111,11 @@
           "markdownDescription": "By default, we check that you have `fzf`, `rg`, and `bat` on your path. If you'd like to disable these checks because you're getting creative (e.g. use `cat` instead of `bat`), check this box. Obviously you may see errors on your terminal if we do call one of these programs when they are not present!",
           "type": "boolean",
           "default": false
+        },
+        "find-it-faster.advanced.useEditorSelectionAsQuery": {
+          "markdownDescription": "By default, if you have an active editor with a text selection, we'll use that to populate the prompt in `fzf` such that it will start filtering text directly. Uncheck to disable.",
+          "type": "boolean",
+          "default": true
         }
       }
     }

@@ -1,5 +1,6 @@
 /**
  * TODO:
+ * [ ] When text is selected, use that to fill the fzf prompt
  * [ ] Show relative paths whenever possible
  *     - This might be tricky. I could figure out the common base path of all dirs we search, I guess?
  *
@@ -19,7 +20,7 @@ let PACKAGE: any;
 let term: vscode.Terminal;
 
 //
-// Define the commands we expose. URIs are poopulated upon extension activation
+// Define the commands we expose. URIs are populated upon extension activation
 // because only then we'll know the actual paths.
 //
 interface Command {
@@ -46,6 +47,7 @@ interface Config {
     extensionName: string | undefined,
     folders: string[],
     disableStartupChecks: boolean,
+    useEditorSelectionAsQuery: boolean,
     useWorkspaceSearchExcludes: boolean,
     findFilesPreviewEnabled: boolean,
     findFilesPreviewCommand: string,
@@ -57,6 +59,7 @@ interface Config {
         folders: string[],
     },
     canaryFile: string,
+    selectionFile: string,
     hideTerminalAfterSuccess: boolean,
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
@@ -69,6 +72,7 @@ const CFG: Config = {
     extensionName: undefined,
     folders: [],
     disableStartupChecks: false,
+    useEditorSelectionAsQuery: true,
     useWorkspaceSearchExcludes: true,
     findFilesPreviewEnabled: true,
     findFilesPreviewCommand: '',
@@ -80,6 +84,7 @@ const CFG: Config = {
         folders: [],
     },
     canaryFile: '',
+    selectionFile: '',
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
@@ -137,6 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
     term?.dispose();
     fs.rmSync(CFG.canaryFile, { force: true });
+    fs.rmSync(CFG.selectionFile, { force: true });
 }
 
 /** Map settings from the user-configurable settings to our internal data structure */
@@ -149,6 +155,7 @@ function updateConfigWithUserSettings() {
     }
 
     CFG.disableStartupChecks = getCFG('advanced.disableStartupChecks');
+    CFG.useEditorSelectionAsQuery = getCFG('advanced.useEditorSelectionAsQuery');
     CFG.useWorkspaceSearchExcludes = getCFG('general.useWorkspaceSearchExcludes');
     CFG.defaultSearchLocation = getCFG('general.defaultSearchLocation');
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
@@ -178,7 +185,6 @@ function handleWorkspaceFoldersChanges() {
                     return '';
                 }
             });
-            console.log('workspace folders:', CFG.folders);
         }
     };
 
@@ -208,7 +214,7 @@ function doFlightCheck(): boolean {
     try {
         let errStr = '';
         const kvs: any = {};
-        const out = cp.execFileSync(getCommandString(commands.flightCheck, false), { shell: true }).toString('utf-8');
+        const out = cp.execFileSync(getCommandString(commands.flightCheck, false, true), { shell: true }).toString('utf-8');
         out.split('\n').map(x => {
             const maybeKV = parseKeyValue(x);
             if (maybeKV.length === 2) {
@@ -243,7 +249,7 @@ function reinitialize() {
 
     term?.dispose();
     updateConfigWithUserSettings();
-    console.log('plugin config:', CFG);
+    // console.log('plugin config:', CFG);
     if (!CFG.flightCheckPassed && !CFG.disableStartupChecks) {
         CFG.flightCheckPassed = doFlightCheck();
     }
@@ -259,14 +265,13 @@ function reinitialize() {
     //
     const tmpDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
     CFG.canaryFile = path.join(tmpDir, 'snitch');
+    CFG.selectionFile = path.join(tmpDir, 'selection');
     fs.writeFileSync(CFG.canaryFile, '');
-    console.log(`CanaryFile is ${CFG.canaryFile}`);
     fs.watch(CFG.canaryFile, (eventType) => {
         if (eventType === 'change') {
             handleCanaryFileChange();
         } else if (eventType === 'rename') {
             vscode.window.showErrorMessage(`Issue detected with extension ${CFG.extensionName}. You may have to reload it.`);
-            console.log('file renamed');
         }
     });
     return true;
@@ -339,6 +344,7 @@ function createTerminal() {
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
             GLOBS: CFG.useWorkspaceSearchExcludes ? getIgnoreString() : '',
             CANARY_FILE: CFG.canaryFile,
+            SELECTION_FILE: CFG.selectionFile,
             /* eslint-enable @typescript-eslint/naming-convention */
         },
     });
@@ -350,23 +356,44 @@ function getWorkspaceFoldersAsString() {
     return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
 }
 
-function getCommandString(cmd: Command, withArgs: boolean = true) {
+function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelection: boolean = true) {
     assert(cmd.uri);
-    const str = cmd.uri.fsPath;
+    let ret = '';
+    const cmdPath = cmd.uri.fsPath;
+    if (CFG.useEditorSelectionAsQuery && withTextSelection) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const selection = editor.selection;
+            if (!selection.isEmpty) {
+                //
+                // Fun story on text selection:
+                // My first idea was to use an env var to capture the selection.
+                // My first test was to use a selection that contained shell script...
+                // This breaks. And fixing it is not easy. See https://unix.stackexchange.com/a/600214/128132.
+                // So perhaps we should write this to file, and see if we can get bash to interpret this as a
+                // string. We'll use an env var to indicate there is a selection so we don't need to read a
+                // file in the general no-selection case, and we don't have to clear the file after having
+                // used the selection.
+                //
+                const selectionText = editor.document.getText(selection);
+                fs.writeFileSync(CFG.selectionFile, selectionText);
+                ret += 'HAS_SELECTION=1 ';
+            }
+        }
+    }
+    ret += cmdPath;
     if (withArgs) {
         let paths = getWorkspaceFoldersAsString();
         if (CFG.folders.length === 0) {  // no workspace folders
             paths = CFG.defaultSearchLocation;
         }
-        return `${str} ${paths}`;
-    } else {
-        return str;
+        ret += ` ${paths}`;
     }
+    return ret;
 }
 
 function getIgnoreGlobs() {
     const exclude = vscode.workspace.getConfiguration('search.exclude');  // doesn't work though the docs say it should?
-    console.log(`exclude: ${exclude}`);
     const globs: string[] = [];
     Object.entries(exclude).forEach(([k, v]) => {
         // Messy proxy object stuff
