@@ -3,10 +3,16 @@
 [![CI pipeline](https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tomrijndorp/vscode-finditfaster/actions)
 ![](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)-334488)
 
-Finds it, but faster. Make sure to check the [requirements](#requirements) below.
+Finds it, but faster.  
 
-Default key bindings: cmd+shift+j / ctrl+shift+j to search files, cmd+shift+u / ctrl+shift+u to
-search for text within files. You can change these using VS Code's keyboard shortcuts.
+Make sure to check the [Requirements](#requirements) below (TL;DR: have `fzf`, `rg`, `bat` on your `PATH`).
+
+<hr />
+
+Default key bindings: `cmd+shift+j` / `ctrl+shift+j` to search files, `cmd+shift+u` / `ctrl+shift+u`
+to search for text within files. You can change these using VS Code's keyboard shortcuts.
+
+Windows users: see [Known Issues](#known_issues).
 
 <hr />
 
@@ -61,13 +67,16 @@ your time.
 
 <hr />
 
+<a name="known_issues"></a>
 ## Known Issues
 
-**Not tested on Windows**. Likely won't work. I don't know enough about WSL to tell you whether this
-could work. If you want to contribute, this would be an awesome place to do it.  
+**Windows**. You can run this extension inside a [Remote-WSL
+workspace](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl). Native
+support does not exist at this time. Contributions welcome!  More information on [Github](
+https://github.com/tomrijndorp/vscode-finditfaster/issues/4).
 
-**Not tested on Docker / Github code spaces**. Might actually work without issues as the
-functionality is very similiar to SSH sessions.
+**Not tested on Docker / Github code spaces**. Will likely work without issues as the
+functionality is very similiar to other remote sessions (e.g. SSH, WSL).
 
 **Various small terminal issues**. VS Code gives developers little control over the terminal. We
 can't know if you typed text into the terminal we create, so that might interfere with the

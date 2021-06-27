@@ -32,7 +32,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished",
     "onCommand:find-it-faster.findFiles",
     "onCommand:find-it-faster.findWithinFiles"
   ],

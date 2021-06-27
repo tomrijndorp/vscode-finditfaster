@@ -13,6 +13,7 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import assert = require('assert');
 // Let's keep it DRY and load the package here so we can reuse some data from it
 let PACKAGE: any;
@@ -210,6 +211,12 @@ function doFlightCheck(): boolean {
     const parseKeyValue = (line: string) => {
         return line.split(': ', 2);
     };
+
+    // Windows native
+    if (os.platform() === 'win32') {
+        vscode.window.showErrorMessage('Native Windows support does not exist at this point in time. You can however run inside a Remote-WSL workspace. See the README for more information.');
+        return false;
+    }
 
     try {
         let errStr = '';
