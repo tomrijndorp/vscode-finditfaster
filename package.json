@@ -33,7 +33,8 @@
   ],
   "activationEvents": [
     "onCommand:find-it-faster.findFiles",
-    "onCommand:find-it-faster.findWithinFiles"
+    "onCommand:find-it-faster.findWithinFiles",
+    "onCommand:find-it-faster.listSearchLocations"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -45,6 +46,10 @@
       {
         "command": "find-it-faster.findWithinFiles",
         "title": "Find It Faster: search within files"
+      },
+      {
+        "command": "find-it-faster.listSearchLocations",
+        "title": "Find It Faster: list search locations (modify in extension settings)"
       }
     ],
     "keybindings": [
@@ -87,10 +92,37 @@
           "type": "boolean",
           "default": true
         },
-        "find-it-faster.general.defaultSearchLocation": {
-          "markdownDescription": "Search in this folder if you don't have any folders added to your workspace",
+        "find-it-faster.general.additionalSearchLocations": {
+          "markdownDescription": "Search files in these locations",
+          "type": "array",
+          "default": []
+        },
+        "find-it-faster.general.additionalSearchLocationsWhen": {
+          "markdownDescription": "When to search the files listed in `general.searchLocations`",
           "type": "string",
-          "default": "~"
+          "enum": ["always", "never", "noWorkspaceOnly"],
+          "enumDescriptions": [
+            "Always search these locations",
+            "Never search these locations (setting useful for individual workspace overrides)",
+            "Only when no workspace is open"
+          ],
+          "default": "always"
+        },
+        "find-it-faster.general.searchWorkspaceFolders": {
+          "markdownDescription": "Search the folders defined in the workspace",
+          "type": "boolean",
+          "default": true
+        },
+        "find-it-faster.general.searchCurrentWorkingDirectory": {
+          "markdownDescription": "Search the current working directory (`process.cwd()`)",
+          "type": "string",
+          "enum": ["always", "never", "noWorkspaceOnly"],
+          "enumDescriptions": [
+            "Always search the working directory",
+            "Never search the working directory",
+            "Only search the working directory when no workspace is open"
+          ],
+          "default": "noWorkspaceOnly"
         },
         "find-it-faster.findFiles.showPreview": {
           "markdownDescription": "Show a preview window when searching files",

@@ -27,26 +27,43 @@ let term: vscode.Terminal;
 interface Command {
     script: string,
     uri: vscode.Uri | undefined,
+    preRunCallback: undefined | (() => void),
 }
 const commands: { [key: string]: Command } = {
     findFiles: {
         script: 'find_files.sh',
         uri: undefined,
+        preRunCallback: undefined,
     },
     findWithinFiles: {
         script: 'find_within_files.sh',
         uri: undefined,
+        preRunCallback: undefined,
+    },
+    listSearchLocations: {
+        script: 'list_search_locations.sh',
+        uri: undefined,
+        preRunCallback: writePathOriginsFile,
     },
     flightCheck: {
         script: 'flight_check.sh',
         uri: undefined,
+        preRunCallback: undefined,
     }
 };
+
+type WhenCondition = 'always' | 'never' | 'noWorkspaceOnly';
+enum PathOrigin {
+    cwd = 1 << 0,
+    workspace = 1 << 1,
+    settings = 1 << 2,
+}
 
 /** Global variable cesspool erm, I mean, Configuration Data Structure! It does the job for now. */
 interface Config {
     extensionName: string | undefined,
-    folders: string[],
+    searchPaths: string[],
+    searchPathsOrigins: { [key: string]: PathOrigin },
     disableStartupChecks: boolean,
     useEditorSelectionAsQuery: boolean,
     useWorkspaceSearchExcludes: boolean,
@@ -66,12 +83,17 @@ interface Config {
     clearTerminalAfterUse: boolean,
     showMaximizedTerminal: boolean,
     flightCheckPassed: boolean,
-    defaultSearchLocation: string,
+    additionalSearchLocations: string[],
+    additionalSearchLocationsWhen: WhenCondition,
+    searchCurrentWorkingDirectory: WhenCondition,
+    searchWorkspaceFolders: boolean,
     extensionPath: string,
+    tempDir: string,
 };
 const CFG: Config = {
     extensionName: undefined,
-    folders: [],
+    searchPaths: [],
+    searchPathsOrigins: {},
     disableStartupChecks: false,
     useEditorSelectionAsQuery: true,
     useWorkspaceSearchExcludes: true,
@@ -91,8 +113,12 @@ const CFG: Config = {
     clearTerminalAfterUse: false,
     showMaximizedTerminal: false,
     flightCheckPassed: false,
-    defaultSearchLocation: '',
+    additionalSearchLocations: [],
+    additionalSearchLocationsWhen: 'never',
+    searchCurrentWorkingDirectory: 'never',
+    searchWorkspaceFolders: true,
     extensionPath: '',
+    tempDir: '',
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -110,6 +136,7 @@ function setupConfig(context: vscode.ExtensionContext) {
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
     commands.findFiles.uri = local(commands.findFiles.script);
     commands.findWithinFiles.uri = local(commands.findWithinFiles.script);
+    commands.listSearchLocations.uri = local(commands.listSearchLocations.script);
     commands.flightCheck.uri = local(commands.flightCheck.script);
 }
 
@@ -132,8 +159,8 @@ export function activate(context: vscode.ExtensionContext) {
     setupConfig(context);
     checkExposedFunctions();
 
-    handleWorkspaceFoldersChanges();
     handleWorkspaceSettingsChanges();
+    handleWorkspaceFoldersChanges();
 
     registerCommands();
     reinitialize();
@@ -158,7 +185,10 @@ function updateConfigWithUserSettings() {
     CFG.disableStartupChecks = getCFG('advanced.disableStartupChecks');
     CFG.useEditorSelectionAsQuery = getCFG('advanced.useEditorSelectionAsQuery');
     CFG.useWorkspaceSearchExcludes = getCFG('general.useWorkspaceSearchExcludes');
-    CFG.defaultSearchLocation = getCFG('general.defaultSearchLocation');
+    CFG.additionalSearchLocations = getCFG('general.additionalSearchLocations');
+    CFG.additionalSearchLocationsWhen = getCFG('general.additionalSearchLocationsWhen');
+    CFG.searchCurrentWorkingDirectory = getCFG('general.searchCurrentWorkingDirectory');
+    CFG.searchWorkspaceFolders = getCFG('general.searchWorkspaceFolders');
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
@@ -171,36 +201,130 @@ function updateConfigWithUserSettings() {
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
 }
 
-function handleWorkspaceFoldersChanges() {
-    const updateFolders = () => {
-        const dirs = vscode.workspace.workspaceFolders;
-        if (dirs === undefined) {
-            CFG.folders = ['.'];   // best we can do
+function collectSearchLocations() {
+    const locations = [];
+    // searchPathsOrigins is for diagnostics only
+    CFG.searchPathsOrigins = {};
+    const setOrUpdateOrigin = (path: string, origin: PathOrigin) => {
+        if (CFG.searchPathsOrigins[path] === undefined) {
+            CFG.searchPathsOrigins[path] = origin;
         } else {
-            CFG.folders = dirs.map(x => {
-                const uri = decodeURI(x.uri.toString());
-                if (uri.substr(0, 7) === 'file://') {
-                    return uri.substr(7);
-                } else {
-                    vscode.window.showErrorMessage('Non-file:// uri\'s not currently supported...');
-                    return '';
-                }
-            });
+            CFG.searchPathsOrigins[path] |= origin;
         }
     };
+    // cwd
+    const addCwd = () => {
+        const cwd = process.cwd();
+        locations.push(cwd);
+        setOrUpdateOrigin(cwd, PathOrigin.cwd);
+    };
+    switch (CFG.searchCurrentWorkingDirectory) {
+        case 'always':
+            addCwd();
+            break;
+        case 'never':
+            break;
+        case 'noWorkspaceOnly':
+            if (vscode.workspace.workspaceFolders === undefined) {
+                addCwd();
+            }
+            break;
+        default:
+            assert(false, 'Unhandled case');
+    }
 
-    updateFolders();
+    // additional search locations from extension settings
+    const addSearchLocationsFromSettings = () => {
+        locations.push(...CFG.additionalSearchLocations);
+        CFG.additionalSearchLocations.forEach(x => setOrUpdateOrigin(x, PathOrigin.settings));
+    };
+    switch (CFG.additionalSearchLocationsWhen) {
+        case 'always':
+            addSearchLocationsFromSettings();
+            break;
+        case 'never':
+            break;
+        case 'noWorkspaceOnly':
+            if (vscode.workspace.workspaceFolders === undefined) {
+                addSearchLocationsFromSettings();
+            }
+            break;
+        default:
+            assert(false, 'Unhandled case');
+    }
+
+    // add the workspace folders
+    if (CFG.searchWorkspaceFolders && vscode.workspace.workspaceFolders !== undefined) {
+        const dirs = vscode.workspace.workspaceFolders.map(x => {
+            const uri = decodeURI(x.uri.toString());
+            if (uri.substr(0, 7) === 'file://') {
+                return uri.substr(7);
+            } else {
+                vscode.window.showErrorMessage('Non-file:// uri\'s not currently supported...');
+                return '';
+            }
+        });
+        locations.push(...dirs);
+        dirs.forEach(x => setOrUpdateOrigin(x, PathOrigin.workspace));
+    }
+
+    return locations;
+}
+
+/** Produce a human-readable string explaining where the search paths come from */
+function explainSearchLocations(useColor = false) {
+    const listDirs = (which: PathOrigin) => {
+        let str = '';
+        Object.entries(CFG.searchPathsOrigins).forEach(([k, v]) => {
+            if ((v & which) !== 0) {
+                str += `- ${k}\n`;
+            }
+        });
+        if (str.length === 0) {
+            str += '- <none>\n';
+        }
+        return str;
+    };
+
+    const maybeBlue = (s: string) => {
+        return useColor ? `\\033[36m${s}\\033[0m` : s;
+    };
+
+    let ret = '';
+    ret += maybeBlue('Paths added because they\'re the working directory:\n');
+    ret += listDirs(PathOrigin.cwd);
+    ret += maybeBlue('Paths added because they\'re defined in the workspace:\n');
+    ret += listDirs(PathOrigin.workspace);
+    ret += maybeBlue('Paths added because they\'re the specified in the settings:\n');
+    ret += listDirs(PathOrigin.settings);
+
+    return ret;
+}
+
+function writePathOriginsFile() {
+    fs.writeFileSync(path.join(CFG.tempDir, 'paths_explain'), explainSearchLocations(true));
+    console.log(`wrote to ${path.join(CFG.tempDir, 'paths_explain')}`);
+}
+
+function handleWorkspaceFoldersChanges() {
+
+    CFG.searchPaths = collectSearchLocations();
 
     // Also re-update when anything changes
     vscode.workspace.onDidChangeWorkspaceFolders(event => {
         console.log('workspace folders changed: ', event);
-        updateFolders();
+        CFG.searchPaths = collectSearchLocations();
     });
 }
 
 function handleWorkspaceSettingsChanges() {
+    updateConfigWithUserSettings();
+
+    // Also re-update when anything changes
     vscode.workspace.onDidChangeConfiguration(_ => {
         updateConfigWithUserSettings();
+        // This may also have affected our search paths
+        CFG.searchPaths = collectSearchLocations();
         // We need to update the env vars in the terminal
         reinitialize();
     });
@@ -270,9 +394,9 @@ function reinitialize() {
     // It also means the command was completed so we can do stuff like
     // optionally hiding the terminal.
     //
-    const tmpDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
-    CFG.canaryFile = path.join(tmpDir, 'snitch');
-    CFG.selectionFile = path.join(tmpDir, 'selection');
+    CFG.tempDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
+    CFG.canaryFile = path.join(CFG.tempDir, 'snitch');
+    CFG.selectionFile = path.join(CFG.tempDir, 'selection');
     fs.writeFileSync(CFG.canaryFile, '');
     fs.watch(CFG.canaryFile, (eventType) => {
         if (eventType === 'change') {
@@ -352,6 +476,7 @@ function createTerminal() {
             GLOBS: CFG.useWorkspaceSearchExcludes ? getIgnoreString() : '',
             CANARY_FILE: CFG.canaryFile,
             SELECTION_FILE: CFG.selectionFile,
+            EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
             /* eslint-enable @typescript-eslint/naming-convention */
         },
     });
@@ -360,7 +485,7 @@ function createTerminal() {
 function getWorkspaceFoldersAsString() {
     // For bash invocation. Need to wrap in quotes so spaces within paths don't
     // split the path into two strings.
-    return CFG.folders.reduce((x, y) => x + ` '${y}'`, '');
+    return CFG.searchPaths.reduce((x, y) => x + ` '${y}'`, '');
 }
 
 function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelection: boolean = true) {
@@ -391,9 +516,6 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
     ret += cmdPath;
     if (withArgs) {
         let paths = getWorkspaceFoldersAsString();
-        if (CFG.folders.length === 0) {  // no workspace folders
-            paths = CFG.defaultSearchLocation;
-        }
         ret += ` ${paths}`;
     }
     return ret;
@@ -430,6 +552,8 @@ function executeTerminalCommand(cmd: string) {
     }
 
     assert(cmd in commands);
+    const cb = commands[cmd].preRunCallback;
+    if (cb !== undefined) { cb(); }
     term.sendText(getCommandString(commands[cmd]));
     if (CFG.showMaximizedTerminal) {
         vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
