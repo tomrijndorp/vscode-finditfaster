@@ -21,7 +21,7 @@ jobs:
     - run: npm install
 
     # --- build ---
-    - run: npm vscode:package
+    - run: npm run vscode:package
 
     # --- test ---
     - run: xvfb-run -a npm test
