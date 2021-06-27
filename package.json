@@ -95,7 +95,7 @@
         "find-it-faster.findFiles.showPreview": {
           "markdownDescription": "Show a preview window when searching files",
           "type": "boolean",
-          "default": true 
+          "default": true
         },
         "find-it-faster.findFiles.previewCommand": {
           "markdownDescription": "When populated: Used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `bat {}`.",
@@ -110,7 +110,7 @@
         "find-it-faster.findWithinFiles.showPreview": {
           "markdownDescription": "Show a preview window when searching within files",
           "type": "boolean",
-          "default": true 
+          "default": true
         },
         "find-it-faster.findWithinFiles.previewCommand": {
           "markdownDescription": "When populated: Used by `fzf` to produce the preview when searching within files. Use `{1}` to indicate the filename, `{2}` for the line number. Example using `cat` and `awk` instead of `bat`: `cat {1} | awk '{if (NR>={2}) print}'`.",
@@ -155,6 +155,7 @@
     "glob": "^7.1.7",
     "mocha": "^8.4.0",
     "typescript": "^4.3.2",
+    "vsce": "^1.95.0",
     "vscode-test": "^1.5.2"
   }
 }
