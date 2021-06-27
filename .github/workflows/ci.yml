@@ -1,8 +1,11 @@
+name: Build
+
 on:
   push:
     branches:
       - main
       - ci-debug
+      - release
 
 jobs:
   build:
