@@ -22,6 +22,7 @@ RG_PREFIX="rg \
     --colors 'path:style:nobold' \
     --glob '!**/.git/' \
     $(printf "'%s' " "${GLOBS[@]}") \
+    2> /dev/null \
     "
 echo "$RG_PREFIX"
 

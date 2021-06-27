@@ -42,6 +42,7 @@ callfzf () {
         --glob '!**/.git/' \
         ${GLOBS[@]+"${GLOBS[@]}"} \
         "${PATHS[@]}" \
+        2> /dev/null \
     | fzf \
         --multi \
         --query "${QUERY}"
