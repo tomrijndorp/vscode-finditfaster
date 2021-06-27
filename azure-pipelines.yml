@@ -1,0 +1,45 @@
+trigger:
+  branches:
+    include:
+    - master
+    - azure-ci
+  tags:
+    include:
+    - v*
+
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+    mac:
+      imageName: 'macos-latest'
+    windows:
+      imageName: 'windows-latest'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- bash: |
+    /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    echo ">>> Started xvfb"
+  displayName: Start xvfb
+  # Only run on Linux, as per Azure requirement
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+- bash: |
+    echo ">>> Compiling..."
+    npm run compile
+    echo ">>> Packaging..."
+    npm run vscode:package
+    echo ">>> Testing..."
+    npm run test
+  displayName: Run Tests
+  env:
+    DISPLAY: ':99.0'
