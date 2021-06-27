@@ -1,7 +1,9 @@
 # FindItFaster
 
-[![CI pipeline](https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tomrijndorp/vscode-finditfaster/actions)
-![](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)-334488)
+[![CI pipeline - release](
+  https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=release)](
+  https://github.com/tomrijndorp/vscode-finditfaster/actions?query=branch%3Amain)
+![Platform support](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)-334488)
 
 Finds it, but faster.  
 
