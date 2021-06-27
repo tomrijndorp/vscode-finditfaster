@@ -18,6 +18,10 @@ jobs:
       with:
         node-version: 10.x
 
+    # --- fzf, rg, bat ---
+    - run: src/test/install_deps.sh
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+
     # --- deps ---
     - run: npm install
 
