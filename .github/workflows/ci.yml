@@ -14,40 +14,72 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Install Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 10.x
 
       # --- fzf, rg, bat ---
-      - run: src/test/install_deps.sh
+      - name: Install FZF, ripgrep, bat
+        run: src/test/install_deps.sh
         if: runner.os == 'Linux' || runner.os == 'macOS'
 
       # --- deps ---
-      - run: npm install
+      - name: NPM install
+        run: npm install
 
       # --- build / test ---
-      - run: xvfb-run -a npm test
+      - name: Test
+        run: xvfb-run -a npm test
         if: runner.os == 'Linux'
 
-      - run: npm test
+      - name: Test
+        run: npm test
         if: runner.os != 'Linux'
 
       # --- package ---
-      - run: npm run vscode:package
+      - name: Package
+        run: npm run vscode:package
         if: runner.os == 'Linux'
 
-      - uses: actions/upload-artifact@v2
-        if: runner.os == 'Linux'
+      # - uses: actions/upload-artifact@v2
+      #   if: runner.os == 'Linux'
+      #   with:
+      #     name: find-it-faster-vsix
+      #     path: "*.vsix"
+
+  # Unfortunately, this is very redundant.
+  # Unless I can just push the vsix file that I built earlier, there's
+  # no way around it, it seems.
+  publish:
+    if: github.ref == 'refs/heads/ci-debug'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
         with:
-          name: find-it-faster-vsix
-          path: "*.vsix"
+          node-version: 10.x
 
-      # --- publish! ---
-      - if: github.ref == 'refs/heads/release' && runner.os == 'Linux'
-        name: Publish!
+      # --- fzf, rg, bat ---
+      - name: Install FZF, ripgrep, bat
+        run: src/test/install_deps.sh
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+
+      # --- npm deps ---
+      - name: NPM install
+        run: npm install
+
+      # --- publish ---
+      - name: Publish!
         env:
           VSCE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
         run: |
@@ -57,37 +89,3 @@ jobs:
           echo "Tagging release with $FIF_TAG..."
           git tag "$FIF_TAG"
           git push origin "$FIF_TAG"
-
-  # publish:
-  #   if: github.ref == 'refs/heads/ci-debug'
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-
-  #     - name: Install Node.js
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: 10.x
-
-  #     - name: Get vsix
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: find-it-faster-vsix
-
-  #     - run: echo hello world
-
-  #     - run: ls -lah
-
-  #     - run: |
-  #         npm install
-  #         npm run compile
-  #         echo done
-  #         git status
-
-  #     - run: |
-  #         npm run vscode:publish
-  #         git tag 
-  #       env:
-  #         VCSE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
