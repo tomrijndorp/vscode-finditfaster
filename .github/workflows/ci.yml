@@ -46,30 +46,64 @@ jobs:
           name: find-it-faster-vsix
           path: "*.vsix"
 
-  publish:
-    if: github.ref == 'refs/heads/ci-debug'
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      # --- publish! ---
+      - if: github.ref == 'refs/heads/ci-debug' && runner.os == 'Linux'
+        name: Publish!
+        env:
+          VSCE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
+        run: |
+          sudo apt-get install -y jq
+          FIF_TAG=$(cat package.json | jq -r .version)
+          npm run vscode:publish
+          echo "Tagging release with $FIF_TAG..."
+          git tag "$FIF_TAG"
+          git push origin "$FIF_TAG"
 
-      - name: Install Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 10.x
+  # publish:
+  #   if: github.ref == 'refs/heads/ci-debug'
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Get vsix
-        uses: actions/download-artifact@v2
-        with:
-          name: find-it-faster-vsix
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 10.x
 
-      - run: echo hello world
+  #     - name: Get vsix
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: find-it-faster-vsix
 
-      - run: ls -lah
+  #     - run: echo hello world
 
-      - run: |
-          npm install
-          npm run compile
-          echo done
-          git status
+  #     - run: ls -lah
+
+  #     - run: |
+  #         npm install
+  #         npm run compile
+  #         echo done
+  #         git status
+
+  #     - run: |
+  #         npm run vscode:publish
+  #         git tag 
+  #       env:
+  #         VCSE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
+
+# Publishing notes:
+# (npm run vscode:publish will fail when version number is not incremented, so we can use that)
+# (manual) update changelog
+# (manual) update package.json so we know it's the same as the changelog
+# run regular CI pipeline
+# run publish:
+# - npm run vscode:publish
+# - git tag v....
+# - git push origin tag ...
+
+# - try to package (previous step)
+# - bump version
+# - update package.json (can use vcse) (or manually, if we do the changelog anyway)
+# - add data to changelog 
