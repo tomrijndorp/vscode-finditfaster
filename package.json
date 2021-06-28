@@ -24,7 +24,7 @@
     "search",
     "within"
   ],
-  "version": "0.0.8",
+  "version": "0.0.9",
   "engines": {
     "vscode": "^1.56.0"
   },
@@ -174,7 +174,8 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "vscode:package": "vsce package --githubBranch main"
+    "vscode:package": "vsce package --githubBranch main",
+    "vscode:publish": "vsce publish --githubBranch main"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

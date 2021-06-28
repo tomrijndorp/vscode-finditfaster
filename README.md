@@ -1,8 +1,6 @@
 # FindItFaster
 
-[![CI pipeline - release](
-  https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=release)](
-  https://github.com/tomrijndorp/vscode-finditfaster/actions?query=branch%3Amain)
+[![CI pipeline - release](https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/tomrijndorp/vscode-finditfaster/actions?query=branch%3Amain)
 ![Platform support](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)-334488)
 
 Finds it, but faster.  
@@ -151,7 +149,7 @@ more about using `fzf`.
 
 ## Release Notes
 
-### 0.0.8
+### 0.0.9
 - Much better search path support (see extension settings)
   - Option to add the process working directory under various conditions
   - Option to disable searching the workspace folders
