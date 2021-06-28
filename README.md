@@ -149,6 +149,9 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.11
+- Bug fix: bring back preview window in "Find Files"
+
 ### 0.0.10
 - No new features, but this version should be automatically published through Github Actions.
 

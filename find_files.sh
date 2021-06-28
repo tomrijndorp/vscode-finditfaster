@@ -45,7 +45,7 @@ callfzf () {
         2> /dev/null \
     | fzf \
         --multi \
-        --query "${QUERY}"
+        --query "${QUERY}" \
         ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
 }
 
