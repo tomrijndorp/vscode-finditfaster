@@ -11,8 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        # os: [macos-latest, ubuntu-latest, windows-latest]
-        os: [ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -47,7 +46,7 @@ jobs:
           path: "*.vsix"
 
       # --- publish! ---
-      - if: github.ref == 'refs/heads/ci-debug' && runner.os == 'Linux'
+      - if: github.ref == 'refs/heads/release' && runner.os == 'Linux'
         name: Publish!
         env:
           VSCE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
@@ -92,18 +91,3 @@ jobs:
   #         git tag 
   #       env:
   #         VCSE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
-
-# Publishing notes:
-# (npm run vscode:publish will fail when version number is not incremented, so we can use that)
-# (manual) update changelog
-# (manual) update package.json so we know it's the same as the changelog
-# run regular CI pipeline
-# run publish:
-# - npm run vscode:publish
-# - git tag v....
-# - git push origin tag ...
-
-# - try to package (previous step)
-# - bump version
-# - update package.json (can use vcse) (or manually, if we do the changelog anyway)
-# - add data to changelog 

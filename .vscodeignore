@@ -14,3 +14,4 @@ vsc-extension-quickstart.md
 **/*.mov
 **/*.code-workspace
 media/convert_mov
+release.sh

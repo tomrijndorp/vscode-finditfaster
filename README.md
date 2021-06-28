@@ -149,6 +149,9 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.10
+- No new features, but this version should be automatically published through Github Actions.
+
 ### 0.0.9
 - Much better search path support (see extension settings)
   - Option to add the process working directory under various conditions
