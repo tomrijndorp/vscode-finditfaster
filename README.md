@@ -151,6 +151,17 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.8
+- Much better search path support (see extension settings)
+  - Option to add the process working directory under various conditions
+  - Option to disable searching the workspace folders
+  - Option to add additional search paths through the settings under various conditions
+- Better error message for native Windows use case
+- Filtering out stderr output when searching. Prevents messing up `fzf`'s layout when permissions
+  errors arise during searching.
+- Add basic CI sanity checks and badge.
+- Small logo update
+
 ### 0.0.7
 - Text selections: if you have text selected, we'll use that to fill `fzf`'s query. There's an
   option to disable it.
