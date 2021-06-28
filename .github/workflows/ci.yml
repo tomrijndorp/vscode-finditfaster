@@ -11,29 +11,65 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        # os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Install Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 10.x
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
 
-    # --- fzf, rg, bat ---
-    - run: src/test/install_deps.sh
-      if: runner.os == 'Linux' || runner.os == 'macOS'
+      # --- fzf, rg, bat ---
+      - run: src/test/install_deps.sh
+        if: runner.os == 'Linux' || runner.os == 'macOS'
 
-    # --- deps ---
-    - run: npm install
+      # --- deps ---
+      - run: npm install
 
-    # --- build ---
-    - run: npm run vscode:package
+      # --- build / test ---
+      - run: xvfb-run -a npm test
+        if: runner.os == 'Linux'
 
-    # --- test ---
-    - run: xvfb-run -a npm test
-      if: runner.os == 'Linux'
+      - run: npm test
+        if: runner.os != 'Linux'
 
-    - run: npm test
-      if: runner.os != 'Linux'
+      # --- package ---
+      - run: npm run vscode:package
+        if: runner.os == 'Linux'
+
+      - uses: actions/upload-artifact@v2
+        if: runner.os == 'Linux'
+        with:
+          name: find-it-faster-vsix
+          path: "*.vsix"
+
+  publish:
+    if: github.ref == 'refs/heads/ci-debug'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+
+      - name: Get vsix
+        uses: actions/download-artifact@v2
+        with:
+          name: find-it-faster-vsix
+
+      - run: echo hello world
+
+      - run: ls -lah
+
+      - run: |
+          npm install
+          npm run compile
+          echo done
+          git status
