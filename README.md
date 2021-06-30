@@ -21,9 +21,10 @@ This plugin is useful if you deal with very large projects with lots of files (w
 search functionality quite slow), or when you simply love using `fzf` and `rg` and would like to
 bring those tools inside VS Code, similar to how the excellent `fzf.vim` plugin works for Vim.
 
-This extension exposes two commands:
+This extension exposes three commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 2. Search within files for text and open them. Uses a combination of `fzf`, `rg`, and `bat`.
+3. Like 2., but you can limit the file types that will be searched.
 
 If your active text editor has a selection, it will be used as the initial query (you can disable
 this setting).
@@ -153,6 +154,12 @@ more about using `fzf`.
 <hr />
 
 ## Release Notes
+
+### 0.0.12
+- Option to "find within files", but pre-filter by file type.  
+  Exposes a new keyboard shortcut (default: `cmd+shift+ctrl+u` / `ctrl+shift+alt+u`).  
+  The selection is stateful; it will be kept across searches such that you can easily re-run a
+  search with the same file types. Should add new screen captures, but will do that in 0.0.13.
 
 ### 0.0.11
 - Bug fix: bring back preview window in "Find Files"

@@ -1,6 +1,5 @@
 /**
  * TODO:
- * [ ] When text is selected, use that to fill the fzf prompt
  * [ ] Show relative paths whenever possible
  *     - This might be tricky. I could figure out the common base path of all dirs we search, I guess?
  *
@@ -97,7 +96,11 @@ async function selectTypeFilter() {
         let hasResolved = false;  // I don't understand why this is necessary... Seems like I can resolve twice?
 
         qp.items = opts;
-        qp.title = 'Type one or more of the type identifiers below and press Enter, OR select the types you want below. Typing "X" (capital x) clears all selections';
+        qp.title = `Type one or more type identifiers below and press Enter,
+        OR select the types you want below. Example: typing "py cpp<Enter>"
+        (without ticking any boxes will search within python and C++ files.
+        Typing nothing and selecting those corresponding entries will do the
+        same. Typing "X" (capital x) clears all selections.`;
         qp.placeholder = 'enter one or more types...';
         // qp.activeItems = 
         qp.busy = true;
