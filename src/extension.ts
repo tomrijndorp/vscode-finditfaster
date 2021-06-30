@@ -27,7 +27,7 @@ let term: vscode.Terminal;
 interface Command {
     script: string,
     uri: vscode.Uri | undefined,
-    preRunCallback: undefined | (() => void),
+    preRunCallback: undefined | (() => boolean | Promise<boolean>),
 }
 const commands: { [key: string]: Command } = {
     findFiles: {
@@ -39,6 +39,11 @@ const commands: { [key: string]: Command } = {
         script: 'find_within_files.sh',
         uri: undefined,
         preRunCallback: undefined,
+    },
+    findWithinFilesWithType: {
+        script: 'find_within_files.sh',
+        uri: undefined,
+        preRunCallback: selectTypeFilter,
     },
     listSearchLocations: {
         script: 'list_search_locations.sh',
@@ -59,6 +64,67 @@ enum PathOrigin {
     settings = 1 << 2,
 }
 
+function getTypeOptions() {
+    const result = cp.execSync('rg --type-list').toString();
+    return result.split('\n').map(line => {
+        const [typeStr, typeInfo] = line.split(':');
+        return new FileTypeOption(typeStr, typeInfo, CFG.findWithinFilesFilter.has(typeStr));
+    });
+}
+
+class FileTypeOption implements vscode.QuickPickItem {
+    label: string;
+    description: string;
+    picked: boolean;
+
+    constructor(typeStr: string, types: string, picked: boolean = false) {
+        this.label = typeStr;
+        this.description = types;
+        this.picked = picked;
+    }
+}
+
+async function selectTypeFilter() {
+    const opts = getTypeOptions();
+    return await new Promise<boolean>((resolve, _) => {
+        const qp = vscode.window.createQuickPick();
+        let hasResolved = false;  // I don't understand why this is necessary... Seems like I can resolve twice?
+
+        qp.items = opts;
+        qp.title = 'Type one or more of the type identifiers below and press Enter, OR select the types you want below.';
+        qp.placeholder = 'pick one...';
+        // qp.activeItems = 
+        qp.busy = true;
+        qp.canSelectMany = true;
+        // https://github.com/microsoft/vscode/issues/103084
+        // https://github.com/microsoft/vscode/issues/119834
+        qp.selectedItems = qp.items.filter(x => CFG.findWithinFilesFilter.has(x.label));
+        qp.show();
+        qp.onDidAccept(() => {
+            console.log(qp.activeItems);
+            CFG.findWithinFilesFilter.clear();  // reset
+            if (qp.activeItems.length === 0) {
+                // If there are no active items, use the string that was entered.
+                const types = qp.value.trim().split(/\s+/);
+                types.forEach(x => CFG.findWithinFilesFilter.add(x));
+            } else {
+                // If there are active items, use those.
+                qp.selectedItems.forEach(x => CFG.findWithinFilesFilter.add(x.label));
+            }
+            console.log(`filter string is now`, CFG.findWithinFilesFilter);
+            hasResolved = true;
+            resolve(true);
+            qp.dispose();
+        });
+        qp.onDidHide(() => {
+            qp.dispose();
+            if (!hasResolved) {
+                resolve(false);
+            }
+        });
+    });
+}
+
 /** Global variable cesspool erm, I mean, Configuration Data Structure! It does the job for now. */
 interface Config {
     extensionName: string | undefined,
@@ -73,6 +139,7 @@ interface Config {
     findWithinFilesPreviewEnabled: boolean,
     findWithinFilesPreviewCommand: string,
     findWithinFilesPreviewWindowConfig: string,
+    findWithinFilesFilter: Set<string>,
     workspaceSettings: {
         folders: string[],
     },
@@ -103,6 +170,7 @@ const CFG: Config = {
     findWithinFilesPreviewEnabled: true,
     findWithinFilesPreviewCommand: '',
     findWithinFilesPreviewWindowConfig: '',
+    findWithinFilesFilter: new Set(),
     workspaceSettings: {
         folders: [],
     },
@@ -136,6 +204,7 @@ function setupConfig(context: vscode.ExtensionContext) {
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
     commands.findFiles.uri = local(commands.findFiles.script);
     commands.findWithinFiles.uri = local(commands.findWithinFiles.script);
+    commands.findWithinFilesWithType.uri = local(commands.findWithinFiles.script);
     commands.listSearchLocations.uri = local(commands.listSearchLocations.script);
     commands.flightCheck.uri = local(commands.flightCheck.script);
 }
@@ -304,6 +373,7 @@ function explainSearchLocations(useColor = false) {
 function writePathOriginsFile() {
     fs.writeFileSync(path.join(CFG.tempDir, 'paths_explain'), explainSearchLocations(true));
     console.log(`wrote to ${path.join(CFG.tempDir, 'paths_explain')}`);
+    return true;
 }
 
 function handleWorkspaceFoldersChanges() {
@@ -538,7 +608,7 @@ function getIgnoreString() {
     return globs.reduce((x, y) => x + `${y}:`, '');
 }
 
-function executeTerminalCommand(cmd: string) {
+async function executeTerminalCommand(cmd: string) {
     getIgnoreGlobs();
     if (!CFG.flightCheckPassed && !CFG.disableStartupChecks) {
         if (!reinitialize()) {
@@ -553,10 +623,13 @@ function executeTerminalCommand(cmd: string) {
 
     assert(cmd in commands);
     const cb = commands[cmd].preRunCallback;
-    if (cb !== undefined) { cb(); }
-    term.sendText(getCommandString(commands[cmd]));
-    if (CFG.showMaximizedTerminal) {
-        vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+    let cbResult = true;
+    if (cb !== undefined) { cbResult = await cb(); }
+    if (cbResult === true) {
+        term.sendText(getCommandString(commands[cmd]));
+        if (CFG.showMaximizedTerminal) {
+            vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+        }
+        term.show();
     }
-    term.show();
 }

@@ -34,6 +34,7 @@
   "activationEvents": [
     "onCommand:find-it-faster.findFiles",
     "onCommand:find-it-faster.findWithinFiles",
+    "onCommand:find-it-faster.findWithinFilesWithType",
     "onCommand:find-it-faster.listSearchLocations"
   ],
   "main": "./out/extension.js",
@@ -46,6 +47,10 @@
       {
         "command": "find-it-faster.findWithinFiles",
         "title": "Find It Faster: search within files"
+      },
+      {
+        "command": "find-it-faster.findWithinFilesWithType",
+        "title": "Find It Faster: search within files (with type filter)"
       },
       {
         "command": "find-it-faster.listSearchLocations",
