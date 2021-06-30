@@ -31,7 +31,6 @@ this setting).
 ⬇️ &nbsp;**Find files**
 ![Find Files](media/find_files.gif)
 
-⬇️ &nbsp;**Find text within files**
 ![Find Within Files](media/find_within_files.gif)
 
 This extension has also been tested on remote workspaces (e.g. SSH sessions).
@@ -100,6 +99,12 @@ more about using `fzf`.
   ```
   "terminal.integrated.allowChords": false
   ```
+
+### 🔍 _There's a file that cannot be found / searched through?_
+➥ This extension enables you to search through multiple directories: the process working directory,
+  the workspace directories, and any additional directories you specify in the extension settings.
+  What paths are included is configured through the settings. There's a `listSearchLocations`
+  command that can show you which paths are currently being indexed.
 
 ### 🧘 _Can you give focus back to my editor / my problems panel / other?_
 ➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
