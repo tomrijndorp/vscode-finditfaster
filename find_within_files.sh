@@ -7,6 +7,12 @@ for ENTRY in ${GLOB_PATTERNS[@]+"${GLOB_PATTERNS[@]}"}; do
     GLOBS+=("--glob")
     GLOBS+=("$ENTRY")
 done
+IFS=: read -r -a TYPE_FILTER <<< "${TYPE_FILTER:-}"
+TYPE_FILTER_ARR=()
+for ENTRY in ${TYPE_FILTER[@]+"${TYPE_FILTER[@]}"}; do
+    TYPE_FILTER_ARR+=("--type")
+    TYPE_FILTER_ARR+=("$ENTRY")
+done
 # 1. Search for text in files using Ripgrep
 # 2. Interactively restart Ripgrep with reload action
 # 3. Open the file in Vim
@@ -22,6 +28,7 @@ RG_PREFIX="rg \
     --colors 'path:style:nobold' \
     --glob '!**/.git/' \
     $(printf "'%s' " "${GLOBS[@]}") \
+    $(printf "'%s' " "${TYPE_FILTER_ARR[@]}") \
     2> /dev/null \
     "
 echo "$RG_PREFIX"

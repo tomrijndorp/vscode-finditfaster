@@ -28,32 +28,38 @@ interface Command {
     script: string,
     uri: vscode.Uri | undefined,
     preRunCallback: undefined | (() => boolean | Promise<boolean>),
+    postRunCallback: undefined | (() => void),
 }
 const commands: { [key: string]: Command } = {
     findFiles: {
         script: 'find_files.sh',
         uri: undefined,
         preRunCallback: undefined,
+        postRunCallback: undefined,
     },
     findWithinFiles: {
         script: 'find_within_files.sh',
         uri: undefined,
         preRunCallback: undefined,
+        postRunCallback: undefined,
     },
     findWithinFilesWithType: {
         script: 'find_within_files.sh',
         uri: undefined,
         preRunCallback: selectTypeFilter,
+        postRunCallback: () => { CFG.useTypeFilter = false; },
     },
     listSearchLocations: {
         script: 'list_search_locations.sh',
         uri: undefined,
         preRunCallback: writePathOriginsFile,
+        postRunCallback: undefined,
     },
     flightCheck: {
         script: 'flight_check.sh',
         uri: undefined,
         preRunCallback: undefined,
+        postRunCallback: undefined,
     }
 };
 
@@ -91,19 +97,32 @@ async function selectTypeFilter() {
         let hasResolved = false;  // I don't understand why this is necessary... Seems like I can resolve twice?
 
         qp.items = opts;
-        qp.title = 'Type one or more of the type identifiers below and press Enter, OR select the types you want below.';
-        qp.placeholder = 'pick one...';
+        qp.title = 'Type one or more of the type identifiers below and press Enter, OR select the types you want below. Typing "X" (capital x) clears all selections';
+        qp.placeholder = 'enter one or more types...';
         // qp.activeItems = 
         qp.busy = true;
         qp.canSelectMany = true;
         // https://github.com/microsoft/vscode/issues/103084
         // https://github.com/microsoft/vscode/issues/119834
         qp.selectedItems = qp.items.filter(x => CFG.findWithinFilesFilter.has(x.label));
+        qp.value = [...CFG.findWithinFilesFilter.keys()].reduce((x, y) => x + ' ' + y, '');
+        qp.matchOnDescription = true;
         qp.show();
+        qp.onDidChangeValue(() => {
+            if (qp.value.length > 0 && qp.value[qp.value.length - 1] === 'X') {
+                // This is where we're fighting with VS Code a little bit.
+                // When you don't reassign the items, the "X" will still be filtering the results,
+                // which we obviously don't want. Currently (6/2021), this works as expected.
+                qp.value = '';
+                qp.selectedItems = [];
+                qp.items = qp.items;  // keep this
+            }
+        });
         qp.onDidAccept(() => {
+            CFG.useTypeFilter = true;
             console.log(qp.activeItems);
             CFG.findWithinFilesFilter.clear();  // reset
-            if (qp.activeItems.length === 0) {
+            if (qp.selectedItems.length === 0) {
                 // If there are no active items, use the string that was entered.
                 const types = qp.value.trim().split(/\s+/);
                 types.forEach(x => CFG.findWithinFilesFilter.add(x));
@@ -111,7 +130,6 @@ async function selectTypeFilter() {
                 // If there are active items, use those.
                 qp.selectedItems.forEach(x => CFG.findWithinFilesFilter.add(x.label));
             }
-            console.log(`filter string is now`, CFG.findWithinFilesFilter);
             hasResolved = true;
             resolve(true);
             qp.dispose();
@@ -156,6 +174,7 @@ interface Config {
     searchWorkspaceFolders: boolean,
     extensionPath: string,
     tempDir: string,
+    useTypeFilter: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -187,6 +206,7 @@ const CFG: Config = {
     searchWorkspaceFolders: true,
     extensionPath: '',
     tempDir: '',
+    useTypeFilter: false,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -372,7 +392,6 @@ function explainSearchLocations(useColor = false) {
 
 function writePathOriginsFile() {
     fs.writeFileSync(path.join(CFG.tempDir, 'paths_explain'), explainSearchLocations(true));
-    console.log(`wrote to ${path.join(CFG.tempDir, 'paths_explain')}`);
     return true;
 }
 
@@ -583,6 +602,10 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
             }
         }
     }
+    // useTypeFilter should only be try if we activated the corresponding command
+    if (CFG.useTypeFilter && CFG.findWithinFilesFilter.size > 0) {
+        ret += 'TYPE_FILTER=' + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + ' ';
+    }
     ret += cmdPath;
     if (withArgs) {
         let paths = getWorkspaceFoldersAsString();
@@ -631,5 +654,7 @@ async function executeTerminalCommand(cmd: string) {
             vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
         }
         term.show();
+        const postRunCallback = commands[cmd].postRunCallback;
+        if (postRunCallback !== undefined) { postRunCallback(); }
     }
 }
