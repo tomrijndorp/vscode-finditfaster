@@ -74,7 +74,7 @@ function getTypeOptions() {
     return result.split('\n').map(line => {
         const [typeStr, typeInfo] = line.split(':');
         return new FileTypeOption(typeStr, typeInfo, CFG.findWithinFilesFilter.has(typeStr));
-    });
+    }).filter(x => x.label.trim().length !== 0);
 }
 
 class FileTypeOption implements vscode.QuickPickItem {
@@ -102,8 +102,6 @@ async function selectTypeFilter() {
         Typing nothing and selecting those corresponding entries will do the
         same. Typing "X" (capital x) clears all selections.`;
         qp.placeholder = 'enter one or more types...';
-        // qp.activeItems = 
-        qp.busy = true;
         qp.canSelectMany = true;
         // https://github.com/microsoft/vscode/issues/103084
         // https://github.com/microsoft/vscode/issues/119834
@@ -127,7 +125,8 @@ async function selectTypeFilter() {
             CFG.findWithinFilesFilter.clear();  // reset
             if (qp.selectedItems.length === 0) {
                 // If there are no active items, use the string that was entered.
-                const types = qp.value.trim().split(/\s+/);
+                // split on empty string yields an array with empty string, catch that
+                const types = qp.value === '' ? [] : qp.value.trim().split(/\s+/);
                 types.forEach(x => CFG.findWithinFilesFilter.add(x));
             } else {
                 // If there are active items, use those.

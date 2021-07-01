@@ -31,7 +31,6 @@ RG_PREFIX="rg \
     $(printf "'%s' " "${TYPE_FILTER_ARR[@]}") \
     2> /dev/null \
     "
-echo "$RG_PREFIX"
 
 PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'}
