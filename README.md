@@ -9,8 +9,14 @@ Make sure to check the [Requirements](#requirements) below (TL;DR: have `fzf`, `
 
 <hr />
 
-Default key bindings: `cmd+shift+j` / `ctrl+shift+j` to search files, `cmd+shift+u` / `ctrl+shift+u`
-to search for text within files. You can change these using VS Code's keyboard shortcuts.
+Default key bindings:
+- `cmd+shift+j` / `ctrl+shift+j` to search files,
+- `cmd+shift+u` / `ctrl+shift+u` to search for text within files,
+- `cmd+shift+ctrl+u` / `ctrl+shift+alt+u` to search for text within files with type pre-filtering.
+
+You can change these using VS Code's keyboard shortcuts.
+
+<hr />
 
 Windows users: see [Known Issues](#known_issues).
 
@@ -32,7 +38,11 @@ this setting).
 ⬇️ &nbsp;**Find files**
 ![Find Files](media/find_files.gif)
 
+⬇️ &nbsp;**Find text within files**
 ![Find Within Files](media/find_within_files.gif)
+
+⬇️ &nbsp;**Find text within files, with file type filter**
+![Find Within Files](media/find_within_files_with_filter.gif)
 
 This extension has also been tested on remote workspaces (e.g. SSH sessions).
 
