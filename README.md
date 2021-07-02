@@ -165,6 +165,11 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.13
+- Lower minimum required VS Code version to 1.48
+- Small bug fix in type filtering window
+- New screen captures in README
+
 ### 0.0.12
 - Option to "find within files", but pre-filter by file type.  
   Exposes a new keyboard shortcut (default: `cmd+shift+ctrl+u` / `ctrl+shift+alt+u`).  
