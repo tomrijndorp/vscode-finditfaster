@@ -643,7 +643,8 @@ async function executeTerminalCommand(cmd: string) {
 
     if (!term || term.exitStatus !== undefined) {
         createTerminal();
-        term.sendText('PS1="::: Terminal allocated for FindItFaster. Do not use. ::: " bash');
+        term.sendText('bash');
+        term.sendText('export PS1="::: Terminal allocated for FindItFaster. Do not use. ::: "; clear');
     }
 
     assert(cmd in commands);
