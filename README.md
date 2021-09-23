@@ -53,6 +53,7 @@ This extension has also been tested on remote workspaces (e.g. SSH sessions).
 
 This plugin opens a terminal inside VS Code. Make sure that you can run `fzf`, `rg`, and `bat` by
 running these commands directly in your terminal. If those work, this plugin will work as expected.
+If it doesn't, confirm that you are running recent versions of all three tools.
 
 If you're not familiar with these command line tools, you might want to check them out. They are
 awesome tools that can be individually used and make you more productive. And when combined such as
