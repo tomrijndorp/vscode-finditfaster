@@ -166,6 +166,11 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.14
+- Fix a bug in `search within files` on Linux
+- Prevent custom PS1 prompt from leaking into user's history
+- Fix a bug regarding fzf version discovery (e.g. Homebrew, Ubuntu 21.04 installs)
+
 ### 0.0.13
 - Lower minimum required VS Code version to 1.48
 - Small bug fix in type filtering window
