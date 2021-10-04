@@ -24,9 +24,9 @@ done
 
 # Some backwards compatibility stuff
 FZF_VER=$(fzf --version)
-FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
-FZF_VER_MIN=$(echo "$FZF_VER" | cut -d. -f2)
-if [[ $FZF_VER_MAJ -eq 0 && $FZF_VER_MIN -lt 27 ]]; then
+FZF_VER_PT1=${FZF_VER:0:3}
+FZF_VER_PT2=${FZF_VER:3:1}
+if [[ $FZF_VER_PT1 == "0.2" && $FZF_VER_PT2 -lt 7 ]]; then
     PREVIEW_WINDOW='right:50%'
 fi
 

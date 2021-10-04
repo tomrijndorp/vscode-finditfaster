@@ -42,10 +42,11 @@ if [[ "$HAS_SELECTION" -eq 1 ]]; then
     QUERY="$(cat "$SELECTION_FILE")"
 fi
 
+# Some backwards compatibility stuff
 FZF_VER=$(fzf --version)
-FZF_VER_MAJ=$(echo "$FZF_VER" | cut -d. -f1)
-FZF_VER_MIN=$(echo "$FZF_VER" | cut -d. -f2)
-if [[ $FZF_VER_MAJ -eq 0 && $FZF_VER_MIN -lt 27 ]]; then
+FZF_VER_PT1=${FZF_VER:0:3}
+FZF_VER_PT2=${FZF_VER:3:1}
+if [[ $FZF_VER_PT1 == "0.2" && $FZF_VER_PT2 -lt 7 ]]; then
     if [[ "$PREVIEW_COMMAND" != "$FIND_WITHIN_FILES_PREVIEW_COMMAND" ]]; then
         PREVIEW_COMMAND='bat {1} --color=always --highlight-line {2} --line-range {2}:'
     fi
@@ -65,6 +66,7 @@ PATHS=("$@")
 
 FZF_CMD="$RG_PREFIX $INITIAL_REGEX"
 FZF_CMD="$FZF_CMD $(printf "'%s' " "${PATHS[@]}")"
+# echo $FZF_CMD
 # exit 1
 # IFS sets the delimiter
 # -r: raw
