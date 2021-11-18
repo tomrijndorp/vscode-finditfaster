@@ -1,13 +1,23 @@
 #!/bin/bash
 set -uo pipefail  # No -e to support write to canary file after cancel
 
+. shared.sh
+
 PREVIEW_ENABLED=${FIND_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {} --theme=1337'}
 PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'right:50%:border-left'}
 HAS_SELECTION=${HAS_SELECTION:-}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
-PATHS=("$@")
 QUERY=''
+
+# If we only have one directory to search, invoke commands relative to that directory
+PATHS=("$@")
+SINGLE_DIR_ROOT=''
+if [ ${#PATHS[@]} -eq 1 ]; then
+  SINGLE_DIR_ROOT=${PATHS[0]}
+  PATHS=()
+  cd "$SINGLE_DIR_ROOT" || exit
+fi
 
 if [[ "$HAS_SELECTION" -eq 1 ]]; then
     QUERY="$(cat "$SELECTION_FILE")"
@@ -41,7 +51,7 @@ callfzf () {
         --hidden \
         --glob '!**/.git/' \
         ${GLOBS[@]+"${GLOBS[@]}"} \
-        "${PATHS[@]}" \
+        ${PATHS[@]+"${PATHS[@]}"} \
         2> /dev/null \
     | fzf \
         --multi \
@@ -55,5 +65,12 @@ if [[ -z "$VAL" ]]; then
     echo "1" > "$CANARY_FILE"
     exit 1
 else
-    echo "$VAL" > "$CANARY_FILE"
+    if [[ -n "$SINGLE_DIR_ROOT" ]]; then
+        TMP=$(mktemp)
+        echo "$VAL" > "$TMP"
+        sed "s|^|$SINGLE_DIR_ROOT/|" "$TMP" > "$CANARY_FILE"
+        rm "$TMP"
+    else
+        echo "$VAL" > "$CANARY_FILE"
+    fi
 fi

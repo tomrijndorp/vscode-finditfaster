@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 set -uo pipefail  # No -e to support write to canary file after cancel
 
+. shared.sh
+
 IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
 GLOBS=()
 for ENTRY in ${GLOB_PATTERNS[@]+"${GLOB_PATTERNS[@]}"}; do
     GLOBS+=("--glob")
     GLOBS+=("$ENTRY")
 done
+
+# If we only have one directory to search, invoke commands relative to that directory
+PATHS=("$@")
+SINGLE_DIR_ROOT=''
+if [ ${#PATHS[@]} -eq 1 ]; then
+  SINGLE_DIR_ROOT=${PATHS[0]}
+  PATHS=()
+  cd "$SINGLE_DIR_ROOT" || exit
+fi
+
 IFS=: read -r -a TYPE_FILTER <<< "${TYPE_FILTER:-}"
 TYPE_FILTER_ARR=()
 for ENTRY in ${TYPE_FILTER[@]+"${TYPE_FILTER[@]}"}; do
@@ -15,7 +27,7 @@ for ENTRY in ${TYPE_FILTER[@]+"${TYPE_FILTER[@]}"}; do
 done
 # 1. Search for text in files using Ripgrep
 # 2. Interactively restart Ripgrep with reload action
-# 3. Open the file in Vim
+# 3. Open the file
 RG_PREFIX="rg \
     --column \
     --hidden \
@@ -64,10 +76,9 @@ fi
 
 # We match against the beginning of the line so everything matches but nothing gets highlighted
 INITIAL_REGEX="^"
-PATHS=("$@")
 
-FZF_CMD="$RG_PREFIX $INITIAL_REGEX"
-FZF_CMD="$FZF_CMD $(printf "'%s' " "${PATHS[@]}")"
+FZF_CMD="$RG_PREFIX $INITIAL_REGEX $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
+
 # echo $FZF_CMD
 # exit 1
 # IFS sets the delimiter
@@ -80,7 +91,7 @@ IFS=: read -ra VAL < <(
   fzf --ansi \
       --delimiter : \
       --phony --query "$QUERY" \
-      --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(printf "'%s' " "${PATHS[@]}") || true" \
+      --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
       ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
 )
 # Output is filename, line number, character, contents
@@ -91,5 +102,9 @@ if [[ ${#VAL[@]} -eq 0 ]]; then
     exit 1
 else
     FILENAME=${VAL[0]}:${VAL[1]}:${VAL[2]}
-    echo "$FILENAME" > "$CANARY_FILE"
+    if [[ -n "$SINGLE_DIR_ROOT" ]]; then
+        echo "$SINGLE_DIR_ROOT/$FILENAME" > "$CANARY_FILE"
+    else
+        echo "$FILENAME" > "$CANARY_FILE"
+    fi
 fi

@@ -59,7 +59,7 @@ const commands: { [key: string]: Command } = {
         uri: undefined,
         preRunCallback: undefined,
         postRunCallback: undefined,
-    }
+    },
 };
 
 type WhenCondition = 'always' | 'never' | 'noWorkspaceOnly';
