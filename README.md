@@ -166,6 +166,9 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.15
+- Show relative paths when only one directory is on the search path
+
 ### 0.0.14
 - Fix a bug in `search within files` on Linux
 - Prevent custom PS1 prompt from leaking into user's history
