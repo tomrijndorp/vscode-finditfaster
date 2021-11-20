@@ -50,10 +50,13 @@ PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'}
 PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
 HAS_SELECTION=${HAS_SELECTION:-}
-QUERY=''
-
+# We match against the beginning of the line so everything matches but nothing gets highlighted...
+QUERY='^'
+INITIAL_QUERY=''  # Don't show initial "^" regex in fzf
 if [[ "$HAS_SELECTION" -eq 1 ]]; then
+    # ... or against the selection if we have one
     QUERY="$(cat "$SELECTION_FILE")"
+    INITIAL_QUERY="$QUERY"  # Do show the initial query when it's not "^"
 fi
 
 # Some backwards compatibility stuff
@@ -74,10 +77,7 @@ if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
     PREVIEW_STR=(--preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW")
 fi
 
-# We match against the beginning of the line so everything matches but nothing gets highlighted
-INITIAL_REGEX="^"
-
-FZF_CMD="$RG_PREFIX $INITIAL_REGEX $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
+FZF_CMD="$RG_PREFIX $QUERY $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
 
 # echo $FZF_CMD
 # exit 1
@@ -90,7 +90,7 @@ IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
       --delimiter : \
-      --phony --query "$QUERY" \
+      --phony --query "$INITIAL_QUERY" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
       ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
 )
