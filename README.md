@@ -166,6 +166,10 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.16
+- Ensure text selection searches immediately
+- Small bug fix where the extension wouldn't correctly initialize when a text selection was present
+
 ### 0.0.15
 - Show relative paths when only one directory is on the search path
 
