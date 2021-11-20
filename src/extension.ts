@@ -436,7 +436,7 @@ function doFlightCheck(): boolean {
     try {
         let errStr = '';
         const kvs: any = {};
-        const out = cp.execFileSync(getCommandString(commands.flightCheck, false, true), { shell: true }).toString('utf-8');
+        const out = cp.execFileSync(getCommandString(commands.flightCheck, false, false), { shell: true }).toString('utf-8');
         out.split('\n').map(x => {
             const maybeKV = parseKeyValue(x);
             if (maybeKV.length === 2) {
