@@ -167,6 +167,9 @@ more about using `fzf`.
 ## Release Notes
 
 ### 0.0.16
+- Fix a bug that caused `search within files` to not search in all paths
+
+### 0.0.16
 - Ensure text selection searches immediately
 - Small bug fix where the extension wouldn't correctly initialize when a text selection was present
 
