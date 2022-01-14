@@ -1,7 +1,7 @@
 #!/bin/bash
 set -uo pipefail  # No -e to support write to canary file after cancel
 
-. shared.sh
+. "$EXTENSION_PATH/shared.sh"
 
 PREVIEW_ENABLED=${FIND_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {} --theme=1337'}

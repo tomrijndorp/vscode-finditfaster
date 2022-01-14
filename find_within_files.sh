@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail  # No -e to support write to canary file after cancel
-BASE_DIR="$(dirname "$(realpath "$0")")"
 
-. $BASE_DIR/shared.sh
+. "$EXTENSION_PATH/shared.sh"
 
 IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
 GLOBS=()

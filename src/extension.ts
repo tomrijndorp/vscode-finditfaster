@@ -558,6 +558,7 @@ function createTerminal() {
             /* eslint-disable @typescript-eslint/naming-convention */
             HISTCONTROL: 'ignoreboth',  // bash
             // HISTORY_IGNORE: '*',        // zsh
+            EXTENSION_PATH: CFG.extensionPath,
             FIND_FILES_PREVIEW_ENABLED: CFG.findFilesPreviewEnabled ? '1' : '0',
             FIND_FILES_PREVIEW_COMMAND: CFG.findFilesPreviewCommand,
             FIND_FILES_PREVIEW_WINDOW_CONFIG: CFG.findFilesPreviewWindowConfig,
