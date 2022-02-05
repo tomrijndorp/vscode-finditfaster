@@ -31,6 +31,7 @@ done
 RG_PREFIX="rg \
     --column \
     --hidden \
+    $(if [[ -n "$USE_GITIGNORE_OPT" ]]; then echo "${USE_GITIGNORE_OPT}"; fi) \
     --line-number \
     --no-heading \
     --color=always \

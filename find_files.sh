@@ -49,6 +49,7 @@ callfzf () {
     rg \
         --files \
         --hidden \
+        $(if [[ -n "$USE_GITIGNORE_OPT" ]]; then echo "${USE_GITIGNORE_OPT}"; fi) \
         --glob '!**/.git/' \
         ${GLOBS[@]+"${GLOBS[@]}"} \
         ${PATHS[@]+"${PATHS[@]}"} \

@@ -97,6 +97,11 @@
           "type": "boolean",
           "default": false
         },
+        "find-it-faster.general.useGitIgnoreExcludes": {
+          "markdownDescription": "Use `.gitignore` entries (if present) to limit search paths",
+          "type": "boolean",
+          "default": true
+        },
         "find-it-faster.general.useWorkspaceSearchExcludes": {
           "markdownDescription": "In order to speed up VS Code's native search functionality, you can use the `search.exclude` setting. If checked, this extension will honor the same exclude patterns (as long as they follow the standard \"gitignore glob style\" that `rg` uses.",
           "type": "boolean",

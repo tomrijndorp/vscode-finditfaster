@@ -152,6 +152,7 @@ interface Config {
     searchPathsOrigins: { [key: string]: PathOrigin },
     disableStartupChecks: boolean,
     useEditorSelectionAsQuery: boolean,
+    useGitIgnoreExcludes: boolean,
     useWorkspaceSearchExcludes: boolean,
     findFilesPreviewEnabled: boolean,
     findFilesPreviewCommand: string,
@@ -184,6 +185,7 @@ const CFG: Config = {
     searchPathsOrigins: {},
     disableStartupChecks: false,
     useEditorSelectionAsQuery: true,
+    useGitIgnoreExcludes: true,
     useWorkspaceSearchExcludes: true,
     findFilesPreviewEnabled: true,
     findFilesPreviewCommand: '',
@@ -276,6 +278,7 @@ function updateConfigWithUserSettings() {
     CFG.disableStartupChecks = getCFG('advanced.disableStartupChecks');
     CFG.useEditorSelectionAsQuery = getCFG('advanced.useEditorSelectionAsQuery');
     CFG.useWorkspaceSearchExcludes = getCFG('general.useWorkspaceSearchExcludes');
+    CFG.useGitIgnoreExcludes = getCFG('general.useGitIgnoreExcludes');
     CFG.additionalSearchLocations = getCFG('general.additionalSearchLocations');
     CFG.additionalSearchLocationsWhen = getCFG('general.additionalSearchLocationsWhen');
     CFG.searchCurrentWorkingDirectory = getCFG('general.searchCurrentWorkingDirectory');
@@ -565,6 +568,7 @@ function createTerminal() {
             FIND_WITHIN_FILES_PREVIEW_ENABLED: CFG.findWithinFilesPreviewEnabled ? '1' : '0',
             FIND_WITHIN_FILES_PREVIEW_COMMAND: CFG.findWithinFilesPreviewCommand,
             FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG: CFG.findWithinFilesPreviewWindowConfig,
+            USE_GITIGNORE: CFG.useGitIgnoreExcludes ? '1' : '0',
             GLOBS: CFG.useWorkspaceSearchExcludes ? getIgnoreString() : '',
             CANARY_FILE: CFG.canaryFile,
             SELECTION_FILE: CFG.selectionFile,
