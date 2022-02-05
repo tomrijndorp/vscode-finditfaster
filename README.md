@@ -166,7 +166,10 @@ more about using `fzf`.
 
 ## Release Notes
 
-### 0.0.16
+### 0.0.18
+- Add an option to use the contents of `.gitignore` files to limit search paths (on by default)
+
+### 0.0.17
 - Fix a bug that caused `search within files` to not search in all paths
 
 ### 0.0.16
