@@ -48,7 +48,7 @@ fi
 RG_PREFIX="$RG_PREFIX 2> /dev/null"
 
 PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
-PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --theme=1337 --style=header,grid'}
+PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid'}
 PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
 HAS_SELECTION=${HAS_SELECTION:-}
 # We match against the beginning of the line so everything matches but nothing gets highlighted...

@@ -139,6 +139,11 @@
           ],
           "default": "noWorkspaceOnly"
         },
+        "find-it-faster.general.batTheme": {
+          "markdownDescription": "The color theme to use for `bat` (see `bat --list-themes`)",
+          "type": "string",
+          "default": "1337"
+        },
         "find-it-faster.findFiles.showPreview": {
           "markdownDescription": "Show a preview window when searching files",
           "type": "boolean",

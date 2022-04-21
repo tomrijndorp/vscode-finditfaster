@@ -178,6 +178,7 @@ interface Config {
     extensionPath: string,
     tempDir: string,
     useTypeFilter: boolean,
+    batTheme: string,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -211,6 +212,7 @@ const CFG: Config = {
     extensionPath: '',
     tempDir: '',
     useTypeFilter: false,
+    batTheme: '',
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -287,6 +289,7 @@ function updateConfigWithUserSettings() {
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
     CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
+    CFG.batTheme = getCFG('general.batTheme');
     CFG.findFilesPreviewEnabled = getCFG('findFiles.showPreview');
     CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
@@ -573,6 +576,7 @@ function createTerminal() {
             CANARY_FILE: CFG.canaryFile,
             SELECTION_FILE: CFG.selectionFile,
             EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
+            BAT_THEME: CFG.batTheme,
             /* eslint-enable @typescript-eslint/naming-convention */
         },
     });

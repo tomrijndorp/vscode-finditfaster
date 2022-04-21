@@ -4,7 +4,7 @@ set -uo pipefail  # No -e to support write to canary file after cancel
 . "$EXTENSION_PATH/shared.sh"
 
 PREVIEW_ENABLED=${FIND_FILES_PREVIEW_ENABLED:-1}
-PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {} --theme=1337'}
+PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {}'}
 PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'right:50%:border-left'}
 HAS_SELECTION=${HAS_SELECTION:-}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
