@@ -90,6 +90,7 @@ FZF_CMD="$RG_PREFIX $QUERY $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
 IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
+      --cycle \
       --delimiter : \
       --phony --query "$INITIAL_QUERY" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \

@@ -55,6 +55,7 @@ callfzf () {
         ${PATHS[@]+"${PATHS[@]}"} \
         2> /dev/null \
     | fzf \
+        --cycle \
         --multi \
         --query "${QUERY}" \
         ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
