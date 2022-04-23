@@ -166,6 +166,12 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.19
+- Add a new command: `search file (with type filter)`. Thanks for suggesting @prime31!
+- Add option to set the `bat` theme. Thanks for suggesting @mariush2!
+- Add `--cycle` to `fzf` call. Thanks for suggesting @shlomocarmeter!
+- Fix some bugs that caused `search within files` to behave incorrectly
+
 ### 0.0.18
 - Add an option to use the contents of `.gitignore` files to limit search paths (on by default)
 
