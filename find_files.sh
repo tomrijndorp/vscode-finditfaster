@@ -45,13 +45,21 @@ if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
     PREVIEW_STR=(--preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW")
 fi
 
+IFS=: read -r -a TYPE_FILTER <<< "${TYPE_FILTER:-}"
+TYPE_FILTER_ARR=()
+for ENTRY in ${TYPE_FILTER[@]+"${TYPE_FILTER[@]}"}; do
+    TYPE_FILTER_ARR+=("--type")
+    TYPE_FILTER_ARR+=("$ENTRY")
+done
+
 callfzf () {
     rg \
         --files \
         --hidden \
-        $(if [[ -n "$USE_GITIGNORE_OPT" ]]; then echo "${USE_GITIGNORE_OPT}"; fi) \
+        $(array_join ${USE_GITIGNORE_OPT+"${USE_GITIGNORE_OPT[@]}"}) \
         --glob '!**/.git/' \
         ${GLOBS[@]+"${GLOBS[@]}"} \
+        ${TYPE_FILTER_ARR[@]+"${TYPE_FILTER_ARR[@]}"} \
         ${PATHS[@]+"${PATHS[@]}"} \
         2> /dev/null \
     | fzf \
@@ -61,7 +69,10 @@ callfzf () {
         ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
 }
 
+set -x
 VAL=$(callfzf)
+set +x
+
 if [[ -z "$VAL" ]]; then
     echo canceled
     echo "1" > "$CANARY_FILE"

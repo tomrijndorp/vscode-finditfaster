@@ -33,6 +33,7 @@
   ],
   "activationEvents": [
     "onCommand:find-it-faster.findFiles",
+    "onCommand:find-it-faster.findFilesWithType",
     "onCommand:find-it-faster.findWithinFiles",
     "onCommand:find-it-faster.findWithinFilesWithType",
     "onCommand:find-it-faster.listSearchLocations"
@@ -43,6 +44,10 @@
       {
         "command": "find-it-faster.findFiles",
         "title": "Find It Faster: search file"
+      },
+      {
+        "command": "find-it-faster.findFilesWithType",
+        "title": "Find It Faster: search file (with type filter)"
       },
       {
         "command": "find-it-faster.findWithinFiles",

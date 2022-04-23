@@ -28,24 +28,25 @@ done
 # 1. Search for text in files using Ripgrep
 # 2. Interactively restart Ripgrep with reload action
 # 3. Open the file
-RG_PREFIX="rg \
-    --column \
-    --hidden \
-    $(if [[ -n "$USE_GITIGNORE_OPT" ]]; then echo "${USE_GITIGNORE_OPT}"; fi) \
-    --line-number \
-    --no-heading \
-    --color=always \
-    --smart-case \
-    --colors 'match:fg:green' \
-    --colors 'path:fg:white' \
-    --colors 'path:style:nobold' \
-    --glob '!**/.git/' \
-    $(printf "'%s' " "${GLOBS[@]}") \
-    "
+# shellcheck disable=SC2207
+RG_PREFIX=(rg 
+    --column
+    --hidden
+    $(array_join ${USE_GITIGNORE_OPT+"${USE_GITIGNORE_OPT[@]}"})
+    --line-number
+    --no-heading
+    --color=always
+    --smart-case
+    --colors 'match:fg:green'
+    --colors 'path:fg:white'
+    --colors 'path:style:nobold'
+    --glob "'!**/.git/'"
+    $(array_join "${GLOBS[@]+"${GLOBS[@]}"}")
+)
 if [[ ${#TYPE_FILTER_ARR[@]} -gt 0 ]]; then
-    RG_PREFIX="$RG_PREFIX $(printf "%s " "${TYPE_FILTER_ARR[@]}")"
+    RG_PREFIX+=("$(printf "%s " "${TYPE_FILTER_ARR[@]}")")
 fi
-RG_PREFIX="$RG_PREFIX 2> /dev/null"
+RG_PREFIX+=(" 2> /dev/null")
 
 PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid'}
@@ -78,9 +79,12 @@ if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
     PREVIEW_STR=(--preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW")
 fi
 
-FZF_CMD="$RG_PREFIX $QUERY $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
+RG_PREFIX_STR=$(array_join "${RG_PREFIX+"${RG_PREFIX[@]}"}")
+RG_PREFIX_STR="${RG_PREFIX+"${RG_PREFIX[@]}"}"
+FZF_CMD="${RG_PREFIX+"${RG_PREFIX[@]}"} $QUERY $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
 
 # echo $FZF_CMD
+echo "$RG_PREFIX_STR"
 # exit 1
 # IFS sets the delimiter
 # -r: raw
@@ -91,9 +95,9 @@ IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
       --cycle \
+      --bind "change:reload:sleep 0.1; $RG_PREFIX_STR {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
       --delimiter : \
       --phony --query "$INITIAL_QUERY" \
-      --bind "change:reload:sleep 0.1; $RG_PREFIX {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
       ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
 )
 # Output is filename, line number, character, contents

@@ -36,6 +36,12 @@ const commands: { [key: string]: Command } = {
         preRunCallback: undefined,
         postRunCallback: undefined,
     },
+    findFilesWithType: {
+        script: 'find_files.sh',
+        uri: undefined,
+        preRunCallback: selectTypeFilter,
+        postRunCallback: () => { CFG.useTypeFilter = false; },
+    },
     findWithinFiles: {
         script: 'find_within_files.sh',
         uri: undefined,
@@ -229,6 +235,7 @@ function setupConfig(context: vscode.ExtensionContext) {
     assert(CFG.extensionName);
     const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
     commands.findFiles.uri = local(commands.findFiles.script);
+    commands.findFilesWithType.uri = local(commands.findFiles.script);
     commands.findWithinFiles.uri = local(commands.findWithinFiles.script);
     commands.findWithinFilesWithType.uri = local(commands.findWithinFiles.script);
     commands.listSearchLocations.uri = local(commands.listSearchLocations.script);
