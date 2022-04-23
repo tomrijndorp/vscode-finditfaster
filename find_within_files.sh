@@ -3,13 +3,6 @@ set -uo pipefail  # No -e to support write to canary file after cancel
 
 . "$EXTENSION_PATH/shared.sh"
 
-IFS=: read -r -a GLOB_PATTERNS <<< "$GLOBS"
-GLOBS=()
-for ENTRY in ${GLOB_PATTERNS[@]+"${GLOB_PATTERNS[@]}"}; do
-    GLOBS+=("--glob")
-    GLOBS+=("$ENTRY")
-done
-
 # If we only have one directory to search, invoke commands relative to that directory
 PATHS=("$@")
 SINGLE_DIR_ROOT=''
@@ -19,12 +12,6 @@ if [ ${#PATHS[@]} -eq 1 ]; then
   cd "$SINGLE_DIR_ROOT" || exit
 fi
 
-IFS=: read -r -a TYPE_FILTER <<< "${TYPE_FILTER:-}"
-TYPE_FILTER_ARR=()
-for ENTRY in ${TYPE_FILTER[@]+"${TYPE_FILTER[@]}"}; do
-    TYPE_FILTER_ARR+=("--type")
-    TYPE_FILTER_ARR+=("$ENTRY")
-done
 # 1. Search for text in files using Ripgrep
 # 2. Interactively restart Ripgrep with reload action
 # 3. Open the file
@@ -62,9 +49,6 @@ if [[ "$HAS_SELECTION" -eq 1 ]]; then
 fi
 
 # Some backwards compatibility stuff
-FZF_VER=$(fzf --version)
-FZF_VER_PT1=${FZF_VER:0:3}
-FZF_VER_PT2=${FZF_VER:3:1}
 if [[ $FZF_VER_PT1 == "0.2" && $FZF_VER_PT2 -lt 7 ]]; then
     if [[ "$PREVIEW_COMMAND" != "$FIND_WITHIN_FILES_PREVIEW_COMMAND" ]]; then
         PREVIEW_COMMAND='bat {1} --color=always --highlight-line {2} --line-range {2}:'
