@@ -5,8 +5,8 @@ trap
 {
     # If we except, lets report it visually. Can help with debugging if there IS a problem
     # in here.
-    Write-Host "EXCEPTION: $PSItem.ToString()" -ForegroundColor Red
-    Write-Host "$PSItem.ScriptStackTrace"
+    Write-Host "EXCEPTION: $($PSItem.ToString())" -ForegroundColor Red
+    Write-Host "$($PSItem.ScriptStackTrace)"
     Start-Sleep 10
 }
 
@@ -55,13 +55,8 @@ if ($PATHS.Count -eq 1) {
         exit 1
     }
     Push-Location "$SINGLE_DIR_ROOT"
-    $PATHS="."
+    $PATHS=""
 }
-
-if ($TYPE_FILTER_ARR.Count -gt 0) {
-    $RG_PREFIX+="$TYPE_FILTER_ARR"
-}
-#RG_PREFIX+=(" 2> /dev/null")
 
 $PREVIEW_ENABLED=VGet "env:FIND_WITHIN_FILES_PREVIEW_ENABLED" 0
 $PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always --plain {}'
@@ -77,9 +72,9 @@ if ("$QUERY".Length -gt 0) {
 }
 
 if($PREVIEW_ENABLED -eq 1) {
-    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+    $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
 } else {
-    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
+    $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
 }
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {

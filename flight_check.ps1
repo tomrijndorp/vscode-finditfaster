@@ -6,7 +6,7 @@ function InPath($tool) {
     Write-Host "which ${tool}: " -NoNewline
     if ((Get-Command "$tool" -ErrorAction SilentlyContinue) -eq $null) 
     { 
-        Write-Host "undefined"
+        Write-Host ""
     } else {
         Write-Host "found"
     }

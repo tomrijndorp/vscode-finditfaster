@@ -1,11 +1,10 @@
 
-
 trap
 {
     # If we except, lets report it visually. Can help with debugging if there IS a problem
     # in here.
-    Write-Host "EXCEPTION: $PSItem.ToString()" -ForegroundColor Red
-    Write-Host "$PSItem.ScriptStackTrace"
+    Write-Host "EXCEPTION: $($PSItem.ToString())" -ForegroundColor Red
+    Write-Host "$($PSItem.ScriptStackTrace)"
     Start-Sleep 10
 }
 
