@@ -452,7 +452,7 @@ function explainSearchLocations(useColor = false) {
 }
 
 function writePathOriginsFile() {
-    fs.writeFileSync(path.join(CFG.tempDir, 'paths_explain'), explainSearchLocations(true));
+    fs.writeFileSync(path.join(CFG.tempDir, 'paths_explain'), explainSearchLocations(os.platform() !== 'win32'));
     return true;
 }
 
