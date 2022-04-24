@@ -30,7 +30,7 @@ function VOptGet($varname,$opt) {
         foreach ($ENTRY in $DATA) {
             if ("$ENTRY".Length -gt 0) {
                 $ARR+=" $opt "
-                $ARR+="`"$ENTRY`""
+                $ARR+="'$ENTRY'"
             }
         }
     }
@@ -55,7 +55,7 @@ if ($PATHS.Count -eq 1) {
         exit 1
     }
     Push-Location "$SINGLE_DIR_ROOT"
-    $PATHS=""
+    $PATHS="."
 }
 
 if ($TYPE_FILTER_ARR.Count -gt 0) {
@@ -77,9 +77,9 @@ if ("$QUERY".Length -gt 0) {
 }
 
 if($PREVIEW_ENABLED -eq 1) {
-    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" 2> nul | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
 } else {
-    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" 2> nul | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
+    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
 }
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
