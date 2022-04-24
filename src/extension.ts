@@ -491,13 +491,18 @@ function doFlightCheck(): boolean {
         //vscode.window.showErrorMessage('Native Windows support does not exist at this point in time. You can however run inside a Remote-WSL workspace. See the README for more information.');
         //return false;
         // We don't flight check on windows just yet.
-        return true;
+        //return true;
     }
 
     try {
         let errStr = '';
         const kvs: any = {};
-        const out = cp.execFileSync(getCommandString(commands.flightCheck, false, false), { shell: true }).toString('utf-8');
+        let out = "";
+        if(os.platform() === 'win32') {
+            out = cp.execFileSync("powershell " + getCommandString(commands.flightCheck, false, false), { shell: true }).toString('utf-8');
+        } else {
+            out = cp.execFileSync(getCommandString(commands.flightCheck, false, false), { shell: true }).toString('utf-8');
+        }
         out.split('\n').map(x => {
             const maybeKV = parseKeyValue(x);
             if (maybeKV.length === 2) {
