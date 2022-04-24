@@ -565,15 +565,19 @@ function openFiles(data: string) {
     const filePaths = data.split('\n').filter(s => s !== '');
     assert(filePaths.length > 0);
     filePaths.forEach(p => {
-        // TODO: We might want to just do this the RE way on all platforms.
         let [file, lineTmp, charTmp] = p.split(':', 3);
+        // TODO: We might want to just do this the RE way on all platforms?
+        //       On Windows at least the c: makes the split approach problematic.
         if (os.platform() === 'win32') {
-            let re = /^\s*(?<file>([a-zA-Z][:])?[^:]+)(?<lineTmp>[:]\d+)?(?<charTmp>[:]\d+)?((\s*)|([:].*))$/;
+            let re = /^\s*(?<file>([a-zA-Z][:])?[^:]+)([:](?<lineTmp>\d+))?\s*([:](?<charTmp>\d+))?.*/;
             let v = p.match(re);
             if(v && v.groups) {
                 file = v.groups['file'];
                 lineTmp = v.groups['lineTmp'];
                 charTmp = v.groups['charTmp'];
+                //vscode.window.showWarningMessage('File: ' + file + "\nlineTmp: " + lineTmp + "\ncharTmp: " + charTmp);
+            } else {
+                vscode.window.showWarningMessage('Did not match anything in filename: [' + p + "] could not open file!");
             }
         }
         // On windows we sometimes get extra characters that confound

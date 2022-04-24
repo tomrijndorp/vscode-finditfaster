@@ -1,5 +1,6 @@
 
 
+
 trap
 {
     # If we except, lets report it visually. Can help with debugging if there IS a problem
@@ -57,54 +58,28 @@ if ($PATHS.Count -eq 1) {
     $PATHS=""
 }
 
-# 1. Search for text in files using Ripgrep
-# 2. Interactively restart Ripgrep with reload action
-# 3. Open the file
-$RG_PREFIX="rg "`
-    + "--column "`
-    + "--hidden "`
-    + "$USE_GITIGNORE_OPT "`
-    + "--line-number "`
-    + "--no-heading "`
-    + "--color=always "`
-    + "--smart-case "`
-    + "--colors `"match:fg:green`" "`
-    + "--colors `"path:fg:white`" "`
-    + "--colors `"path:style:nobold`" "`
-    + "--glob `"!**/.git/`" "`
-    + "$GLOBS"
-
 if ($TYPE_FILTER_ARR.Count -gt 0) {
     $RG_PREFIX+="$TYPE_FILTER_ARR"
 }
 #RG_PREFIX+=(" 2> /dev/null")
+
 $PREVIEW_ENABLED=VGet "env:FIND_WITHIN_FILES_PREVIEW_ENABLED" 0
-$PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid'
-$PREVIEW_WINDOW=VGet "env:FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" 'right:border-left:50%:+{2}+3/3:~3'
+$PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always --plain {}'
+$PREVIEW_WINDOW=VGet "env:FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" 'right:50%:border-left'
 $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
-# We match against the beginning of the line so everything matches but nothing gets highlighted...
-$QUERY="`"^`""
-$INITIAL_QUERY=""  # Don't show initial "^" regex in fzf
+$QUERY=""
 if ($HAS_SELECTION -eq 1) {
-    # ... or against the selection if we have one
     $QUERY=Get-Content "$SELECTION_FILE" -Raw
-    $INITIAL_QUERY="$QUERY" # Do show the initial query when it's not "^"
 }
-
-$FZF_CMD="$RG_PREFIX $QUERY $PATHS"
-Write-Host "$FZF_CMD"
-$Env:FZF_DEFAULT_COMMAND="$FZF_CMD"
-
 $QUERYPARAM=""
-if ("$INITIAL_QUERY".Length -gt 0) {
+if ("$QUERY".Length -gt 0) {
     $QUERYPARAM="--query"
 }
+
 if($PREVIEW_ENABLED -eq 1) {
-    # I can't get it not to report an error || true trick doesn't work in powershell.
-    # $ErrorActionPreference="SilentlyContinue";
-    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" 2> nul | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
 } else {
-    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" 
+    $result = rg --files --hidden "$USE_GITIGNORE_OPT" --glob '!**/.git/' "$GLOBS" "$TYPE_FILTER_ARR" "$PATHS" 2> nul | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
 }
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
