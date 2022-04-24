@@ -29,7 +29,47 @@ interface Command {
     preRunCallback: undefined | (() => boolean | Promise<boolean>),
     postRunCallback: undefined | (() => void),
 }
-const commands: { [key: string]: Command } = {
+const commands: { [key: string]: Command } = os.platform() === "win32" ?
+{
+    findFiles: {
+        script: 'find_files.ps1',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined,
+    },
+    findFilesWithType: {
+        script: 'find_files.ps1',
+        uri: undefined,
+        preRunCallback: selectTypeFilter,
+        postRunCallback: () => { CFG.useTypeFilter = false; },
+    },
+    findWithinFiles: {
+        script: 'find_within_files.ps1',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined,
+    },
+    findWithinFilesWithType: {
+        script: 'find_within_files.ps1',
+        uri: undefined,
+        preRunCallback: selectTypeFilter,
+        postRunCallback: () => { CFG.useTypeFilter = false; },
+    },
+    listSearchLocations: {
+        script: 'list_search_locations.ps1',
+        uri: undefined,
+        preRunCallback: writePathOriginsFile,
+        postRunCallback: undefined,
+    },
+    flightCheck: {
+        script: 'flight_check.ps1',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined,
+    },
+}
+: // Linux Like Platform
+{
     findFiles: {
         script: 'find_files.sh',
         uri: undefined,
@@ -362,7 +402,13 @@ function collectSearchLocations() {
         const dirs = vscode.workspace.workspaceFolders.map(x => {
             const uri = decodeURI(x.uri.toString());
             if (uri.substr(0, 7) === 'file://') {
-                return uri.substr(7);
+                if(os.platform() === 'win32') {
+                    return uri.substr(8)
+                              .replace(/\//g, "\\")
+                              .replace(/%3A/g, ":");
+                } else {
+                    return uri.substr(7);
+                }
             } else {
                 vscode.window.showErrorMessage('Non-file:// uri\'s not currently supported...');
                 return '';
@@ -442,8 +488,10 @@ function doFlightCheck(): boolean {
 
     // Windows native
     if (os.platform() === 'win32') {
-        vscode.window.showErrorMessage('Native Windows support does not exist at this point in time. You can however run inside a Remote-WSL workspace. See the README for more information.');
-        return false;
+        //vscode.window.showErrorMessage('Native Windows support does not exist at this point in time. You can however run inside a Remote-WSL workspace. See the README for more information.');
+        //return false;
+        // We don't flight check on windows just yet.
+        return true;
     }
 
     try {
@@ -517,7 +565,20 @@ function openFiles(data: string) {
     const filePaths = data.split('\n').filter(s => s !== '');
     assert(filePaths.length > 0);
     filePaths.forEach(p => {
-        const [file, lineTmp, charTmp] = p.split(':', 3);
+        // TODO: We might want to just do this the RE way on all platforms.
+        let [file, lineTmp, charTmp] = p.split(':', 3);
+        if (os.platform() === 'win32') {
+            let re = /^\s*(?<file>([a-zA-Z][:])?[^:]+)(?<lineTmp>[:]\d+)?(?<charTmp>[:]\d+)?((\s*)|([:].*))$/;
+            let v = p.match(re);
+            if(v && v.groups) {
+                file = v.groups['file'];
+                lineTmp = v.groups['lineTmp'];
+                charTmp = v.groups['charTmp'];
+            }
+        }
+        // On windows we sometimes get extra characters that confound
+        // the file lookup.
+        file = file.trim();
         let line = 0, char = 0;
         let range = new vscode.Range(0, 0, 0, 0);
         if (lineTmp !== undefined) {
@@ -659,8 +720,11 @@ async function executeTerminalCommand(cmd: string) {
 
     if (!term || term.exitStatus !== undefined) {
         createTerminal();
-        term.sendText('bash');
-        term.sendText('export PS1="::: Terminal allocated for FindItFaster. Do not use. ::: "; clear');
+        if (os.platform() !== 'win32')
+        {
+            term.sendText('bash');
+            term.sendText('export PS1="::: Terminal allocated for FindItFaster. Do not use. ::: "; clear');
+        }
     }
 
     assert(cmd in commands);
