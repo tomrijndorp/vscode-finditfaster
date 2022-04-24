@@ -486,14 +486,6 @@ function doFlightCheck(): boolean {
         return line.split(': ', 2);
     };
 
-    // Windows native
-    if (os.platform() === 'win32') {
-        //vscode.window.showErrorMessage('Native Windows support does not exist at this point in time. You can however run inside a Remote-WSL workspace. See the README for more information.');
-        //return false;
-        // We don't flight check on windows just yet.
-        //return true;
-    }
-
     try {
         let errStr = '';
         const kvs: any = {};
@@ -692,7 +684,11 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
     }
     // useTypeFilter should only be try if we activated the corresponding command
     if (CFG.useTypeFilter && CFG.findWithinFilesFilter.size > 0) {
-        ret += 'TYPE_FILTER=' + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + ' ';
+        if(os.platform() === 'win32') {
+            ret += '$Env:TYPE_FILTER=' + "'" +[...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + "'; ";
+        } else {
+            ret += 'TYPE_FILTER=' + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + ' ';
+        }
     }
     ret += cmdPath;
     if (withArgs) {
