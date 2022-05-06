@@ -12,5 +12,5 @@ done
 echo -e "\n$(cat "${EXPLAIN_FILE}")"
 echo -e "----------\n"
 
-echo -e "All these paths are configurable. If you\'re expecting a path but not seeing it here,"
+echo -e "All these paths are configurable. If you are expecting a path but not seeing it here,"
 echo -e "it may be turned off in the settings.\n\n"
