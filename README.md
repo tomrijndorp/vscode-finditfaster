@@ -1,7 +1,7 @@
 # FindItFaster
 
 [![CI pipeline - release](https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/tomrijndorp/vscode-finditfaster/actions?query=branch%3Amain)
-![Platform support](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)-334488)
+![Platform support](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)%20%7C%20windows%20powershell%20(experimental)-334488)
 
 Finds it, but faster.  
 
@@ -18,7 +18,7 @@ You can change these using VS Code's keyboard shortcuts.
 
 <hr />
 
-Windows users: see [Known Issues](#known_issues).
+Update: Native Windows support is now implemented (still experimental)! Also see [Known Issues](#known_issues).
 
 <hr />
 
@@ -81,10 +81,12 @@ your time.
 <a name="known_issues"></a>
 ## Known Issues
 
-**Windows**. You can run this extension inside a [Remote-WSL
-workspace](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl). Native
-support does not exist at this time. Contributions welcome!  More information on [Github](
-https://github.com/tomrijndorp/vscode-finditfaster/issues/4).
+**Windows**. There are two ways of running this extension on Windows:
+1. **Natively using Powershell**. This feature was added as of May 2022 and is experimental at this
+stage. Please file an issue on [Github]( https://github.com/tomrijndorp/vscode-finditfaster/issues)
+if you find one.
+2. **Through WSL** (Windows Subsystem for Linux). You can run this extension inside a [Remote-WSL
+workspace](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl).
 
 **Not tested on Docker / Github code spaces**. Will likely work without issues as the
 functionality is very similiar to other remote sessions (e.g. SSH, WSL).
@@ -165,6 +167,9 @@ more about using `fzf`.
 <hr />
 
 ## Release Notes
+
+### 0.0.20
+- Experimental windows support! Thanks so much @ihdavids!
 
 ### 0.0.19
 - Add a new command: `search file (with type filter)`. Thanks for suggesting @prime31!
