@@ -224,7 +224,7 @@ const CFG: Config = {
 /** Ensure that whatever command we expose in package.json actually exists */
 function checkExposedFunctions() {
     for (const x of PACKAGE.contributes.commands) {
-        const fName = x.command.substr(PACKAGE.name.length + '.'.length);
+        const fName = x.command.substring(PACKAGE.name.length + '.'.length);
         assert(fName in commands);
     }
 }
@@ -361,13 +361,13 @@ function collectSearchLocations() {
     if (CFG.searchWorkspaceFolders && vscode.workspace.workspaceFolders !== undefined) {
         const dirs = vscode.workspace.workspaceFolders.map(x => {
             const uri = decodeURI(x.uri.toString());
-            if (uri.substr(0, 7) === 'file://') {
+            if (uri.substring(0, 7) === 'file://') {
                 if(os.platform() === 'win32') {
-                    return uri.substr(8)
+                    return uri.substring(8)
                               .replace(/\//g, "\\")
                               .replace(/%3A/g, ":");
                 } else {
-                    return uri.substr(7);
+                    return uri.substring(7);
                 }
             } else {
                 vscode.window.showErrorMessage('Non-file:// uri\'s not currently supported...');
