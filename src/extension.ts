@@ -29,79 +29,39 @@ interface Command {
     preRunCallback: undefined | (() => boolean | Promise<boolean>),
     postRunCallback: undefined | (() => void),
 }
-const commands: { [key: string]: Command } = os.platform() === "win32" ?
-{
+const commands: { [key: string]: Command } = {
     findFiles: {
-        script: 'find_files.ps1',
+        script: 'find_files',  // we append a platform-specific extension later
         uri: undefined,
         preRunCallback: undefined,
         postRunCallback: undefined,
     },
     findFilesWithType: {
-        script: 'find_files.ps1',
+        script: 'find_files',
         uri: undefined,
         preRunCallback: selectTypeFilter,
         postRunCallback: () => { CFG.useTypeFilter = false; },
     },
     findWithinFiles: {
-        script: 'find_within_files.ps1',
+        script: 'find_within_files',
         uri: undefined,
         preRunCallback: undefined,
         postRunCallback: undefined,
     },
     findWithinFilesWithType: {
-        script: 'find_within_files.ps1',
+        script: 'find_within_files',
         uri: undefined,
         preRunCallback: selectTypeFilter,
         postRunCallback: () => { CFG.useTypeFilter = false; },
     },
     listSearchLocations: {
-        script: 'list_search_locations.ps1',
+        script: 'list_search_locations',
         uri: undefined,
         preRunCallback: writePathOriginsFile,
         postRunCallback: undefined,
     },
     flightCheck: {
-        script: 'flight_check.ps1',
-        uri: undefined,
-        preRunCallback: undefined,
-        postRunCallback: undefined,
-    },
-}
-: // Linux Like Platform
-{
-    findFiles: {
-        script: 'find_files.sh',
-        uri: undefined,
-        preRunCallback: undefined,
-        postRunCallback: undefined,
-    },
-    findFilesWithType: {
-        script: 'find_files.sh',
-        uri: undefined,
-        preRunCallback: selectTypeFilter,
-        postRunCallback: () => { CFG.useTypeFilter = false; },
-    },
-    findWithinFiles: {
-        script: 'find_within_files.sh',
-        uri: undefined,
-        preRunCallback: undefined,
-        postRunCallback: undefined,
-    },
-    findWithinFilesWithType: {
-        script: 'find_within_files.sh',
-        uri: undefined,
-        preRunCallback: selectTypeFilter,
-        postRunCallback: () => { CFG.useTypeFilter = false; },
-    },
-    listSearchLocations: {
-        script: 'list_search_locations.sh',
-        uri: undefined,
-        preRunCallback: writePathOriginsFile,
-        postRunCallback: undefined,
-    },
-    flightCheck: {
-        script: 'flight_check.sh',
+        script: 'flight_check',
         uri: undefined,
         preRunCallback: undefined,
         postRunCallback: undefined,
@@ -273,13 +233,13 @@ function checkExposedFunctions() {
 function setupConfig(context: vscode.ExtensionContext) {
     CFG.extensionName = PACKAGE.name;
     assert(CFG.extensionName);
-    const local = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x));
-    commands.findFiles.uri = local(commands.findFiles.script);
-    commands.findFilesWithType.uri = local(commands.findFiles.script);
-    commands.findWithinFiles.uri = local(commands.findWithinFiles.script);
-    commands.findWithinFilesWithType.uri = local(commands.findWithinFiles.script);
-    commands.listSearchLocations.uri = local(commands.listSearchLocations.script);
-    commands.flightCheck.uri = local(commands.flightCheck.script);
+    const localScript = (x: string) => vscode.Uri.file(path.join(context.extensionPath, x) + (os.platform() === 'win32' ? '.ps1' : '.sh'));
+    commands.findFiles.uri = localScript(commands.findFiles.script);
+    commands.findFilesWithType.uri = localScript(commands.findFiles.script);
+    commands.findWithinFiles.uri = localScript(commands.findWithinFiles.script);
+    commands.findWithinFilesWithType.uri = localScript(commands.findWithinFiles.script);
+    commands.listSearchLocations.uri = localScript(commands.listSearchLocations.script);
+    commands.flightCheck.uri = localScript(commands.flightCheck.script);
 }
 
 /** Register the commands we defined with VS Code so users have access to them */
