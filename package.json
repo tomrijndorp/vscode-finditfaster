@@ -149,6 +149,11 @@
           "type": "string",
           "default": "1337"
         },
+				"find-it-faster.general.openFileInPreviewEditor": {
+					"markdownDescription": "When set to `true` files open in a Preview Editor. Use in conjunction with the `workbench.editor.enablePreivew` setting.",
+					"type": "boolean",
+					"default": false
+				},
         "find-it-faster.findFiles.showPreview": {
           "markdownDescription": "Show a preview window when searching files",
           "type": "boolean",

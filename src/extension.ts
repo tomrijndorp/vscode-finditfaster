@@ -185,6 +185,7 @@ interface Config {
     tempDir: string,
     useTypeFilter: boolean,
     batTheme: string,
+    openFileInPreviewEditor: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -219,6 +220,7 @@ const CFG: Config = {
     tempDir: '',
     useTypeFilter: false,
     batTheme: '',
+    openFileInPreviewEditor: false,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -297,6 +299,7 @@ function updateConfigWithUserSettings() {
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
     CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
     CFG.batTheme = getCFG('general.batTheme');
+    CFG.openFileInPreviewEditor = getCFG('general.openFileInPreviewEditor'),
     CFG.findFilesPreviewEnabled = getCFG('findFiles.showPreview');
     CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
@@ -552,7 +555,7 @@ function openFiles(data: string) {
         }
         vscode.window.showTextDocument(
             vscode.Uri.file(file),
-            { preview: false, selection: new vscode.Range(line, char, line, char) });
+            { preview: CFG.openFileInPreviewEditor, selection: new vscode.Range(line, char, line, char) });
     });
 }
 
