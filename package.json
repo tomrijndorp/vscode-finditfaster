@@ -184,6 +184,11 @@
           "type": "string",
           "default": ""
         },
+        "find-it-faster.general.openFileInPreviewEditor": {
+          "markdownDescription": "When set to `true` files open in a Preview Editor (that is, an editor that closes when you open another file). Use in conjunction with the `workbench.editor.enablePreview` setting.",
+          "type": "boolean",
+          "default": false
+        },
         "find-it-faster.advanced.disableStartupChecks": {
           "markdownDescription": "By default, we check that you have `fzf`, `rg`, and `bat` on your path. If you'd like to disable these checks because you're getting creative (e.g. use `cat` instead of `bat`), check this box. Obviously you may see errors on your terminal if we do call one of these programs when they are not present!",
           "type": "boolean",
