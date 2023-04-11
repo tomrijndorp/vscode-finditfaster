@@ -67,7 +67,7 @@ if ($HAS_SELECTION -eq 1) {
     $QUERY=Get-Content "$SELECTION_FILE" -Raw
 }
 $QUERYPARAM=""
-if ("$QUERY".Length -gt 0) {
+if (!"$QUERY".Length -gt 0) {
     $QUERYPARAM="--query"
 }
 
