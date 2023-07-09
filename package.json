@@ -210,7 +210,12 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "vscode:package": "vsce package --githubBranch main",
-    "vscode:publish": "vsce publish --githubBranch main"
+    "vscode:publish": "vsce publish --githubBranch main",
+
+    "minimist": ">=1.2.6",
+    "qs": ">=6.10.3",
+    "ansi-regex": ">=5.0.1",
+    "nanoid": ">=3.1.31"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
