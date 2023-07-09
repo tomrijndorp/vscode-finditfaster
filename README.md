@@ -5,7 +5,8 @@
 
 Finds it, but faster.  
 
-Make sure to check the [Requirements](#requirements) below (TL;DR: have `fzf`, `rg`, `bat` on your `PATH`).
+Make sure to check the [Requirements](#requirements) below (TL;DR: have `fzf`, `rg`, `bat` on your
+`PATH`).
 
 <hr />
 
@@ -18,7 +19,8 @@ You can change these using VS Code's keyboard shortcuts.
 
 <hr />
 
-Update: Native Windows support is now implemented (still experimental)! Also see [Known Issues](#known_issues).
+Update: Native Windows support is now implemented (still experimental)! Also see
+[Known Issues](#known_issues).
 
 <hr />
 
@@ -167,6 +169,9 @@ more about using `fzf`.
 <hr />
 
 ## Release Notes
+
+### 0.0.24
+- No user facing changes
 
 ### 0.0.023
 - Address Dependabot security issues
