@@ -168,6 +168,9 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.023
+- Address Dependabot security issues
+
 ### 0.0.22
 - Bug fix on Windows that caused files to not open. Thank you @ObieMunoz!
 
