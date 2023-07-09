@@ -172,7 +172,8 @@ more about using `fzf`.
 - Address Dependabot security issues
 
 ### 0.0.22
-- Bug fix on Windows that caused files to not open. Thank you @ObieMunoz!
+- Bug fix on Windows that caused files to not open. Thank you @ObieMunoz for reporting and
+  @Coombszy! for submitting a fix!
 
 ### 0.0.21
 - Add option to open editors in preview window. Thank you @phrabos!
