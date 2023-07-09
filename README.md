@@ -168,6 +168,9 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.22
+- Bug fix on Windows that caused files to not open. Thank you @ObieMunoz!
+
 ### 0.0.21
 - Add option to open editors in preview window. Thank you @phrabos!
 
