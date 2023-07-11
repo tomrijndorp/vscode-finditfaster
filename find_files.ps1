@@ -79,12 +79,12 @@ if($PREVIEW_ENABLED -eq 1) {
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
     Write-Host canceled
-    "1" | Out-File -FilePath "$Env:CANARY_FILE"
+    "1" | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8
     exit 1
 } else {
     if ("$SINGLE_DIR_ROOT".Length -gt 0) {
-       Join-Path -Path "$SINGLE_DIR_ROOT" -ChildPath "$result" | Out-File -FilePath "$Env:CANARY_FILE"        
+       Join-Path -Path "$SINGLE_DIR_ROOT" -ChildPath "$result" | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8
     } else {
-        $result | Out-File -FilePath "$Env:CANARY_FILE"        
+        $result | Out-File -FilePath "$Env:CANARY_FILE" -Encoding UTF8        
     }
 }
