@@ -170,6 +170,9 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.25
+- Fix for UTF-8 paths on Windows. Thanks @ch0pex!
+
 ### 0.0.24
 - No user facing changes
 
