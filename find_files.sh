@@ -7,6 +7,7 @@ PREVIEW_ENABLED=${FIND_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always --plain {}'}
 PREVIEW_WINDOW=${FIND_FILES_PREVIEW_WINDOW_CONFIG:-'right:50%:border-left'}
 HAS_SELECTION=${HAS_SELECTION:-}
+RESUME_SEARCH=${RESUME_SEARCH:-}
 CANARY_FILE=${CANARY_FILE:-'/tmp/canaryFile'}
 QUERY=''
 
@@ -19,7 +20,12 @@ if [ ${#PATHS[@]} -eq 1 ]; then
   cd "$SINGLE_DIR_ROOT" || exit
 fi
 
-if [[ "$HAS_SELECTION" -eq 1 ]]; then
+if [[ "$RESUME_SEARCH" -eq 1 ]]; then
+    # ... or we resume the last search if that is desired
+    if [[ -f "$LAST_QUERY_FILE" ]]; then
+        QUERY="$(tail -n 1 "$LAST_QUERY_FILE")"
+    fi
+elif [[ "$HAS_SELECTION" -eq 1 ]]; then
     QUERY="$(cat "$SELECTION_FILE")"
 fi
 
@@ -46,6 +52,7 @@ callfzf () {
     | fzf \
         --cycle \
         --multi \
+        --history $LAST_QUERY_FILE \
         --query "${QUERY}" \
         ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
 }

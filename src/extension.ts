@@ -66,6 +66,12 @@ const commands: { [key: string]: Command } = {
         preRunCallback: undefined,
         postRunCallback: undefined,
     },
+    resumeSearch: {
+        script: 'resume_search', // Dummy. We will set the uri from the last-run script. But we will use this value to check whether we are resuming.
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined,
+    },
 };
 
 type WhenCondition = 'always' | 'never' | 'noWorkspaceOnly';
@@ -172,6 +178,8 @@ interface Config {
     },
     canaryFile: string,
     selectionFile: string,
+    lastQueryFile: string,
+    lastPosFile: string,
     hideTerminalAfterSuccess: boolean,
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
@@ -184,6 +192,7 @@ interface Config {
     extensionPath: string,
     tempDir: string,
     useTypeFilter: boolean,
+    lastCommand: string,
     batTheme: string,
     openFileInPreviewEditor: boolean,
 };
@@ -207,6 +216,8 @@ const CFG: Config = {
     },
     canaryFile: '',
     selectionFile: '',
+    lastQueryFile: '',
+    lastPosFile: '',
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
@@ -219,6 +230,7 @@ const CFG: Config = {
     extensionPath: '',
     tempDir: '',
     useTypeFilter: false,
+    lastCommand: '',
     batTheme: '',
     openFileInPreviewEditor: false,
 };
@@ -275,6 +287,12 @@ export function deactivate() {
     term?.dispose();
     fs.rmSync(CFG.canaryFile, { force: true });
     fs.rmSync(CFG.selectionFile, { force: true });
+    if (fs.existsSync(CFG.lastQueryFile)) {
+        fs.rmSync(CFG.lastQueryFile, { force: true });
+    }
+    if (fs.existsSync(CFG.lastPosFile)) {
+        fs.rmSync(CFG.lastPosFile, { force: true });
+    }
 }
 
 /** Map settings from the user-configurable settings to our internal data structure */
@@ -509,6 +527,8 @@ function reinitialize() {
     CFG.tempDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
     CFG.canaryFile = path.join(CFG.tempDir, 'snitch');
     CFG.selectionFile = path.join(CFG.tempDir, 'selection');
+    CFG.lastQueryFile = path.join(CFG.tempDir, 'last_query');
+    CFG.lastPosFile = path.join(CFG.tempDir, 'last_position');
     fs.writeFileSync(CFG.canaryFile, '');
     fs.watch(CFG.canaryFile, (eventType) => {
         if (eventType === 'change') {
@@ -607,6 +627,8 @@ function createTerminal() {
             GLOBS: CFG.useWorkspaceSearchExcludes ? getIgnoreString() : '',
             CANARY_FILE: CFG.canaryFile,
             SELECTION_FILE: CFG.selectionFile,
+            LAST_QUERY_FILE: CFG.lastQueryFile,
+            LAST_POS_FILE: CFG.lastPosFile,
             EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
             BAT_THEME: CFG.batTheme,
             /* eslint-enable @typescript-eslint/naming-convention */
@@ -653,6 +675,9 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
             ret += 'TYPE_FILTER=' + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + ' ';
         }
     }
+    if (cmd.script === 'resume_search') {
+        ret += 'RESUME_SEARCH=1 ';
+    }
     ret += cmdPath;
     if (withArgs) {
         let paths = getWorkspaceFoldersAsString();
@@ -684,6 +709,19 @@ async function executeTerminalCommand(cmd: string) {
         if (!reinitialize()) {
             return;
         }
+    }
+
+    if (cmd === "resumeSearch") {
+        // Run the last-run command again
+        if (CFG.lastCommand === '') {
+            vscode.window.showErrorMessage('Cannot resume the last search because no search was run yet.');
+            return;
+        }
+        commands["resumeSearch"].uri = commands[CFG.lastCommand].uri;
+        commands["resumeSearch"].preRunCallback = commands[CFG.lastCommand].preRunCallback;
+        commands["resumeSearch"].postRunCallback = commands[CFG.lastCommand].postRunCallback;
+    } else if (cmd.startsWith("find")) { // Keep track of last-run cmd, but we don't want to resume `listSearchLocations` etc
+        CFG.lastCommand = cmd;
     }
 
     if (!term || term.exitStatus !== undefined) {

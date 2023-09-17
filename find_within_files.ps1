@@ -81,10 +81,25 @@ $PREVIEW_ENABLED=VGet "env:FIND_WITHIN_FILES_PREVIEW_ENABLED" 0
 $PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid'
 $PREVIEW_WINDOW=VGet "env:FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" 'right:border-left:50%:+{2}+3/3:~3'
 $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
+$RESUME_SEARCH=VGet "env:RESUME_SEARCH" 0
 # We match against the beginning of the line so everything matches but nothing gets highlighted...
 $QUERY="`"^`""
 $INITIAL_QUERY=""  # Don't show initial "^" regex in fzf
-if ($HAS_SELECTION -eq 1) {
+$INITIAL_POS="1"
+if ($RESUME_SEARCH -eq 1) {
+    # ... or we resume he last search if that is desired
+    # TODO: the powershell version of this is not tested
+    if (Test-Path $Env:LAST_QUERY_FILE -Leaf) {
+        $QUERY=Get-Content $Env:LAST_QUERY_FILE -Tail 1
+        $INITIAL_QUERY="$QUERY" # Do show the initial query when it's not "^"
+        if (Test-Path "$Env:LAST_POS_FILE" -Leaf) {
+            $fileContent = Get-Content $Env:LAST_POS_FILE
+            $pos = [int]$fileContent
+            $pos = $pos + 1
+            $INITIAL_POS = $pos.ToString()
+        }
+    }
+} elseif ($HAS_SELECTION -eq 1) {
     # ... or against the selection if we have one
     $QUERY=Get-Content "$SELECTION_FILE" -Raw
     $INITIAL_QUERY="$QUERY" # Do show the initial query when it's not "^"
@@ -101,9 +116,9 @@ if ("$INITIAL_QUERY".Length -gt 0) {
 if($PREVIEW_ENABLED -eq 1) {
     # I can't get it not to report an error || true trick doesn't work in powershell.
     # $ErrorActionPreference="SilentlyContinue";
-    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW" --history "$Env:LAST_QUERY_FILE" --bind "enter:execute(echo {n} > $Env:LAST_POS_FILE)+accept" --bind "load:pos($INITIAL_POS)" 
 } else {
-    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" 
+    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''"  --history "$Env:LAST_QUERY_FILE" --bind "enter:execute(echo {n} > $Env:LAST_POS_FILE)+accept" --bind "load:pos($INITIAL_POS)" 
 }
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {

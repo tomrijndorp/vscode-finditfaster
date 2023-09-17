@@ -39,10 +39,23 @@ PREVIEW_ENABLED=${FIND_WITHIN_FILES_PREVIEW_ENABLED:-1}
 PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid'}
 PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
 HAS_SELECTION=${HAS_SELECTION:-}
+RESUME_SEARCH=${RESUME_SEARCH:-}
 # We match against the beginning of the line so everything matches but nothing gets highlighted...
 QUERY='^'
 INITIAL_QUERY=''  # Don't show initial "^" regex in fzf
-if [[ "$HAS_SELECTION" -eq 1 ]]; then
+INITIAL_POS='1'
+if [[ "$RESUME_SEARCH" -eq 1 ]]; then
+    # ... or we resume the last search if that is desired
+    if [[ -f "$LAST_QUERY_FILE" ]]; then
+        QUERY="$(tail -n 1 "$LAST_QUERY_FILE")"
+        INITIAL_QUERY="$QUERY"  # Do show the initial query when it's not "^"
+        if [[ -f "$LAST_POS_FILE" ]]; then
+            read -r pos < "$LAST_POS_FILE"
+            ((pos++)) # convert index to position
+            INITIAL_POS="$pos"
+        fi
+    fi
+elif [[ "$HAS_SELECTION" -eq 1 ]]; then
     # ... or against the selection if we have one
     QUERY="$(cat "$SELECTION_FILE")"
     INITIAL_QUERY="$QUERY"  # Do show the initial query when it's not "^"
@@ -81,6 +94,9 @@ IFS=: read -ra VAL < <(
       --cycle \
       --bind "change:reload:sleep 0.1; $RG_PREFIX_STR {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
       --delimiter : \
+      --history $LAST_QUERY_FILE \
+      --bind "enter:execute(echo {n} > $LAST_POS_FILE)+accept" \
+      --bind "load:pos($INITIAL_POS)" \
       --phony --query "$INITIAL_QUERY" \
       ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"} \
 )
