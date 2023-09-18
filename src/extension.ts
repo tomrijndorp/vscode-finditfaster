@@ -713,6 +713,10 @@ async function executeTerminalCommand(cmd: string) {
 
     if (cmd === "resumeSearch") {
         // Run the last-run command again
+        if (os.platform() === 'win32') {
+            vscode.window.showErrorMessage('Resume search is not implemented on Windows. Sorry! PRs welcome.');
+            return;
+        }
         if (CFG.lastCommand === '') {
             vscode.window.showErrorMessage('Cannot resume the last search because no search was run yet.');
             return;

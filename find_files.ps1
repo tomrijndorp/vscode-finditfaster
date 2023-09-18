@@ -62,11 +62,8 @@ $PREVIEW_ENABLED=VGet "env:FIND_WITHIN_FILES_PREVIEW_ENABLED" 0
 $PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always --plain {}'
 $PREVIEW_WINDOW=VGet "env:FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" 'right:50%:border-left'
 $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
-$RESUME_SEARCH=VGet "env:RESUME_SEARCH" 0
 $QUERY=""
-if ($RESUME_SEARCH -eq 1) {
-    $QUERY=Get-Content "$Env:LAST_QUERY_FILE" -Tail 1
-} elseif ($HAS_SELECTION -eq 1) {
+if ($HAS_SELECTION -eq 1) {
     $QUERY=Get-Content "$SELECTION_FILE" -Raw
 }
 $QUERYPARAM=""
@@ -75,9 +72,9 @@ if ("$QUERY".Length -gt 0) {
 }
 
 if($PREVIEW_ENABLED -eq 1) {
-    $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW" --history "$Env:LAST_QUERY_FILE"
+    $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
 } else {
-    $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}" --history "$Env:LAST_QUERY_FILE"
+    $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
 }
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
