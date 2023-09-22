@@ -186,6 +186,7 @@ interface Config {
     useTypeFilter: boolean,
     batTheme: string,
     openFileInPreviewEditor: boolean,
+    killTerminalAfterUse: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -221,6 +222,7 @@ const CFG: Config = {
     useTypeFilter: false,
     batTheme: '',
     openFileInPreviewEditor: false,
+    killTerminalAfterUse: false,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -297,6 +299,7 @@ function updateConfigWithUserSettings() {
     CFG.hideTerminalAfterSuccess = getCFG('general.hideTerminalAfterSuccess');
     CFG.hideTerminalAfterFail = getCFG('general.hideTerminalAfterFail');
     CFG.clearTerminalAfterUse = getCFG('general.clearTerminalAfterUse');
+    CFG.killTerminalAfterUse = getCFG('general.killTerminalAfterUse');
     CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
     CFG.batTheme = getCFG('general.batTheme');
     CFG.openFileInPreviewEditor = getCFG('general.openFileInPreviewEditor'),
@@ -563,6 +566,14 @@ function openFiles(data: string) {
 function handleCanaryFileChange() {
     if (CFG.clearTerminalAfterUse) {
         term.sendText('clear');
+    }
+
+    if (CFG.killTerminalAfterUse) {
+        // Some folks like having a constant terminal open. This will kill ours such that VS Code will
+        // switch back to theirs. We don't have more control over the terminal so this is the best we
+        // can do. This is not the default because creating a new terminal is sometimes expensive when
+        // people use e.g. powerline or other fancy PS1 stuff.
+        term.dispose();
     }
 
     fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {

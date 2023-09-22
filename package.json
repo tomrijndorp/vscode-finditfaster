@@ -97,6 +97,11 @@
           "type": "boolean",
           "default": true
         },
+        "find-it-faster.general.killTerminalAfterUse": {
+          "markdownDescription": "Kills this extension's terminal such that your previous terminal gets back into focus. Comes with a performance penalty for creating a new terminal on every invocation.",
+          "type": "boolean",
+          "default": false
+        },
         "find-it-faster.general.showMaximizedTerminal": {
           "markdownDescription": "Show the terminal in full screen. Works especially nicely if you set the \"hide after succes / fail\" options in these preferences.",
           "type": "boolean",
