@@ -170,6 +170,11 @@ more about using `fzf`.
 
 ## Release Notes
 
+### 0.0.26
+- Resume search added as a new command. Resumes the last invoked command with the same query. Thanks
+  for implementing @alexrenz!
+- Add feature to kill terminal after each use such that focus goes back to the previous terminal
+
 ### 0.0.25
 - Fix for UTF-8 paths on Windows. Thanks @ch0pex!
 
