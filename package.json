@@ -60,6 +60,10 @@
       {
         "command": "find-it-faster.listSearchLocations",
         "title": "Find It Faster: list search locations (modify in extension settings)"
+      },
+      {
+        "command": "find-it-faster.resumeSearch",
+        "title": "Find It Faster: resume last search"
       }
     ],
     "keybindings": [

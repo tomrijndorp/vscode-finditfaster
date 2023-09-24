@@ -40,6 +40,7 @@ done
 
 # Parse fzf version
 FZF_VER=$(fzf --version)
+FZF_VER_NUM=$(echo "$FZF_VER" | awk '{print $1}') # get rid of "... (brew)", for example
 # shellcheck disable=SC2034
 FZF_VER_PT1=${FZF_VER:0:3}
 # shellcheck disable=SC2034
