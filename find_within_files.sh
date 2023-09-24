@@ -76,7 +76,9 @@ if [[ "$PREVIEW_ENABLED" -eq 1 ]]; then
     PREVIEW_STR=(--preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW")
 fi
 
-RESUME_POS_BINDING="start:ignore" # dummy fallback binding because fzf v<0.36 does not support `load` and I did not figure out how to conditionally set the entire binding string (i.e., with the "--bind" part)
+# dummy fallback binding because fzf v<0.36 does not support `load` and I did not figure out how to
+# conditionally set the entire binding string (i.e., with the "--bind" part)
+RESUME_POS_BINDING="backward-eof:ignore"
 if [[ "$(printf '%s\n' "$FZF_VER_NUM" "0.36" | sort -V | head -n 1)" == "0.36" ]]; then
     # fzf version is greater or equal 0.36, so the `load` trigger is supported
     RESUME_POS_BINDING="load:pos($INITIAL_POS)"
