@@ -29,10 +29,11 @@ This plugin is useful if you deal with very large projects with lots of files (w
 search functionality quite slow), or when you simply love using `fzf` and `rg` and would like to
 bring those tools inside VS Code, similar to how the excellent `fzf.vim` plugin works for Vim.
 
-This extension exposes three commands:
+This extension exposes four commands:
 1. Search for files and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 2. Search within files for text and open them. Uses a combination of `fzf`, `rg`, and `bat`.
 3. Like 2., but you can limit the file types that will be searched.
+4. Resume search. Repeats the last run command with the previous query prepopulated.
 
 If your active text editor has a selection, it will be used as the initial query (you can disable
 this setting).
@@ -124,7 +125,9 @@ more about using `fzf`.
 
 ### 🧘 _Can you give focus back to my editor / my problems panel / other?_
 ➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
-  I'll try to make this better.
+  I'll try to make this better.  
+  Update: Added a setting `find-it-faster.general.killTerminalAfterUse`. When true, it will kill the
+  extension's terminal which may result in VS Code focusing the previous one. It may help you.
 
 ### 🐞 _I found a bug!_  
 ➥ Yeah, that's not unlikely. There are a lot of edge cases with this sort of tooling. Three options:

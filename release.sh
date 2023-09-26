@@ -10,3 +10,4 @@ git push
 echo "Done. Switching back to main..."
 git checkout main
 echo "done"
+
