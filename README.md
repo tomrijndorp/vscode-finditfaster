@@ -152,6 +152,14 @@ more about using `fzf`.
   You _can_ actually already use other preview tools than `bat`, e.g. `cat`. I've left some hints in
   the settings.
 
+### 💲 <i>Can I set FZF env vars that only work within this extension?</i>
+➥ You can, by adding something like this to `~/.bashrc` or whatever configures your enviroment:
+```bash
+if [[ $FIND_IT_FASTER_ACTIVE -eq 1 ]]; then
+  FZF_DEFAULT_OPTS='--height=50%'
+fi
+```
+
 ### 🎄 <i>I'd like to customize this tool a little but I need access to &lt;insert something here&gt;. Can you expose that?</i>  
 ➥ I probably can. Maybe create a Github issue and ask for it? Especially if other people vote on it,
   that would be a compelling argument to do it.

@@ -625,6 +625,7 @@ function createTerminal() {
         hideFromUser: true,
         env: {
             /* eslint-disable @typescript-eslint/naming-convention */
+            FIND_IT_FASTER_ACTIVE: '1',
             HISTCONTROL: 'ignoreboth',  // bash
             // HISTORY_IGNORE: '*',        // zsh
             EXTENSION_PATH: CFG.extensionPath,
