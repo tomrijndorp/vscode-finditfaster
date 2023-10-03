@@ -3,7 +3,7 @@
 [![CI pipeline - release](https://github.com/tomrijndorp/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/tomrijndorp/vscode-finditfaster/actions?query=branch%3Amain)
 ![Platform support](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)%20%7C%20windows%20powershell%20(experimental)-334488)
 
-Finds it, but faster.  
+Finds files and text within files, but faster than VS Code normally does.
 
 Make sure to check the [Requirements](#requirements) below (TL;DR: have `fzf`, `rg`, `bat` on your
 `PATH`).
@@ -54,9 +54,9 @@ This extension has also been tested on remote workspaces (e.g. SSH sessions).
 <a name="requirements"></a>
 ## Requirements
 
-This plugin opens a terminal inside VS Code. Make sure that you can run `fzf`, `rg`, and `bat` by
-running these commands directly in your terminal. If those work, this plugin will work as expected.
-If it doesn't, confirm that you are running recent versions of all three tools.
+This plugin opens a terminal inside VS Code. Make sure that you can run `fzf`, `rg`, `bat`, and
+`sed` by running these commands directly in your terminal. If those work, this plugin will work as
+expected. If it doesn't, confirm that you are running recent versions of all three tools.
 
 If you're not familiar with these command line tools, you might want to check them out. They are
 awesome tools that can be individually used and make you more productive. And when combined such as
@@ -78,6 +78,10 @@ See the settings for this extension in the GUI.
 You might want to play with `fzf`, `rg` and `bat` on the command line and read their manuals in
 order to get a better understanding of some of the settings in this extension. It will be worth
 your time.
+
+`fzf` can also be configured through various environment variables. This extension does nothing to
+disable that behavior, so feel free to use those. You can also check whether `fzf` is running inside
+this extension by checking whether the `FIND_IT_FASTER_ACTIVE` environment variable is set.
 
 <hr />
 
