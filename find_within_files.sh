@@ -40,6 +40,7 @@ PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always -
 PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
 HAS_SELECTION=${HAS_SELECTION:-}
 RESUME_SEARCH=${RESUME_SEARCH:-}
+FUZZ_RG_QUERY=${FUZZ_RG_QUERY:-}
 # We match against the beginning of the line so everything matches but nothing gets highlighted...
 QUERY='^'
 INITIAL_QUERY=''  # Don't show initial "^" regex in fzf
@@ -88,6 +89,12 @@ RG_PREFIX_STR=$(array_join "${RG_PREFIX+"${RG_PREFIX[@]}"}")
 RG_PREFIX_STR="${RG_PREFIX+"${RG_PREFIX[@]}"}"
 FZF_CMD="${RG_PREFIX+"${RG_PREFIX[@]}"} $QUERY $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
 
+RG_QUERY_PARSING="{q}"
+if [[ "$FUZZ_RG_QUERY" -eq 1 ]]; then
+    RG_QUERY_PARSING="\$(echo {q} | sed 's/ /.*/g')"
+fi
+
+
 # echo $FZF_CMD
 echo "$RG_PREFIX_STR"
 # exit 1
@@ -100,7 +107,7 @@ IFS=: read -ra VAL < <(
   FZF_DEFAULT_COMMAND="$FZF_CMD" \
   fzf --ansi \
       --cycle \
-      --bind "change:reload:sleep 0.1; $RG_PREFIX_STR {q} $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
+      --bind "change:reload:sleep 0.1; $RG_PREFIX_STR $RG_QUERY_PARSING $(array_join "${PATHS[@]+"${PATHS[@]}"}") || true" \
       --delimiter : \
       --history $LAST_QUERY_FILE \
       --bind "enter:execute(echo {n} > $LAST_POS_FILE)+accept" \
