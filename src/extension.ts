@@ -196,6 +196,7 @@ interface Config {
     batTheme: string,
     openFileInPreviewEditor: boolean,
     killTerminalAfterUse: boolean,
+    fuzzRipgrepQuery: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -235,6 +236,7 @@ const CFG: Config = {
     batTheme: '',
     openFileInPreviewEditor: false,
     killTerminalAfterUse: false,
+    fuzzRipgrepQuery: false,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -327,6 +329,7 @@ function updateConfigWithUserSettings() {
     CFG.findWithinFilesPreviewEnabled = getCFG('findWithinFiles.showPreview');
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
+    CFG.fuzzRipgrepQuery = getCFG('findWithinFiles.fuzzRipgrepQuery');
 }
 
 function collectSearchLocations() {
@@ -643,6 +646,7 @@ function createTerminal() {
             LAST_POS_FILE: CFG.lastPosFile,
             EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
             BAT_THEME: CFG.batTheme,
+            FUZZ_RG_QUERY: CFG.fuzzRipgrepQuery ? '1' : '0',
             /* eslint-enable @typescript-eslint/naming-convention */
         },
     });

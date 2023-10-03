@@ -193,6 +193,11 @@
           "type": "string",
           "default": ""
         },
+        "find-it-faster.findWithinFiles.fuzzRipgrepQuery": {
+          "markdownDescription": "By default, matching in \"Find Within Files\" is exact. Enabling this option relaxes the matching by slightly fuzzing the query that is sent to `rg`: it treats whitespaces as wildcards (`.*`). For example, when enabled, the query `function bar` will match `function foobar`. Otherwise, it won't. This setting does not work on Windows at the moment.",
+          "type": "boolean",
+          "default": false 
+        },
         "find-it-faster.advanced.disableStartupChecks": {
           "markdownDescription": "By default, we check that you have `fzf`, `rg`, and `bat` on your path. If you'd like to disable these checks because you're getting creative (e.g. use `cat` instead of `bat`), check this box. Obviously you may see errors on your terminal if we do call one of these programs when they are not present!",
           "type": "boolean",
