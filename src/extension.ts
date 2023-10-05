@@ -497,6 +497,9 @@ function doFlightCheck(): boolean {
         if (kvs['which rg'] === undefined || kvs['which rg'] === '') {
             errStr += 'rg not found on your PATH\n. ';
         }
+        if (kvs['which sed'] === undefined || kvs['which sed'] === '') {
+            errStr += 'sed not found on your PATH\n. ';
+        }
         if (errStr !== '') {
             vscode.window.showErrorMessage(`Failed to activate plugin: ${errStr}\nMake sure you have the required command line tools installed as outlined in the README.`);
         }

@@ -11,7 +11,7 @@ echo "-----------------"
 echo "Checking you have the required command line tools installed..."
 echo "which bat: $(which bat)"
 echo "which fzf: $(which fzf)"
-echo "which rg : $(which rg)"
+echo "which rg: $(which rg)"
 echo "which sed: $(which sed)"
 echo "-----------------"
 
