@@ -185,6 +185,9 @@ fi
 
 ## Release Notes
 
+### 0.0.28
+- Fixed a bug that caused the extension to stop working altogether.
+
 ### 0.0.27
 - Add setting to fuzzy match on space bar in `search within files` function
 - Add `FIND_FIND_IT_FASTER_ACTIVE` environment variable when running inside extension
