@@ -190,7 +190,7 @@ fi
 
 ### 0.0.27
 - Add setting to fuzzy match on space bar in `search within files` function
-- Add `FIND_FIND_IT_FASTER_ACTIVE` environment variable when running inside extension
+- Add `FIND_IT_FASTER_ACTIVE` environment variable when running inside extension
 
 ### 0.0.26
 - Resume search added as a new command. Resumes the last invoked command with the same query. Thanks
