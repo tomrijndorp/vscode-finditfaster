@@ -207,6 +207,11 @@
           "markdownDescription": "By default, if you have an active editor with a text selection, we'll use that to populate the prompt in `fzf` such that it will start filtering text directly. Uncheck to disable.",
           "type": "boolean",
           "default": true
+        },
+        "find-it-faster.general.restoreFocusTerminal": {
+          "markdownDescription": "When enabled, the extension will restore focus to the terminal after executing a command. This is useful if you frequently switch between the terminal and other parts of VS Code.",
+          "type": "boolean",
+          "default": false
         }
       }
     }
