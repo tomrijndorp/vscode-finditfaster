@@ -18,6 +18,8 @@ import assert = require('assert');
 let PACKAGE: any;
 // Reference to the terminal we use
 let term: vscode.Terminal;
+let previousActiveTerminal: vscode.Terminal | null;
+let isExtensionChangedTerminal = false;
 
 //
 // Define the commands we expose. URIs are populated upon extension activation
@@ -197,6 +199,7 @@ interface Config {
     openFileInPreviewEditor: boolean,
     killTerminalAfterUse: boolean,
     fuzzRipgrepQuery: boolean,
+    restoreFocusTerminal: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -237,6 +240,7 @@ const CFG: Config = {
     openFileInPreviewEditor: false,
     killTerminalAfterUse: false,
     fuzzRipgrepQuery: false,
+    restoreFocusTerminal: false,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -330,6 +334,7 @@ function updateConfigWithUserSettings() {
     CFG.findWithinFilesPreviewCommand = getCFG('findWithinFiles.previewCommand');
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
     CFG.fuzzRipgrepQuery = getCFG('findWithinFiles.fuzzRipgrepQuery');
+    CFG.restoreFocusTerminal = getCFG('general.restoreFocusTerminal');
 }
 
 function collectSearchLocations() {
@@ -614,6 +619,11 @@ function handleCanaryFileChange() {
                 openFiles(data);
             }
 
+            if (CFG.restoreFocusTerminal && previousActiveTerminal) {
+                handleTerminalFocusRestore(commandWasSuccess);
+                return;
+            }
+
             if (commandWasSuccess && CFG.hideTerminalAfterSuccess) {
                 term.hide();
             } else if (!commandWasSuccess && CFG.hideTerminalAfterFail) {
@@ -623,6 +633,24 @@ function handleCanaryFileChange() {
             }
         }
     });
+}
+
+function handleTerminalFocusRestore(commandWasSuccess: boolean) {
+    const shouldHideTerminal = (commandWasSuccess && CFG.hideTerminalAfterSuccess) || (!commandWasSuccess && CFG.hideTerminalAfterFail);
+
+    if (shouldHideTerminal) {
+        const disposable = vscode.window.onDidChangeActiveTerminal(activeTerminal => {
+            if (isExtensionChangedTerminal && activeTerminal === previousActiveTerminal) {
+                previousActiveTerminal?.hide();
+                previousActiveTerminal = null;
+                isExtensionChangedTerminal = false;
+                disposable.dispose();
+            }
+        });
+    }
+
+    isExtensionChangedTerminal = true;
+    previousActiveTerminal?.show();
 }
 
 function createTerminal() {
@@ -764,6 +792,9 @@ async function executeTerminalCommand(cmd: string) {
         term.sendText(getCommandString(commands[cmd]));
         if (CFG.showMaximizedTerminal) {
             vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+        }
+        if (CFG.restoreFocusTerminal) {
+            previousActiveTerminal = vscode.window.activeTerminal ?? null;
         }
         term.show();
         const postRunCallback = commands[cmd].postRunCallback;
