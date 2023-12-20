@@ -87,7 +87,7 @@ fi
 
 RG_PREFIX_STR=$(array_join "${RG_PREFIX+"${RG_PREFIX[@]}"}")
 RG_PREFIX_STR="${RG_PREFIX+"${RG_PREFIX[@]}"}"
-FZF_CMD="${RG_PREFIX+"${RG_PREFIX[@]}"} $QUERY $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
+FZF_CMD="${RG_PREFIX+"${RG_PREFIX[@]}"} '$QUERY' $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
 
 RG_QUERY_PARSING="{q}"
 if [[ "$FUZZ_RG_QUERY" -eq 1 ]]; then
