@@ -85,15 +85,15 @@ if [[ "$(printf '%s\n' "$FZF_VER_NUM" "0.36" | sort -V | head -n 1)" == "0.36" ]
     RESUME_POS_BINDING="load:pos($INITIAL_POS)"
 fi
 
-RG_PREFIX_STR=$(array_join "${RG_PREFIX+"${RG_PREFIX[@]}"}")
-RG_PREFIX_STR="${RG_PREFIX+"${RG_PREFIX[@]}"}"
-FZF_CMD="${RG_PREFIX+"${RG_PREFIX[@]}"} '$QUERY' $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
-
 RG_QUERY_PARSING="{q}"
 if [[ "$FUZZ_RG_QUERY" -eq 1 ]]; then
     RG_QUERY_PARSING="\$(echo {q} | sed 's/ /.*/g')"
+    QUERY="$(echo $QUERY | sed 's/ /.*/g')"
 fi
 
+RG_PREFIX_STR=$(array_join "${RG_PREFIX+"${RG_PREFIX[@]}"}")
+RG_PREFIX_STR="${RG_PREFIX+"${RG_PREFIX[@]}"}"
+FZF_CMD="${RG_PREFIX+"${RG_PREFIX[@]}"} '$QUERY' $(array_join "${PATHS[@]+"${PATHS[@]}"}")"
 
 # echo $FZF_CMD
 echo "$RG_PREFIX_STR"
