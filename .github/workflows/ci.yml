@@ -16,12 +16,12 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 10.x
+          node-version: 16.x
 
       # --- fzf, rg, bat ---
       - name: Install FZF, ripgrep, bat
@@ -62,12 +62,12 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 10.x
+          node-version: 16.x
 
       # --- fzf, rg, bat ---
       - name: Install FZF, ripgrep, bat
