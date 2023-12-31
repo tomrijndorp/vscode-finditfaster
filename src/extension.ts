@@ -600,7 +600,10 @@ function handleCanaryFileChange() {
         // switch back to theirs. We don't have more control over the terminal so this is the best we
         // can do. This is not the default because creating a new terminal is sometimes expensive when
         // people use e.g. powerline or other fancy PS1 stuff.
-        term.dispose();
+        //
+        // We set a timeout here to address #56. Don't have a good hypothesis as to why this works but
+        // it seems to fix the issue consistently.
+        setTimeout(() => term.dispose(), 100);
     }
 
     fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
