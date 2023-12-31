@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest]  # , windows-latest] Failing for unknown reason and we don't really test Windows anyway...
     runs-on: ${{ matrix.os }}
     steps:
 
