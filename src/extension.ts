@@ -13,7 +13,8 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import assert = require('assert');
+import * as assert from 'assert';
+
 // Let's keep it DRY and load the package here so we can reuse some data from it
 let PACKAGE: any;
 // Reference to the terminal we use
@@ -333,7 +334,7 @@ function updateConfigWithUserSettings() {
 }
 
 function collectSearchLocations() {
-    const locations = [];
+    const locations: string[] = [];
     // searchPathsOrigins is for diagnostics only
     CFG.searchPathsOrigins = {};
     const setOrUpdateOrigin = (path: string, origin: PathOrigin) => {
