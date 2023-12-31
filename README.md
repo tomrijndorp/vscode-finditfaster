@@ -185,6 +185,11 @@ fi
 
 ## Release Notes
 
+### 0.0.29
+- Fixed an issue with the killTerminalAfterUse feature
+- Add option to restore the previously active terminal
+- Small improvements to resumeSearch and query fuzzing
+
 ### 0.0.28
 - Fixed a bug that caused the extension to stop working altogether.
 
