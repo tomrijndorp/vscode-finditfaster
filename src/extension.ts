@@ -503,7 +503,7 @@ function doFlightCheck(): boolean {
         if (kvs['which rg'] === undefined || kvs['which rg'] === '') {
             errStr += 'rg not found on your PATH\n. ';
         }
-        if (kvs['which sed'] === undefined || kvs['which sed'] === '') {
+        if (os.platform() !== 'win32' && (kvs['which sed'] === undefined || kvs['which sed'] === '')) {
             errStr += 'sed not found on your PATH\n. ';
         }
         if (errStr !== '') {
