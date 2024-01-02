@@ -185,6 +185,9 @@ fi
 
 ## Release Notes
 
+### 0.0.30
+- Remove unnecessary check for `sed` on Windows
+
 ### 0.0.29
 - Fixed an issue with the killTerminalAfterUse feature
 - Add option to restore the previously active terminal
