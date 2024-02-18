@@ -128,7 +128,7 @@ more about using `fzf`.
   command that can show you which paths are currently being indexed.
 
 ### 🧘 _Can you give focus back to my editor / my problems panel / other?_
-➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
+➥ I don't think the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
   I'll try to make this better.  
   Update: Added a setting `find-it-faster.general.killTerminalAfterUse`. When true, it will kill the
   extension's terminal which may result in VS Code focusing the previous one. It may help you.
