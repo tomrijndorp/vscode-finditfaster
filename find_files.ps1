@@ -66,24 +66,20 @@ $QUERY=""
 if ($HAS_SELECTION -eq 1) {
     $QUERY=Get-Content "$SELECTION_FILE" -Raw
 }
-$QUERYPARAM=""
+
+$fzf_command = "fzf --cycle --multi"
 if ("$QUERY".Length -gt 0) {
-    $QUERYPARAM="--query"
+    $fzf_command+=" --query"
+    $fzf_command+=" "
+    $fzf_command+="${QUERY}"
 }
 
-if ($QUERYPARAM -ne "") {
-    if($PREVIEW_ENABLED -eq 1) {
-        $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
-    } else {
-        $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi "$QUERYPARAM" "${QUERY}"
-    }
-} else {
-    if($PREVIEW_ENABLED -eq 1) {
-        $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi  --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
-    } else {
-        $result = Invoke-Expression "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" | fzf --cycle --multi
-    }
-}
+if ( $PREVIEW_ENABLED -eq 1){
+    $fzf_command+=" --preview '$PREVIEW_COMMAND' --preview-window $PREVIEW_WINDOW"
+} 
+
+$expression = "rg --files --hidden $USE_GITIGNORE_OPT --glob '!**/.git/' $GLOBS $TYPE_FILTER_ARR $PATHS" + " | " + $fzf_command
+$result = Invoke-Expression( $expression )
 
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
