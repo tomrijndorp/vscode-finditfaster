@@ -698,6 +698,8 @@ function createTerminal() {
             EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
             BAT_THEME: CFG.batTheme,
             FUZZ_RG_QUERY: CFG.fuzzRipgrepQuery ? '1' : '0',
+            //DEBUG: This turns on fuzzy only for single file search
+            FUZZ_RG_QUERY_SINGLE_FILE: '1',
             /* eslint-enable @typescript-eslint/naming-convention */
         },
     });

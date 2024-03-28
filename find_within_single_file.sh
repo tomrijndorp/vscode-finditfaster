@@ -41,7 +41,7 @@ PREVIEW_COMMAND=${FIND_WITHIN_FILES_PREVIEW_COMMAND:-'bat --decorations=always -
 PREVIEW_WINDOW=${FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG:-'right:border-left:50%:+{2}+3/3:~3'}
 HAS_SELECTION=${HAS_SELECTION:-}
 RESUME_SEARCH=${RESUME_SEARCH:-}
-FUZZ_RG_QUERY=${FUZZ_RG_QUERY:-}
+FUZZ_RG_QUERY=${FUZZ_RG_QUERY_SINGLE_FILE:-}
 # We match against the beginning of the line so everything matches but nothing gets highlighted...
 QUERY='^'
 INITIAL_QUERY=''  # Don't show initial "^" regex in fzf
