@@ -231,6 +231,7 @@ const CFG: Config = {
     selectionFile: '',
     lastQueryFile: '',
     lastPosFile: '',
+    // DEBUG: This will set a file that contains the output of the shell script >>'s
     shellDebugFile: '',
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
@@ -549,12 +550,13 @@ function reinitialize() {
     // optionally hiding the terminal.
     //
     CFG.tempDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
+    // DEBUG: Send debug output to a stable file folder so you can inspect it
     CFG.tempDir = '/tmp/find-it-faster';
     CFG.canaryFile = path.join(CFG.tempDir, 'snitch');
     CFG.selectionFile = path.join(CFG.tempDir, 'selection');
     CFG.lastQueryFile = path.join(CFG.tempDir, 'last_query');
     CFG.lastPosFile = path.join(CFG.tempDir, 'last_position');
-    // DEBUG
+    // DEBUG: This will set a file that contains the output of the shell script >>'s
     CFG.shellDebugFile = path.join(CFG.tempDir, 'shell_debug');
     fs.writeFileSync(CFG.canaryFile, '');
     fs.watch(CFG.canaryFile, (eventType) => {
@@ -691,6 +693,7 @@ function createTerminal() {
             SELECTION_FILE: CFG.selectionFile,
             LAST_QUERY_FILE: CFG.lastQueryFile,
             LAST_POS_FILE: CFG.lastPosFile,
+            // DEBUG: This passes the var to the shell script to write debug output to a file
             SHELL_DEBUG_FILE: CFG.shellDebugFile,
             EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
             BAT_THEME: CFG.batTheme,
