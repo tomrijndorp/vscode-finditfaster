@@ -57,6 +57,12 @@ const commands: { [key: string]: Command } = {
         preRunCallback: selectTypeFilter,
         postRunCallback: () => { CFG.useTypeFilter = false; },
     },
+    findWithinSingleFile: {
+        script: 'find_within_single_file',
+        uri: undefined,
+        preRunCallback: undefined,
+        postRunCallback: undefined,
+    },
     listSearchLocations: {
         script: 'list_search_locations',
         uri: undefined,
@@ -183,6 +189,7 @@ interface Config {
     selectionFile: string,
     lastQueryFile: string,
     lastPosFile: string,
+    shellDebugFile: string,
     hideTerminalAfterSuccess: boolean,
     hideTerminalAfterFail: boolean,
     clearTerminalAfterUse: boolean,
@@ -224,6 +231,7 @@ const CFG: Config = {
     selectionFile: '',
     lastQueryFile: '',
     lastPosFile: '',
+    shellDebugFile: '',
     hideTerminalAfterSuccess: false,
     hideTerminalAfterFail: false,
     clearTerminalAfterUse: false,
@@ -263,6 +271,7 @@ function setupConfig(context: vscode.ExtensionContext) {
     commands.findWithinFilesWithType.uri = localScript(commands.findWithinFiles.script);
     commands.listSearchLocations.uri = localScript(commands.listSearchLocations.script);
     commands.flightCheck.uri = localScript(commands.flightCheck.script);
+    commands.findWithinSingleFile.uri = localScript(commands.findWithinSingleFile.script);
 }
 
 /** Register the commands we defined with VS Code so users have access to them */
@@ -540,10 +549,13 @@ function reinitialize() {
     // optionally hiding the terminal.
     //
     CFG.tempDir = fs.mkdtempSync(`${tmpdir()}${path.sep}${CFG.extensionName}-`);
+    CFG.tempDir = '/tmp/find-it-faster';
     CFG.canaryFile = path.join(CFG.tempDir, 'snitch');
     CFG.selectionFile = path.join(CFG.tempDir, 'selection');
     CFG.lastQueryFile = path.join(CFG.tempDir, 'last_query');
     CFG.lastPosFile = path.join(CFG.tempDir, 'last_position');
+    // DEBUG
+    CFG.shellDebugFile = path.join(CFG.tempDir, 'shell_debug');
     fs.writeFileSync(CFG.canaryFile, '');
     fs.watch(CFG.canaryFile, (eventType) => {
         if (eventType === 'change') {
@@ -679,6 +691,7 @@ function createTerminal() {
             SELECTION_FILE: CFG.selectionFile,
             LAST_QUERY_FILE: CFG.lastQueryFile,
             LAST_POS_FILE: CFG.lastPosFile,
+            SHELL_DEBUG_FILE: CFG.shellDebugFile,
             EXPLAIN_FILE: path.join(CFG.tempDir, 'paths_explain'),
             BAT_THEME: CFG.batTheme,
             FUZZ_RG_QUERY: CFG.fuzzRipgrepQuery ? '1' : '0',
@@ -693,9 +706,10 @@ function getWorkspaceFoldersAsString() {
     return CFG.searchPaths.reduce((x, y) => x + ` '${y}'`, '');
 }
 
-function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelection: boolean = true) {
+function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelection: boolean = true, searchInCurrentEditor: boolean = false) {
     assert(cmd.uri);
     let ret = '';
+    const currentEditorPath = vscode.window.activeTextEditor?.document.uri.fsPath;
     const cmdPath = cmd.uri.fsPath;
     if (CFG.useEditorSelectionAsQuery && withTextSelection) {
         const editor = vscode.window.activeTextEditor;
@@ -730,9 +744,13 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
         ret += 'RESUME_SEARCH=1 ';
     }
     ret += cmdPath;
-    if (withArgs) {
+    if (withArgs && !searchInCurrentEditor) {
         let paths = getWorkspaceFoldersAsString();
         ret += ` ${paths}`;
+    }
+    // Add current file arg to make single file search set variable
+    if (searchInCurrentEditor && currentEditorPath) {
+        ret += ` '${currentEditorPath}'`;
     }
     return ret;
 }
@@ -792,8 +810,13 @@ async function executeTerminalCommand(cmd: string) {
     const cb = commands[cmd].preRunCallback;
     let cbResult = true;
     if (cb !== undefined) { cbResult = await cb(); }
+
+    // Single file search mode
+    let searchInCurrentEditor = false;
+    if (cmd === 'findWithinSingleFile') { searchInCurrentEditor = true; }
+
     if (cbResult === true) {
-        term.sendText(getCommandString(commands[cmd]));
+        term.sendText(getCommandString(commands[cmd], true, true, searchInCurrentEditor));
         if (CFG.showMaximizedTerminal) {
             vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
         }

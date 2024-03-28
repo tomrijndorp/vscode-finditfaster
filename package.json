@@ -54,6 +54,10 @@
         "title": "Find It Faster: search within files"
       },
       {
+        "command": "find-it-faster.findWithinSingleFile",
+        "title": "Find It Faster: search within a single file"
+      },
+      {
         "command": "find-it-faster.findWithinFilesWithType",
         "title": "Find It Faster: search within files (with type filter)"
       },
@@ -68,7 +72,7 @@
     ],
     "keybindings": [
       {
-        "command": "find-it-faster.findFiles",
+        "command": "find-it-faster.findWithinSingleFile",
         "mac": "cmd+shift+j",
         "linux": "ctrl+shift+j"
       },
@@ -129,7 +133,11 @@
         "find-it-faster.general.additionalSearchLocationsWhen": {
           "markdownDescription": "When to search the files listed in `general.searchLocations`",
           "type": "string",
-          "enum": ["always", "never", "noWorkspaceOnly"],
+          "enum": [
+            "always",
+            "never",
+            "noWorkspaceOnly"
+          ],
           "enumDescriptions": [
             "Always search these locations",
             "Never search these locations (setting useful for individual workspace overrides)",
@@ -145,7 +153,11 @@
         "find-it-faster.general.searchCurrentWorkingDirectory": {
           "markdownDescription": "Search the current working directory (`process.cwd()`)",
           "type": "string",
-          "enum": ["always", "never", "noWorkspaceOnly"],
+          "enum": [
+            "always",
+            "never",
+            "noWorkspaceOnly"
+          ],
           "enumDescriptions": [
             "Always search the working directory",
             "Never search the working directory",
@@ -158,11 +170,11 @@
           "type": "string",
           "default": "1337"
         },
-				"find-it-faster.general.openFileInPreviewEditor": {
-					"markdownDescription": "When set to `true` files open in a Preview Editor. Use in conjunction with the `workbench.editor.enablePreivew` setting.",
-					"type": "boolean",
-					"default": false
-				},
+        "find-it-faster.general.openFileInPreviewEditor": {
+          "markdownDescription": "When set to `true` files open in a Preview Editor. Use in conjunction with the `workbench.editor.enablePreivew` setting.",
+          "type": "boolean",
+          "default": false
+        },
         "find-it-faster.findFiles.showPreview": {
           "markdownDescription": "Show a preview window when searching files",
           "type": "boolean",
@@ -196,7 +208,7 @@
         "find-it-faster.findWithinFiles.fuzzRipgrepQuery": {
           "markdownDescription": "By default, matching in \"Find Within Files\" is exact. Enabling this option relaxes the matching by slightly fuzzing the query that is sent to `rg`: it treats whitespaces as wildcards (`.*`). For example, when enabled, the query `function bar` will match `function foobar`. Otherwise, it won't. This setting does not work on Windows at the moment.",
           "type": "boolean",
-          "default": false 
+          "default": false
         },
         "find-it-faster.advanced.disableStartupChecks": {
           "markdownDescription": "By default, we check that you have `fzf`, `rg`, and `bat` on your path. If you'd like to disable these checks because you're getting creative (e.g. use `cat` instead of `bat`), check this box. Obviously you may see errors on your terminal if we do call one of these programs when they are not present!",
@@ -225,7 +237,6 @@
     "test": "node ./out/test/runTest.js",
     "vscode:package": "vsce package --githubBranch main",
     "vscode:publish": "vsce publish --githubBranch main",
-
     "minimist": ">=1.2.6",
     "qs": ">=6.10.3",
     "ansi-regex": ">=5.0.1",
