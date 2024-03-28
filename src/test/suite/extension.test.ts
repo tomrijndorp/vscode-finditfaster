@@ -41,7 +41,7 @@ suite('Extension Test Suite', () => {
 });
 
 async function doTheThings() {
-        const extension = vscode.extensions.getExtension('TomRijndorp.find-it-faster');
+        const extension = vscode.extensions.getExtension('TomRijndorp.find-it-faster-rkpatel');
         assert(extension);
         const path = extension.extensionPath;
         assert(path);
