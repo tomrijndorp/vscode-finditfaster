@@ -58,7 +58,8 @@ const commands: { [key: string]: Command } = {
         postRunCallback: () => { CFG.useTypeFilter = false; },
     },
     findWithinSingleFile: {
-        script: 'find_within_single_file',
+        // script: 'find_within_single_file',
+        script: 'find_within_single_file_simple',
         uri: undefined,
         preRunCallback: undefined,
         postRunCallback: undefined,
