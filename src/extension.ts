@@ -714,20 +714,28 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
                 //
                 const selectionText = editor.document.getText(selection);
                 fs.writeFileSync(CFG.selectionFile, selectionText);
-                ret += 'HAS_SELECTION=1 ';
+                if (os.platform() === 'win32') {
+                    ret += '$Env:HAS_SELECTION=1; ';
+                } else {
+                    ret += 'HAS_SELECTION=1 ';
+                }
             }
         }
     }
     // useTypeFilter should only be try if we activated the corresponding command
     if (CFG.useTypeFilter && CFG.findWithinFilesFilter.size > 0) {
-        if(os.platform() === 'win32') {
+        if (os.platform() === 'win32') {
             ret += '$Env:TYPE_FILTER=' + "'" +[...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + "'; ";
         } else {
             ret += 'TYPE_FILTER=' + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + ' ';
         }
     }
     if (cmd.script === 'resume_search') {
-        ret += 'RESUME_SEARCH=1 ';
+        if (os.platform() === 'win32') {
+            ret += '$Env:RESUME_SEARCH=1; ';
+        } else {
+            ret += 'RESUME_SEARCH=1 ';
+        }
     }
     ret += cmdPath;
     if (withArgs) {
