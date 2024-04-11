@@ -185,6 +185,9 @@ fi
 
 ## Release Notes
 
+### 0.0.31
+- Various Windows fixes
+
 ### 0.0.30
 - Remove unnecessary check for `sed` on Windows
 
