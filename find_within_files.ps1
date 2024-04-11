@@ -98,13 +98,24 @@ $QUERYPARAM=""
 if ("$INITIAL_QUERY".Length -gt 0) {
     $QUERYPARAM="--query"
 }
-if($PREVIEW_ENABLED -eq 1) {
-    # I can't get it not to report an error || true trick doesn't work in powershell.
-    # $ErrorActionPreference="SilentlyContinue";
-    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+
+if( $QUERYPARAM -ne "" )   
+{
+    if($PREVIEW_ENABLED -eq 1) {
+        # I can't get it not to report an error || true trick doesn't work in powershell.
+        # $ErrorActionPreference="SilentlyContinue";
+        $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+    } else {
+        $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" 
+    }   
 } else {
-    $result=fzf --delimiter ":" --phony "$QUERYPARAM" "$INITIAL_QUERY" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" 
+    if($PREVIEW_ENABLED -eq 1) {
+        $result=fzf --delimiter ":" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" --preview "$PREVIEW_COMMAND" --preview-window "$PREVIEW_WINDOW"
+    } else {
+        $result=fzf --delimiter ":" --ansi --cycle --bind "change:reload:powershell -m Start-Sleep .1; $RG_PREFIX {q} $PATHS; ''" 
+    }
 }
+
 # Output is filename, line number, character, contents
 if ("$result".Length -lt 1) {
     Write-Host canceled
