@@ -522,7 +522,6 @@ function doFlightCheck(): boolean {
  * after user settings change
  */
 function reinitialize() {
-
     term?.dispose();
     updateConfigWithUserSettings();
     // console.log('plugin config:', CFG);
@@ -578,19 +577,20 @@ function openFiles(data: string) {
         // On windows we sometimes get extra characters that confound
         // the file lookup.
         file = file.trim();
-        let line = 0, char = 0;
-        let range = new vscode.Range(0, 0, 0, 0);
+        let selection = undefined;
         if (lineTmp !== undefined) {
+            let char = 0;
             if (charTmp !== undefined) {
                 char = parseInt(charTmp) - 1;  // 1 based in rg, 0 based in VS Code
             }
-            line = parseInt(lineTmp) - 1;  // 1 based in rg, 0 based in VS Code
+            let line = parseInt(lineTmp) - 1;  // 1 based in rg, 0 based in VS Code
             assert(line >= 0);
             assert(char >= 0);
+            selection = new vscode.Range(line, char, line, char);
         }
         vscode.window.showTextDocument(
             vscode.Uri.file(file),
-            { preview: CFG.openFileInPreviewEditor, selection: new vscode.Range(line, char, line, char) });
+            { preview: CFG.openFileInPreviewEditor, selection: selection });
     });
 }
 
