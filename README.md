@@ -150,20 +150,11 @@ more about using `fzf`.
      - Anything special about your configuration / workspace. Did you have spaces in there? Is it
        on a network share or some other thing I definitely didn't test? Did you modify the extension
        settings?
-  3. Create a fix and open a PR. If it's a straightforward fix that doesn't require a lot of testing
-     on my side, I'll probably merge it. Please don't underestimate the amount of testing I need to
-     do even for a trivial fix, and consider that this is just a tiny side project for me. I might
-     not respond that quickly.
+  3. Create a fix and open a PR (see `CONTRIBUTING.md`) for further information.
 
 ### 💩 _I don't like `fzf` / `rg` / `bat`. Can I just use `find`, `grep`, and `cat` or something else?_  
-➥ This is not impossible for me to do, but realistically, there's little value to it. The experience
-  will never be quite as good, and won't be as performant either.  
-  `rg` especially is a beast that outperforms `grep` and even tools like `ag`. Give them a try.
-  Plus, not supporting additional tools means more time to make this extension better and fewer
-  opportunities for creating bugs. You can file a Github issue and see if there's support for it,
-  but unless people _really_ want this it's unlikely I'll support it.  
-  You _can_ actually already use other preview tools than `bat`, e.g. `cat`. I've left some hints in
-  the settings.
+➥ You can actually already use other preview tools than `bat`, e.g. `cat`. I've left some hints in
+  the settings. Outside of what's available, substituting other tools is not supported.
 
 ### 💲 <i>Can I set FZF env vars that only work within this extension?</i>
 ➥ You can, by adding something like this to `~/.bashrc` or whatever configures your enviroment:
@@ -172,10 +163,6 @@ if [[ $FIND_IT_FASTER_ACTIVE -eq 1 ]]; then
   FZF_DEFAULT_OPTS='--height=50%'
 fi
 ```
-
-### 🎄 <i>I'd like to customize this tool a little but I need access to &lt;insert something here&gt;. Can you expose that?</i>  
-➥ I probably can. Maybe create a Github issue and ask for it? Especially if other people vote on it,
-  that would be a compelling argument to do it.
 
 ### 🪚 _Can I  build in a feature myself / contribute in some way?_
 ➥ To minimize redundancy, have a look at `CONTRIBUTING.md`.

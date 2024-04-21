@@ -1,12 +1,14 @@
-Thanks for reading this and showing interest! Feel free to submit small patches. Please document how
-you tested these, and what additional testing you recommend to be performed.
+April 2024 update:
 
-For larger changes, it's perhaps a good idea to touch base first. Currently, this is a one-person
-project, and the time I can dedicate to this extension is limited. Therefore, I'm less inclined to
-review and merge changes that:
-- are hard to review
-- add scope creep
-- refactor large amounts of code
-- anything else that takes a lot of time to guarantee that nothing breaks
+As of late, I haven't had a lot of time to work on this extension. There are some small issues, but
+on most systems, the extension works well and does what it's supposed to do. I therefore consider
+this extension feature complete and will likely no longer either implement or merge feature
+requests. This extension has remained largely ever since I released it almost three years ago, and
+I consider stability of the existing feature set more important than anything else.
 
-That said, I'm not necessarily opposed to larger changes. It's just a good idea to discuss first.
+Due to its very nature, this extension relies heavily on bash scripts, which means it's hard to test
+and challenging to not regress when adding new functionality, which again can explain my reluctance
+to consider additional features at this point.
+
+Please feel free to report and fix issues, though. It may take time before I can get around to
+reviewing or fixing them.
