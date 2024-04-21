@@ -185,6 +185,9 @@ fi
 
 ## Release Notes
 
+### 0.0.32
+- Fixed a bug in cursor when opening files that were previously opened
+
 ### 0.0.31
 - Various Windows fixes
 
