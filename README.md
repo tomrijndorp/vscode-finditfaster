@@ -178,6 +178,9 @@ fi
 
 ## Release Notes
 
+### 0.0.33
+- Fixed an issue related to directories with special characters in them
+
 ### 0.0.32
 - Fixed a bug in cursor when opening files that were previously opened
 
