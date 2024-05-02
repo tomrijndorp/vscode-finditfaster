@@ -393,7 +393,7 @@ function collectSearchLocations() {
     // add the workspace folders
     if (CFG.searchWorkspaceFolders && vscode.workspace.workspaceFolders !== undefined) {
         const dirs = vscode.workspace.workspaceFolders.map(x => {
-            const uri = decodeURI(x.uri.toString());
+            const uri = decodeURIComponent(x.uri.toString());
             if (uri.substring(0, 7) === 'file://') {
                 if(os.platform() === 'win32') {
                     return uri.substring(8)
