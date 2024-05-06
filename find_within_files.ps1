@@ -81,10 +81,11 @@ $PREVIEW_ENABLED=VGet "env:FIND_WITHIN_FILES_PREVIEW_ENABLED" 0
 $PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid'
 $PREVIEW_WINDOW=VGet "env:FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" 'right:border-left:50%:+{2}+3/3:~3'
 $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
+$SELECTION_FILE=VGet "env:SELECTION_FILE" ""
 # We match against the beginning of the line so everything matches but nothing gets highlighted...
 $QUERY="`"^`""
 $INITIAL_QUERY=""  # Don't show initial "^" regex in fzf
-if ($HAS_SELECTION -eq 1) {
+if ($HAS_SELECTION -eq 1 -and "$SELECTION_FILE".Length -gt 0) {
     # ... or against the selection if we have one
     $QUERY=Get-Content "$SELECTION_FILE" -Raw
     $INITIAL_QUERY="$QUERY" # Do show the initial query when it's not "^"
