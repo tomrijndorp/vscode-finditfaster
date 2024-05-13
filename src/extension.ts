@@ -483,10 +483,10 @@ function doFlightCheck(): boolean {
         let errStr = '';
         const kvs: any = {};
         let out = "";
-        if(os.platform() === 'win32') {
-            out = cp.execFileSync("powershell " + getCommandString(commands.flightCheck, false, false), { shell: true }).toString('utf-8');
+        if (os.platform() === 'win32') {
+            out = cp.execFileSync("powershell.exe", ['-ExecutionPolicy', 'Bypass', '-File', `"${commands.flightCheck.uri.fsPath}"`], { shell: true }).toString('utf-8');
         } else {
-            out = cp.execFileSync(getCommandString(commands.flightCheck, false, false), { shell: true }).toString('utf-8');
+            out = cp.execFileSync(commands.flightCheck.uri.fsPath, { shell: true }).toString('utf-8');
         }
         out.split('\n').map(x => {
             const maybeKV = parseKeyValue(x);
