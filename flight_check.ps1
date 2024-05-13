@@ -1,14 +1,13 @@
-
 Write-Host "Pre-Flight check:"
 Write-Host "-----------------"
 
 function InPath($tool) {
-    Write-Host "which ${tool}: " -NoNewline
-    if ((Get-Command "$tool" -ErrorAction SilentlyContinue) -eq $null) 
+    Write-Host "${tool}: " -NoNewline
+    if ($null -eq (Get-Command "$tool" -ErrorAction SilentlyContinue)) 
     { 
-        Write-Host ""
+        Write-Host "not installed"
     } else {
-        Write-Host "found"
+        Write-Host "installed"
     }
 }
 
@@ -18,10 +17,10 @@ InPath "fzf"
 InPath "rg"
 Write-Host "-----------------"
 
-#echo "Checking versions of the installed command line tools..."
-#echo "bat version: $(bat --version)"
-#echo "fzf version: $(fzf --version)"
-#echo "rg version: $(rg --version)"
-#echo "-----------------"
+Write-Host "Checking versions of the installed command line tools..."
+Write-Host "bat version: $(bat --version)"
+Write-Host "fzf version: $(fzf --version)"
+Write-Host "rg version: $(rg --version)"
+Write-Host "-----------------"
 
-echo "OK"
+Write-Host "OK"

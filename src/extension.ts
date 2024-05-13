@@ -494,20 +494,20 @@ function doFlightCheck(): boolean {
                 kvs[maybeKV[0]] = maybeKV[1];
             }
         });
-        if (kvs['which bat'] === undefined || kvs['which bat'] === '') {
-            errStr += 'bat not found on your PATH\n. ';
+        if (kvs['bat'] === undefined || kvs['bat'] === 'not installed') {
+            errStr += 'bat not found on your PATH.';
         }
-        if (kvs['which fzf'] === undefined || kvs['which fzf'] === '') {
-            errStr += 'fzf not found on your PATH\n. ';
+        if (kvs['fzf'] === undefined || kvs['fzf'] === 'not installed') {
+            errStr += 'fzf not found on your PATH.';
         }
-        if (kvs['which rg'] === undefined || kvs['which rg'] === '') {
-            errStr += 'rg not found on your PATH\n. ';
+        if (kvs['rg'] === undefined || kvs['rg'] === 'not installed') {
+            errStr += 'rg not found on your PATH.';
         }
-        if (os.platform() !== 'win32' && (kvs['which sed'] === undefined || kvs['which sed'] === '')) {
-            errStr += 'sed not found on your PATH\n. ';
+        if (os.platform() !== 'win32' && (kvs['sed'] === undefined || kvs['sed'] === 'not installed')) {
+            errStr += 'sed not found on your PATH.';
         }
         if (errStr !== '') {
-            vscode.window.showErrorMessage(`Failed to activate plugin: ${errStr}\nMake sure you have the required command line tools installed as outlined in the README.`);
+            vscode.window.showErrorMessage(`Failed to activate plugin! Make sure you have the required command line tools installed as outlined in the README. ${errStr}`);
         }
 
         return errStr === '';
