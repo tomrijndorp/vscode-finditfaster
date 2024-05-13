@@ -479,6 +479,11 @@ function doFlightCheck(): boolean {
         return line.split(': ', 2);
     };
 
+    if (!commands.flightCheck || !commands.flightCheck.uri) {
+        vscode.window.showErrorMessage('Failed to find flight check script. This is a bug. Please report it.');
+        return false;
+    }
+
     try {
         let errStr = '';
         const kvs: any = {};
