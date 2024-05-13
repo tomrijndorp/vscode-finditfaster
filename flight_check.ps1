@@ -1,18 +1,20 @@
 Write-Host "Pre-Flight check:"
 Write-Host "-----------------"
 
-function InPath($tool) {
-    Write-Host "${tool}: " -NoNewline
-    if ($null -eq (Get-Command "$tool" -ErrorAction SilentlyContinue)) 
-    { 
-        Write-Host "not installed"
+Write-Host "Checking your OS version..."
+Write-Host ("OS: " + ([Environment]::OSVersion."VersionString"))
+Write-Host "-----------------"
+
+function InPath($tool, $toolAlias = $false) {
+    if (!(Get-Command $tool -ErrorAction SilentlyContinue) -and ($toolAlias -ne $false) -and !(Get-Command $toolAlias -ErrorAction SilentlyContinue)) {
+        Write-Host "$($tool): not installed" -ForegroundColor Red
     } else {
-        Write-Host "installed"
+        Write-Host "$($tool): installed" -ForegroundColor Green
     }
 }
 
 Write-Host "Checking you have the required command line tools installed..." -ForegroundColor Cyan
-InPath "bat"
+InPath "bat" "batcat"
 InPath "fzf"
 InPath "rg"
 Write-Host "-----------------"
