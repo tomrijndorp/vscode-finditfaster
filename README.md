@@ -178,6 +178,11 @@ fi
 
 ## Release Notes
 
+### 0.0.34
+- Improve initial checks on Windows
+- Fix some issues with text selection on Windows
+- Better handling of special characters in paths
+
 ### 0.0.33
 - Fixed an issue related to directories with special characters in them
 
