@@ -714,32 +714,18 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
                 //
                 const selectionText = editor.document.getText(selection);
                 fs.writeFileSync(CFG.selectionFile, selectionText);
-                if (os.platform() === 'win32') {
-                    ret += '$Env:HAS_SELECTION=1; ';
-                } else {
-                    ret += 'HAS_SELECTION=1 ';
-                }
+                ret += envVarToString('HAS_SELECTION', '1');
             } else {
-                if (os.platform() === 'win32') {
-                    ret += '$Env:HAS_SELECTION=0; ';
-                }
+                ret += envVarToString('HAS_SELECTION', '0');
             }
         }
     }
     // useTypeFilter should only be try if we activated the corresponding command
     if (CFG.useTypeFilter && CFG.findWithinFilesFilter.size > 0) {
-        if (os.platform() === 'win32') {
-            ret += '$Env:TYPE_FILTER=' + "'" +[...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + "'; ";
-        } else {
-            ret += 'TYPE_FILTER=' + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + ' ';
-        }
+        ret += envVarToString('TYPE_FILTER', "'" +[...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + "'");
     }
     if (cmd.script === 'resume_search') {
-        if (os.platform() === 'win32') {
-            ret += '$Env:RESUME_SEARCH=1; ';
-        } else {
-            ret += 'RESUME_SEARCH=1 ';
-        }
+        ret += envVarToString('RESUME_SEARCH', '1');
     }
     ret += cmdPath;
     if (withArgs) {
@@ -816,4 +802,11 @@ async function executeTerminalCommand(cmd: string) {
         const postRunCallback = commands[cmd].postRunCallback;
         if (postRunCallback !== undefined) { postRunCallback(); }
     }
+}
+
+function envVarToString(name: string, value: string) {
+    // Note we add a space afterwards
+    return (os.platform() == 'win32')
+        ? `$Env:${name}=${value}; `
+        : `${name}=${value} `;
 }
