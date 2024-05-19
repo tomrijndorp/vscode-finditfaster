@@ -87,7 +87,7 @@ $QUERY="`"^`""
 $INITIAL_QUERY=""  # Don't show initial "^" regex in fzf
 if ($HAS_SELECTION -eq 1 -and "$SELECTION_FILE".Length -gt 0) {
     # ... or against the selection if we have one
-    $QUERY=Get-Content "$SELECTION_FILE" -Raw
+    $QUERY="`"$(Get-Content "$SELECTION_FILE" -Raw)`""
     $INITIAL_QUERY="$QUERY" # Do show the initial query when it's not "^"
 }
 

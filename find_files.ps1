@@ -65,7 +65,7 @@ $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
 $SELECTION_FILE=VGet "env:SELECTION_FILE" ""
 $QUERY=""
 if ($HAS_SELECTION -eq 1 -and "$SELECTION_FILE".Length -gt 0) {
-    $QUERY=Get-Content "$SELECTION_FILE" -Raw
+    $QUERY="`"$(Get-Content "$SELECTION_FILE" -Raw)`""
 }
 
 $fzf_command = "fzf --cycle --multi"
