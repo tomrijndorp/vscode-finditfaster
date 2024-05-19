@@ -10,36 +10,25 @@ echo "-----------------"
 
 echo "Checking you have the required command line tools installed..."
 
-if which bat >/dev/null 2>&1 || which batcat >/dev/null 2>&1; then
-    echo "bat: installed"
-else
-    echo "bat: not installed"
-fi
+test_installed() {
+    if which "$1" >/dev/null 2>&1; then
+        echo "$1: installed"
+    else
+        echo "$1: not installed"
+    fi
+}
 
-if which fzf >/dev/null 2>&1; then
-    echo "fzf: installed"
-else
-    echo "fzf: not installed"
-fi
-
-if which rg >/dev/null 2>&1; then
-    echo "rg: installed"
-else
-    echo "rg: not installed"
-fi
-
-if which sed >/dev/null 2>&1; then
-    echo "sed: installed"
-else
-    echo "sed: not installed"
-fi
+test_installed bat
+test_installed fzf
+test_installed rg
+test_installed sed
 
 echo "-----------------"
 
 echo "Checking versions of the installed command line tools..."
 echo "bat version: $(bat --version)"
 echo "fzf version: $(fzf --version)"
-echo "rg version: $(rg --version)"
+echo "rg version : $(rg --version)"
 echo "-----------------"
 
 echo "OK"

@@ -500,16 +500,16 @@ function doFlightCheck(): boolean {
             }
         });
         if (kvs['bat'] === undefined || kvs['bat'] === 'not installed') {
-            errStr += 'bat not found on your PATH.';
+            errStr += 'bat not found on your PATH. ';
         }
         if (kvs['fzf'] === undefined || kvs['fzf'] === 'not installed') {
-            errStr += 'fzf not found on your PATH.';
+            errStr += 'fzf not found on your PATH. ';
         }
         if (kvs['rg'] === undefined || kvs['rg'] === 'not installed') {
-            errStr += 'rg not found on your PATH.';
+            errStr += 'rg not found on your PATH. ';
         }
         if (os.platform() !== 'win32' && (kvs['sed'] === undefined || kvs['sed'] === 'not installed')) {
-            errStr += 'sed not found on your PATH.';
+            errStr += 'sed not found on your PATH. ';
         }
         if (errStr !== '') {
             vscode.window.showErrorMessage(`Failed to activate plugin! Make sure you have the required command line tools installed as outlined in the README. ${errStr}`);

@@ -14,7 +14,7 @@ function InPath($tool, $toolAlias = $false) {
 }
 
 Write-Host "Checking you have the required command line tools installed..." -ForegroundColor Cyan
-InPath "bat" "batcat"
+InPath "bat"
 InPath "fzf"
 InPath "rg"
 Write-Host "-----------------"
