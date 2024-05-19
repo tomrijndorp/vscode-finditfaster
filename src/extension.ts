@@ -719,6 +719,10 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
                 } else {
                     ret += 'HAS_SELECTION=1 ';
                 }
+            } else {
+                if (os.platform() === 'win32') {
+                    ret += '$Env:HAS_SELECTION=0; ';
+                }
             }
         }
     }
