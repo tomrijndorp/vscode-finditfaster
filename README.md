@@ -178,6 +178,9 @@ fi
 
 ## Release Notes
 
+### 0.0.36
+- Testing publishing to OpenVSX
+
 ### 0.0.35
 - Testing publishing to OpenVSX
 
