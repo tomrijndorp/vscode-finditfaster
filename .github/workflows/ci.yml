@@ -82,6 +82,7 @@ jobs:
       - name: Publish!
         env:
           VSCE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
+          OPENVSX_TOKEN: ${{ secrets.FIND_IT_FASTER_OPENVSX_TOKEN }}
         run: |
           sudo apt-get install -y jq
           FIF_TAG=$(cat package.json | jq -r .version)
@@ -89,3 +90,6 @@ jobs:
           echo "Tagging release with $FIF_TAG..."
           git tag "$FIF_TAG"
           git push origin "$FIF_TAG"
+
+          # Publish to openvsx
+          npx ovsx publish -p "$OPENVSX_TOKEN"
