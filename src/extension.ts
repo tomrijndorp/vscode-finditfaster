@@ -201,6 +201,7 @@ interface Config {
     killTerminalAfterUse: boolean,
     fuzzRipgrepQuery: boolean,
     restoreFocusTerminal: boolean,
+    useTerminalInEditor: boolean,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -242,6 +243,7 @@ const CFG: Config = {
     killTerminalAfterUse: false,
     fuzzRipgrepQuery: false,
     restoreFocusTerminal: false,
+    useTerminalInEditor: false,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -336,6 +338,7 @@ function updateConfigWithUserSettings() {
     CFG.findWithinFilesPreviewWindowConfig = getCFG('findWithinFiles.previewWindowConfig');
     CFG.fuzzRipgrepQuery = getCFG('findWithinFiles.fuzzRipgrepQuery');
     CFG.restoreFocusTerminal = getCFG('general.restoreFocusTerminal');
+    CFG.useTerminalInEditor = getCFG('general.useTerminalInEditor');
 }
 
 function collectSearchLocations() {
@@ -665,7 +668,8 @@ function handleTerminalFocusRestore(commandWasSuccess: boolean) {
 function createTerminal() {
     term = vscode.window.createTerminal({
         name: 'F️indItFaster',
-        hideFromUser: true,
+        location: CFG.useTerminalInEditor ? vscode.TerminalLocation.Editor : vscode.TerminalLocation.Panel,
+        hideFromUser: !CFG.useTerminalInEditor, // works only for terminal panel, not editor stage
         env: {
             /* eslint-disable @typescript-eslint/naming-convention */
             FIND_IT_FASTER_ACTIVE: '1',
