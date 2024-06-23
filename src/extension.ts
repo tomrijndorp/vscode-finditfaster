@@ -815,7 +815,7 @@ async function executeTerminalCommand(cmd: string) {
 
 function envVarToString(name: string, value: string) {
     // Note we add a space afterwards
-    return (os.platform() == 'win32')
+    return (os.platform() === 'win32')
         ? `$Env:${name}=${value}; `
         : `${name}=${value} `;
 }
