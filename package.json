@@ -107,7 +107,7 @@
           "default": false
         },
         "find-it-faster.general.showMaximizedTerminal": {
-          "markdownDescription": "Show the terminal in full screen. Works especially nicely if you set the \"hide after succes / fail\" options in these preferences.",
+          "markdownDescription": "Show the terminal in full screen. Works especially nicely if you set the \"hide after success / fail\" options in these preferences.",
           "type": "boolean",
           "default": false
         },
@@ -212,6 +212,11 @@
           "markdownDescription": "When enabled, the extension will restore focus to the previously active terminal after executing a command. This is useful if you frequently switch between the terminal and other parts of VS Code. Note: due to limitations in VS Code, will not focus other panel tabs such as problems/output/etc.",
           "type": "boolean",
           "default": false
+        },
+        "find-it-faster.general.useTerminalInEditor": {
+            "markdownDescription": "When enabled, the extension will create the terminal in the main editor stage.",
+            "type": "boolean",
+            "default": false
         }
       }
     }
