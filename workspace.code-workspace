@@ -5,6 +5,10 @@
 		},
 	],
 	"settings": {
-		// "typescript.tsc.autoDetect": "off"
+		"terminal.integrated.automationProfile.linux": {
+			"path": "/bin/bash",
+			"icon": "terminal-bash",
+			"args": ["-l"]
+		}
 	}
 }
