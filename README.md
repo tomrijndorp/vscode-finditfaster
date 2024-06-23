@@ -17,9 +17,13 @@ Default key bindings:
 
 You can change these using VS Code's keyboard shortcuts.
 
+Recommended settings:
+- set `find-it-faster.general.useTerminalInEditor` to true to have the extension window open in the
+  editor panel rather than in the terminal panel.
+
 <hr />
 
-Update: Native Windows support is now implemented (still experimental)! Also see
+Native Windows support is now implemented (experimental)! Also see
 [Known Issues](#known_issues).
 
 <hr />
@@ -38,13 +42,13 @@ This extension exposes four commands:
 If your active text editor has a selection, it will be used as the initial query (you can disable
 this setting).
 
-⬇️ &nbsp;**Find files**
+⬇️ &nbsp;**Find files**  
 ![Find Files](media/find_files.gif)
 
-⬇️ &nbsp;**Find text within files**
+⬇️ &nbsp;**Find text within files**  
 ![Find Within Files](media/find_within_files.gif)
 
-⬇️ &nbsp;**Find text within files, with file type filter**
+⬇️ &nbsp;**Find text within files, with file type filter**  
 ![Find Within Files](media/find_within_files_with_filter.gif)
 
 This extension has also been tested on remote workspaces (e.g. SSH sessions).
@@ -136,8 +140,11 @@ more about using `fzf`.
 ### 🧘 _Can you give focus back to my editor / my problems panel / other?_
 ➥ I don't the VS Code API enables me to do this. Shoot me a message if you think I'm mistaken and
   I'll try to make this better.  
-  Update: Added a setting `find-it-faster.general.killTerminalAfterUse`. When true, it will kill the
-  extension's terminal which may result in VS Code focusing the previous one. It may help you.
+  2023 Update: Added a setting `find-it-faster.general.killTerminalAfterUse`. When true, it will kill
+  the extension's terminal which may result in VS Code focusing the previous one. It may help you.  
+  2024 Update: I recommend using `find-it-faster.general.useTerminalInEditor`. This way, the
+  extension window won't interfere with your other terminals, and you get more real estate for
+  previewing files.
 
 ### 🐞 _I found a bug!_  
 ➥ Yeah, that's not unlikely. There are a lot of edge cases with this sort of tooling. Three options:
@@ -150,7 +157,7 @@ more about using `fzf`.
      - Anything special about your configuration / workspace. Did you have spaces in there? Is it
        on a network share or some other thing I definitely didn't test? Did you modify the extension
        settings?
-  3. Create a fix and open a PR (see `CONTRIBUTING.md`) for further information.
+  3. For the most up to date information on contributing fixes and features, see `CONTRIBUTING.md`.
 
 ### 💩 _I don't like `fzf` / `rg` / `bat`. Can I just use `find`, `grep`, and `cat` or something else?_  
 ➥ You can actually already use other preview tools than `bat`, e.g. `cat`. I've left some hints in
@@ -165,7 +172,7 @@ fi
 ```
 
 ### 🪚 _Can I  build in a feature myself / contribute in some way?_
-➥ To minimize redundancy, have a look at `CONTRIBUTING.md`.
+➥ For the most up to date information on contributing fixes and features, see `CONTRIBUTING.md`.
 
 ### 🤑 _Do you take donations?_
 ➥ Thanks for asking, but no. The amount of work that went into this extension is tiny compared to
@@ -177,6 +184,11 @@ fi
 <hr />
 
 ## Release Notes
+
+### 0.0.37
+- New setting to have the window appear in the editor panel:
+  `find-it-faster.general.useTerminalInEditor`. Please try it out!
+- This extension is now also available on OpenVSX (and therefore VSCodium)
 
 ### 0.0.36
 - Testing publishing to OpenVSX
