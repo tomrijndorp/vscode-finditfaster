@@ -185,7 +185,10 @@ fi
 
 ## Release Notes
 
-### 0.0.37
+### 0.0.38
+- Updated dependencies, addressed a bug that caused the extension to not open
+
+### 0.0.37 (broken)
 - New setting to have the window appear in the editor panel:
   `find-it-faster.general.useTerminalInEditor`. Please try it out!
 - This extension is now also available on OpenVSX (and therefore VSCodium)

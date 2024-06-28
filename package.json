@@ -24,12 +24,19 @@
     "search",
     "within"
   ],
-  "version": "0.0.37",
+  "version": "0.0.38",
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
+  ],
+  "activationEvents": [
+    "onCommand:find-it-faster.findFiles",
+    "onCommand:find-it-faster.findFilesWithType",
+    "onCommand:find-it-faster.findWithinFiles",
+    "onCommand:find-it-faster.findWithinFilesWithType",
+    "onCommand:find-it-faster.listSearchLocations"
   ],
   "main": "./out/extension.js",
   "contributes": {
