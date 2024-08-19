@@ -697,6 +697,7 @@ function createTerminal() {
             /* eslint-enable @typescript-eslint/naming-convention */
         },
     };
+    // Use provided terminal from settings, otherwise use default terminal profile
     if (CFG.shellPathForTerminal !== '') {
         terminalOptions.shellPath = CFG.shellPathForTerminal;
     }
