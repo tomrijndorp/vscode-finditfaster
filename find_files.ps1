@@ -58,9 +58,9 @@ if ($PATHS.Count -eq 1) {
     $PATHS=""
 }
 
-$PREVIEW_ENABLED=VGet "env:FIND_WITHIN_FILES_PREVIEW_ENABLED" 0
-$PREVIEW_COMMAND=VGet "env:FIND_WITHIN_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always --plain {}'
-$PREVIEW_WINDOW=VGet "env:FIND_WITHIN_FILES_PREVIEW_WINDOW_CONFIG" 'right:50%:border-left'
+$PREVIEW_ENABLED=VGet "env:FIND_FILES_PREVIEW_ENABLED" 0
+$PREVIEW_COMMAND=VGet "env:FIND_FILES_PREVIEW_COMMAND"  'bat --decorations=always --color=always --plain {}'
+$PREVIEW_WINDOW=VGet "env:FIND_FILES_PREVIEW_WINDOW_CONFIG" 'right:50%:border-left'
 $HAS_SELECTION=VGet "env:HAS_SELECTION" 0
 $SELECTION_FILE=VGet "env:SELECTION_FILE" ""
 $QUERY=""
