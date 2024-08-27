@@ -202,6 +202,7 @@ interface Config {
     fuzzRipgrepQuery: boolean,
     restoreFocusTerminal: boolean,
     useTerminalInEditor: boolean,
+    shellPathForTerminal: string,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -244,6 +245,7 @@ const CFG: Config = {
     fuzzRipgrepQuery: false,
     restoreFocusTerminal: false,
     useTerminalInEditor: false,
+    shellPathForTerminal: '',
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -339,6 +341,7 @@ function updateConfigWithUserSettings() {
     CFG.fuzzRipgrepQuery = getCFG('findWithinFiles.fuzzRipgrepQuery');
     CFG.restoreFocusTerminal = getCFG('general.restoreFocusTerminal');
     CFG.useTerminalInEditor = getCFG('general.useTerminalInEditor');
+    CFG.shellPathForTerminal = getCFG('general.shellPathForTerminal');
 }
 
 function collectSearchLocations() {
@@ -666,7 +669,7 @@ function handleTerminalFocusRestore(commandWasSuccess: boolean) {
 }
 
 function createTerminal() {
-    term = vscode.window.createTerminal({
+    const terminalOptions: vscode.TerminalOptions = {
         name: 'F️indItFaster',
         location: CFG.useTerminalInEditor ? vscode.TerminalLocation.Editor : vscode.TerminalLocation.Panel,
         hideFromUser: !CFG.useTerminalInEditor, // works only for terminal panel, not editor stage
@@ -693,7 +696,13 @@ function createTerminal() {
             FUZZ_RG_QUERY: CFG.fuzzRipgrepQuery ? '1' : '0',
             /* eslint-enable @typescript-eslint/naming-convention */
         },
-    });
+    };
+    // Use provided terminal from settings, otherwise use default terminal profile
+    if (CFG.shellPathForTerminal !== '') {
+        terminalOptions.shellPath = CFG.shellPathForTerminal;
+    }
+
+    term = vscode.window.createTerminal(terminalOptions);
 }
 
 function getWorkspaceFoldersAsString() {

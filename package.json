@@ -225,6 +225,11 @@
           "markdownDescription": "When enabled, the extension will create the terminal in the main editor stage.",
           "type": "boolean",
           "default": false
+        },
+        "find-it-faster.general.shellPathForTerminal": {
+          "markdownDescription": "Set the path for the shell (terminal type) to be used.",
+          "type": "string",
+          "default": ""
         }
       }
     }
