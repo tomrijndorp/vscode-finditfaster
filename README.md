@@ -185,6 +185,10 @@ fi
 
 ## Release Notes
 
+### 0.0.39
+- Add option to set a shell path to enable running with a non-default shell
+- Fixed an issue with wrong env var names in Windows scripts
+
 ### 0.0.38
 - Updated dependencies, addressed a bug that caused the extension to not open
 
