@@ -57,9 +57,7 @@ callfzf () {
         ${PREVIEW_STR[@]+"${PREVIEW_STR[@]}"}
 }
 
-set -x
 VAL=$(callfzf)
-set +x
 
 if [[ -z "$VAL" ]]; then
     echo canceled
