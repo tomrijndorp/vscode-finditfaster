@@ -293,7 +293,7 @@ function setupConfig(context: vscode.ExtensionContext) {
 	const localScript = (x: string) =>
 		vscode.Uri.file(
 			path.join(context.extensionPath, x) +
-			(os.platform() === "win32" ? ".ps1" : ".sh"),
+				(os.platform() === "win32" ? ".ps1" : ".sh"),
 		);
 	commands.findFiles.uri = localScript(commands.findFiles.script);
 	commands.findFilesWithType.uri = localScript(commands.findFiles.script);
@@ -322,7 +322,9 @@ export function activate(context: vscode.ExtensionContext) {
 	const local = (x: string) => vscode.Uri.file(path.join(CFG.extensionPath, x));
 
 	// Load our package.json
-	PACKAGE = JSON.parse(fs.readFileSync(local("package.json").fsPath, "utf-8")) as PackageJson;
+	PACKAGE = JSON.parse(
+		fs.readFileSync(local("package.json").fsPath, "utf-8"),
+	) as PackageJson;
 	setupConfig(context);
 	checkExposedFunctions();
 
