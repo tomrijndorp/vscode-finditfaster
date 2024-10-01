@@ -11,10 +11,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]  # , windows-latest] Failing for unknown reason and we don't really test Windows anyway...
+        os: [macos-latest, ubuntu-latest] # , windows-latest] Failing for unknown reason and we don't really test Windows anyway...
     runs-on: ${{ matrix.os }}
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -29,8 +28,8 @@ jobs:
         if: runner.os == 'Linux' || runner.os == 'macOS'
 
       # --- deps ---
-      - name: NPM install
-        run: npm install
+      - name: Yarn install
+        run: yarn install
 
       # --- build / test ---
       - name: Test
@@ -60,7 +59,6 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -75,8 +73,8 @@ jobs:
         if: runner.os == 'Linux' || runner.os == 'macOS'
 
       # --- npm deps ---
-      - name: NPM install
-        run: npm install
+      - name: Yarn install
+        run: yarn install
 
       # --- publish ---
       - name: Publish!
