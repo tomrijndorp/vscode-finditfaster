@@ -7,16 +7,26 @@
  * [ ] Buffer of open files / show currently open files / always show at bottom => workspace.textDocuments is a bit curious / borked
  */
 
-import * as assert from "assert";
-import * as cp from "child_process";
-import * as fs from "fs";
-import { tmpdir } from "os";
-import * as os from "os";
-import * as path from "path";
+import * as assert from "node:assert";
+import * as cp from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import { tmpdir } from "node:os";
+import * as path from "node:path";
 import * as vscode from "vscode";
 
+// Add this interface definition
+interface PackageJson {
+	name: string;
+	contributes: {
+		commands: Array<{
+			command: string;
+		}>;
+	};
+}
+
 // Let's keep it DRY and load the package here so we can reuse some data from it
-let PACKAGE: any;
+let PACKAGE: PackageJson;
 // Reference to the terminal we use
 let term: vscode.Terminal;
 let previousActiveTerminal: vscode.Terminal | null;
@@ -135,7 +145,7 @@ async function selectTypeFilter() {
 			CFG.findWithinFilesFilter.has(x.label),
 		);
 		qp.value = [...CFG.findWithinFilesFilter.keys()].reduce(
-			(x, y) => x + " " + y,
+			(x, y) => `${x} ${y}`,
 			"",
 		);
 		qp.matchOnDescription = true;
@@ -147,7 +157,7 @@ async function selectTypeFilter() {
 				// which we obviously don't want. Currently (6/2021), this works as expected.
 				qp.value = "";
 				qp.selectedItems = [];
-				qp.items = qp.items; // keep this
+				qp.items = [...qp.items]; // Create a new array to trigger update
 			}
 		});
 		qp.onDidAccept(() => {
@@ -158,10 +168,14 @@ async function selectTypeFilter() {
 				// If there are no active items, use the string that was entered.
 				// split on empty string yields an array with empty string, catch that
 				const types = qp.value === "" ? [] : qp.value.trim().split(/\s+/);
-				types.forEach((x) => CFG.findWithinFilesFilter.add(x));
+				for (const x of types) {
+					CFG.findWithinFilesFilter.add(x);
+				}
 			} else {
 				// If there are active items, use those.
-				qp.selectedItems.forEach((x) => CFG.findWithinFilesFilter.add(x.label));
+				for (const x of qp.selectedItems) {
+					CFG.findWithinFilesFilter.add(x.label);
+				}
 			}
 			hasResolved = true;
 			resolve(true);
@@ -279,7 +293,7 @@ function setupConfig(context: vscode.ExtensionContext) {
 	const localScript = (x: string) =>
 		vscode.Uri.file(
 			path.join(context.extensionPath, x) +
-				(os.platform() === "win32" ? ".ps1" : ".sh"),
+			(os.platform() === "win32" ? ".ps1" : ".sh"),
 		);
 	commands.findFiles.uri = localScript(commands.findFiles.script);
 	commands.findFilesWithType.uri = localScript(commands.findFiles.script);
@@ -308,7 +322,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const local = (x: string) => vscode.Uri.file(path.join(CFG.extensionPath, x));
 
 	// Load our package.json
-	PACKAGE = JSON.parse(fs.readFileSync(local("package.json").fsPath, "utf-8"));
+	PACKAGE = JSON.parse(fs.readFileSync(local("package.json").fsPath, "utf-8")) as PackageJson;
 	setupConfig(context);
 	checkExposedFunctions();
 
@@ -359,8 +373,8 @@ function updateConfigWithUserSettings() {
 	CFG.killTerminalAfterUse = getCFG("general.killTerminalAfterUse");
 	CFG.showMaximizedTerminal = getCFG("general.showMaximizedTerminal");
 	CFG.batTheme = getCFG("general.batTheme");
-	(CFG.openFileInPreviewEditor = getCFG("general.openFileInPreviewEditor")),
-		(CFG.findFilesPreviewEnabled = getCFG("findFiles.showPreview"));
+	CFG.openFileInPreviewEditor = getCFG("general.openFileInPreviewEditor");
+	CFG.findFilesPreviewEnabled = getCFG("findFiles.showPreview");
 	CFG.findFilesPreviewCommand = getCFG("findFiles.previewCommand");
 	CFG.findFilesPreviewWindowConfig = getCFG("findFiles.previewWindowConfig");
 	CFG.findWithinFilesPreviewEnabled = getCFG("findWithinFiles.showPreview");
@@ -409,9 +423,9 @@ function collectSearchLocations() {
 	// additional search locations from extension settings
 	const addSearchLocationsFromSettings = () => {
 		locations.push(...CFG.additionalSearchLocations);
-		CFG.additionalSearchLocations.forEach((x) =>
-			setOrUpdateOrigin(x, PathOrigin.settings),
-		);
+		for (const x of CFG.additionalSearchLocations) {
+			setOrUpdateOrigin(x, PathOrigin.settings);
+		}
 	};
 	switch (CFG.additionalSearchLocationsWhen) {
 		case "always":
@@ -438,18 +452,18 @@ function collectSearchLocations() {
 			if (uri.substring(0, 7) === "file://") {
 				if (os.platform() === "win32") {
 					return uri.substring(8).replace(/\//g, "\\").replace(/%3A/g, ":");
-				} else {
-					return uri.substring(7);
 				}
-			} else {
-				vscode.window.showErrorMessage(
-					"Non-file:// uri's not currently supported...",
-				);
-				return "";
+				return uri.substring(7);
 			}
+			vscode.window.showErrorMessage(
+				"Non-file:// uri's not currently supported...",
+			);
+			return "";
 		});
 		locations.push(...dirs);
-		dirs.forEach((x) => setOrUpdateOrigin(x, PathOrigin.workspace));
+		for (const x of dirs) {
+			setOrUpdateOrigin(x, PathOrigin.workspace);
+		}
 	}
 
 	return locations;
@@ -459,11 +473,11 @@ function collectSearchLocations() {
 function explainSearchLocations(useColor = false) {
 	const listDirs = (which: PathOrigin) => {
 		let str = "";
-		Object.entries(CFG.searchPathsOrigins).forEach(([k, v]) => {
+		for (const [k, v] of Object.entries(CFG.searchPathsOrigins)) {
 			if ((v & which) !== 0) {
 				str += `- ${k}\n`;
 			}
-		});
+		}
 		if (str.length === 0) {
 			str += "- <none>\n";
 		}
@@ -533,7 +547,7 @@ function doFlightCheck(): boolean {
 
 	try {
 		let errStr = "";
-		const kvs: any = {};
+		const kvs: Record<string, unknown> = {};
 		let out = "";
 		if (os.platform() === "win32") {
 			out = cp
@@ -559,18 +573,18 @@ function doFlightCheck(): boolean {
 				kvs[maybeKV[0]] = maybeKV[1];
 			}
 		});
-		if (kvs["bat"] === undefined || kvs["bat"] === "not installed") {
+		if (kvs.bat === undefined || kvs.bat === "not installed") {
 			errStr += "bat not found on your PATH. ";
 		}
-		if (kvs["fzf"] === undefined || kvs["fzf"] === "not installed") {
+		if (kvs.fzf === undefined || kvs.fzf === "not installed") {
 			errStr += "fzf not found on your PATH. ";
 		}
-		if (kvs["rg"] === undefined || kvs["rg"] === "not installed") {
+		if (kvs.rg === undefined || kvs.rg === "not installed") {
 			errStr += "rg not found on your PATH. ";
 		}
 		if (
 			os.platform() !== "win32" &&
-			(kvs["sed"] === undefined || kvs["sed"] === "not installed")
+			(kvs.sed === undefined || kvs.sed === "not installed")
 		) {
 			errStr += "sed not found on your PATH. ";
 		}
@@ -632,7 +646,7 @@ function reinitialize() {
 function openFiles(data: string) {
 	const filePaths = data.split("\n").filter((s) => s !== "");
 	assert(filePaths.length > 0);
-	filePaths.forEach((p) => {
+	for (const p of filePaths) {
 		let [file, lineTmp, charTmp] = p.split(":", 3);
 		// TODO: We might want to just do this the RE way on all platforms?
 		//       On Windows at least the c: makes the split approach problematic.
@@ -640,16 +654,14 @@ function openFiles(data: string) {
 			const re =
 				/^\s*(?<file>([a-zA-Z][:])?[^:]+)([:](?<lineTmp>\d+))?\s*([:](?<charTmp>\d+))?.*/;
 			const v = p.match(re);
-			if (v && v.groups) {
-				file = v.groups["file"];
-				lineTmp = v.groups["lineTmp"];
-				charTmp = v.groups["charTmp"];
+			if (v?.groups) {
+				file = v.groups.file;
+				lineTmp = v.groups.lineTmp;
+				charTmp = v.groups.charTmp;
 				//vscode.window.showWarningMessage('File: ' + file + "\nlineTmp: " + lineTmp + "\ncharTmp: " + charTmp);
 			} else {
 				vscode.window.showWarningMessage(
-					"Did not match anything in filename: [" +
-						p +
-						"] could not open file!",
+					`Did not match anything in filename: [${p}] could not open file!`,
 				);
 			}
 		}
@@ -671,7 +683,7 @@ function openFiles(data: string) {
 			preview: CFG.openFileInPreviewEditor,
 			selection: selection,
 		});
-	});
+	}
 }
 
 /** Logic of what to do when the user completed a command invocation on the terminal */
@@ -791,7 +803,7 @@ function createTerminal() {
 function getWorkspaceFoldersAsString() {
 	// For bash invocation. Need to wrap in quotes so spaces within paths don't
 	// split the path into two strings.
-	return CFG.searchPaths.reduce((x, y) => x + ` '${y}'`, "");
+	return CFG.searchPaths.reduce((x, y) => `${x} '${y}'`, "");
 }
 
 function getCommandString(
@@ -829,7 +841,7 @@ function getCommandString(
 	if (CFG.useTypeFilter && CFG.findWithinFilesFilter.size > 0) {
 		ret += envVarToString(
 			"TYPE_FILTER",
-			"'" + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ":" + y) + "'",
+			`'${[...CFG.findWithinFilesFilter].reduce((x, y) => `${x}:${y}`)}'`,
 		);
 	}
 	if (cmd.script === "resume_search") {
@@ -846,7 +858,7 @@ function getCommandString(
 function getIgnoreGlobs() {
 	const exclude = vscode.workspace.getConfiguration("search.exclude"); // doesn't work though the docs say it should?
 	const globs: string[] = [];
-	Object.entries(exclude).forEach(([k, v]) => {
+	for (const [k, v] of Object.entries(exclude)) {
 		// Messy proxy object stuff
 		if (typeof v === "function") {
 			return;
@@ -854,14 +866,14 @@ function getIgnoreGlobs() {
 		if (v) {
 			globs.push(`!${k}`);
 		}
-	});
+	}
 	return globs;
 }
 
 function getIgnoreString() {
 	const globs = getIgnoreGlobs();
 	// We separate by colons so we can have spaces in the globs
-	return globs.reduce((x, y) => x + `${y}:`, "");
+	return globs?.reduce((x, y) => `${x}${y}:`, "") ?? "";
 }
 
 async function executeTerminalCommand(cmd: string) {
@@ -886,10 +898,10 @@ async function executeTerminalCommand(cmd: string) {
 			);
 			return;
 		}
-		commands["resumeSearch"].uri = commands[CFG.lastCommand].uri;
-		commands["resumeSearch"].preRunCallback =
+		commands.resumeSearch.uri = commands[CFG.lastCommand].uri;
+		commands.resumeSearch.preRunCallback =
 			commands[CFG.lastCommand].preRunCallback;
-		commands["resumeSearch"].postRunCallback =
+		commands.resumeSearch.postRunCallback =
 			commands[CFG.lastCommand].postRunCallback;
 	} else if (cmd.startsWith("find")) {
 		// Keep track of last-run cmd, but we don't want to resume `listSearchLocations` etc
