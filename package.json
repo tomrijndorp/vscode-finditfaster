@@ -24,11 +24,13 @@
 		"search",
 		"within"
 	],
-	"version": "0.0.39",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.90.0"
 	},
-	"categories": ["Other"],
+	"categories": [
+		"Other"
+	],
 	"activationEvents": [
 		"onCommand:find-it-faster.findFiles",
 		"onCommand:find-it-faster.findFilesWithType",
@@ -127,7 +129,11 @@
 				"find-it-faster.general.additionalSearchLocationsWhen": {
 					"markdownDescription": "When to search the files listed in `general.searchLocations`",
 					"type": "string",
-					"enum": ["always", "never", "noWorkspaceOnly"],
+					"enum": [
+						"always",
+						"never",
+						"noWorkspaceOnly"
+					],
 					"enumDescriptions": [
 						"Always search these locations",
 						"Never search these locations (setting useful for individual workspace overrides)",
@@ -143,7 +149,11 @@
 				"find-it-faster.general.searchCurrentWorkingDirectory": {
 					"markdownDescription": "Search the current working directory (`process.cwd()`)",
 					"type": "string",
-					"enum": ["always", "never", "noWorkspaceOnly"],
+					"enum": [
+						"always",
+						"never",
+						"noWorkspaceOnly"
+					],
 					"enumDescriptions": [
 						"Always search the working directory",
 						"Never search the working directory",
@@ -238,7 +248,7 @@
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^10.0.8",
 		"@types/node": "22.x",
-		"@types/vscode": "^1.93.0",
+		"@types/vscode": "^1.90.0",
 		"glob": "^7.1.7",
 		"mocha": "^10.7.3",
 		"typescript": "^5.6.2",
