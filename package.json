@@ -28,6 +28,7 @@
 	"engines": {
 		"vscode": "^1.92.0"
 	},
+	"packageManager": "pnpm@9.12.1",
 	"categories": ["Other"],
 	"activationEvents": [],
 	"main": "./out/extension.js",
