@@ -1,26 +1,23 @@
 {
-	"name": "find-it-faster",
-	"displayName": "Find It Faster",
+	"name": "fzf-picker",
+	"displayName": "Fzf Picker",
 	"publisher": "jellydn",
 	"icon": "res/icon.png",
 	"repository": {
-		"url": "https://github.com/jellydn/vscode-finditfaster"
+		"url": "https://github.com/jellydn/vscode-fzf-picker"
 	},
-	"description": "Find it, but faster! Leveraging fzf and rg.",
+	"description": "File Picker with fzf and rg",
 	"keywords": [
-		"ag",
-		"bat",
-		"batcat",
-		"find it faster",
+		"fzf",
+		"rg",
+		"ripgrep",
+		"picker",
 		"files",
 		"find",
 		"finder",
 		"fuzzy",
-		"fzf",
 		"grep",
 		"open",
-		"rg",
-		"ripgrep",
 		"search",
 		"within"
 	],
@@ -36,62 +33,62 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "find-it-faster.findFiles",
+				"command": "fzf-picker.findFiles",
 				"title": "Find It Faster: search file"
 			},
 			{
-				"command": "find-it-faster.findFilesWithType",
+				"command": "fzf-picker.findFilesWithType",
 				"title": "Find It Faster: search file (with type filter)"
 			},
 			{
-				"command": "find-it-faster.findWithinFiles",
+				"command": "fzf-picker.findWithinFiles",
 				"title": "Find It Faster: search within files"
 			},
 			{
-				"command": "find-it-faster.findWithinFilesWithType",
+				"command": "fzf-picker.findWithinFilesWithType",
 				"title": "Find It Faster: search within files (with type filter)"
 			},
 			{
-				"command": "find-it-faster.resumeSearch",
+				"command": "fzf-picker.resumeSearch",
 				"title": "Find It Faster: resume last search"
 			},
 			{
-				"command": "find-it-faster.pickFileFromGitStatus",
+				"command": "fzf-picker.pickFileFromGitStatus",
 				"title": "Find It Faster: Pick file from git status"
 			},
 			{
-				"command": "find-it-faster.findTodoFixme",
+				"command": "fzf-picker.findTodoFixme",
 				"title": "Find It Faster: Find TODO/FIXME comments"
 			},
 			{
-				"command": "find-it-faster.runCustomTask",
+				"command": "fzf-picker.runCustomTask",
 				"title": "Find It Faster: Run Custom Task"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "find-it-faster.findFiles",
+				"command": "fzf-picker.findFiles",
 				"mac": "cmd+shift+j",
 				"linux": "ctrl+shift+j"
 			},
 			{
-				"command": "find-it-faster.findWithinFiles",
+				"command": "fzf-picker.findWithinFiles",
 				"mac": "cmd+shift+u",
 				"linux": "ctrl+shift+u"
 			},
 			{
-				"command": "find-it-faster.findWithinFilesWithType",
+				"command": "fzf-picker.findWithinFilesWithType",
 				"mac": "ctrl+cmd+shift+u",
 				"linux": "ctrl+shift+alt+u"
 			},
 			{
-				"command": "find-it-faster.pickFileFromGitStatus",
+				"command": "fzf-picker.pickFileFromGitStatus",
 				"mac": "cmd+shift+alt+f",
 				"linux": "ctrl+shift+alt+f",
 				"win": "ctrl+shift+alt+f"
 			},
 			{
-				"command": "find-it-faster.findTodoFixme",
+				"command": "fzf-picker.findTodoFixme",
 				"mac": "cmd+shift+alt+t",
 				"linux": "ctrl+shift+alt+t",
 				"win": "ctrl+shift+alt+t"
@@ -100,22 +97,22 @@
 		"configuration": {
 			"title": "FindItFaster",
 			"properties": {
-				"find-it-faster.general.useGitIgnoreExcludes": {
+				"fzf-picker.general.useGitIgnoreExcludes": {
 					"markdownDescription": "Use `.gitignore` entries (if present) to limit search paths",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.general.useWorkspaceSearchExcludes": {
+				"fzf-picker.general.useWorkspaceSearchExcludes": {
 					"markdownDescription": "In order to speed up VS Code's native search functionality, you can use the `search.exclude` setting. If checked, this extension will honor the same exclude patterns (as long as they follow the standard \"gitignore glob style\" that `rg` uses.",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.general.additionalSearchLocations": {
+				"fzf-picker.general.additionalSearchLocations": {
 					"markdownDescription": "Search files in these locations",
 					"type": "array",
 					"default": []
 				},
-				"find-it-faster.general.additionalSearchLocationsWhen": {
+				"fzf-picker.general.additionalSearchLocationsWhen": {
 					"markdownDescription": "When to search the files listed in `general.searchLocations`",
 					"type": "string",
 					"enum": ["always", "never", "noWorkspaceOnly"],
@@ -126,12 +123,12 @@
 					],
 					"default": "always"
 				},
-				"find-it-faster.general.searchWorkspaceFolders": {
+				"fzf-picker.general.searchWorkspaceFolders": {
 					"markdownDescription": "Search the folders defined in the workspace",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.general.searchCurrentWorkingDirectory": {
+				"fzf-picker.general.searchCurrentWorkingDirectory": {
 					"markdownDescription": "Search the current working directory (`process.cwd()`)",
 					"type": "string",
 					"enum": ["always", "never", "noWorkspaceOnly"],
@@ -142,107 +139,107 @@
 					],
 					"default": "noWorkspaceOnly"
 				},
-				"find-it-faster.general.batTheme": {
+				"fzf-picker.general.batTheme": {
 					"markdownDescription": "The color theme to use for `bat` (see `bat --list-themes`)",
 					"type": "string",
 					"default": "1337"
 				},
-				"find-it-faster.general.openFileInPreviewEditor": {
+				"fzf-picker.general.openFileInPreviewEditor": {
 					"markdownDescription": "When set to `true` files open in a Preview Editor. Use in conjunction with the `workbench.editor.enablePreivew` setting.",
 					"type": "boolean",
 					"default": false
 				},
-				"find-it-faster.findFiles.showPreview": {
+				"fzf-picker.findFiles.showPreview": {
 					"markdownDescription": "Show a preview window when searching files",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.findFiles.previewCommand": {
+				"fzf-picker.findFiles.previewCommand": {
 					"markdownDescription": "When populated: Used by `fzf` to produce the preview. Use `{}` to indicate the filename. Example: `bat {}`.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.findFiles.previewWindowConfig": {
+				"fzf-picker.findFiles.previewWindowConfig": {
 					"markdownDescription": "When populated: Used by `fzf` to determine position and look of the preview window. See the `fzf` documentation. Example for a horizontal split: `top,50%`.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.findWithinFiles.showPreview": {
+				"fzf-picker.findWithinFiles.showPreview": {
 					"markdownDescription": "Show a preview window when searching within files",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.findWithinFiles.previewCommand": {
+				"fzf-picker.findWithinFiles.previewCommand": {
 					"markdownDescription": "When populated: Used by `fzf` to produce the preview when searching within files. Use `{1}` to indicate the filename, `{2}` for the line number. Example using `cat` and `awk` instead of `bat`: `cat {1} | awk '{if (NR>={2}) print}'`.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.findWithinFiles.previewWindowConfig": {
+				"fzf-picker.findWithinFiles.previewWindowConfig": {
 					"markdownDescription": "When populated: Used by `fzf` to determine position and look of the preview window. See the `fzf` documentation. Example for a horizontal split: `top,50%,border-bottom,+{2}+3/3,~3`.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.findWithinFiles.fuzzRipgrepQuery": {
+				"fzf-picker.findWithinFiles.fuzzRipgrepQuery": {
 					"markdownDescription": "By default, matching in \"Find Within Files\" is exact. Enabling this option relaxes the matching by slightly fuzzing the query that is sent to `rg`: it treats whitespaces as wildcards (`.*`). For example, when enabled, the query `function bar` will match `function foobar`. Otherwise, it won't. This setting does not work on Windows at the moment.",
 					"type": "boolean",
 					"default": false
 				},
-				"find-it-faster.advanced.useEditorSelectionAsQuery": {
+				"fzf-picker.advanced.useEditorSelectionAsQuery": {
 					"markdownDescription": "By default, if you have an active editor with a text selection, we'll use that to populate the prompt in `fzf` such that it will start filtering text directly. Uncheck to disable.",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.general.restoreFocusTerminal": {
+				"fzf-picker.general.restoreFocusTerminal": {
 					"markdownDescription": "When enabled, the extension will restore focus to the previously active terminal after executing a command. This is useful if you frequently switch between the terminal and other parts of VS Code. Note: due to limitations in VS Code, will not focus other panel tabs such as problems/output/etc.",
 					"type": "boolean",
 					"default": false
 				},
-				"find-it-faster.general.useTerminalInEditor": {
+				"fzf-picker.general.useTerminalInEditor": {
 					"markdownDescription": "When enabled, the extension will create the terminal in the main editor stage.",
 					"type": "boolean",
 					"default": false
 				},
-				"find-it-faster.general.shellPathForTerminal": {
+				"fzf-picker.general.shellPathForTerminal": {
 					"markdownDescription": "Set the path for the shell (terminal type) to be used.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.pickFileFromGitStatus.showPreview": {
+				"fzf-picker.pickFileFromGitStatus.showPreview": {
 					"markdownDescription": "Show a preview window when picking a file from git status",
 					"type": "boolean",
 					"default": true
 				},
-				"find-it-faster.pickFileFromGitStatus.previewCommand": {
+				"fzf-picker.pickFileFromGitStatus.previewCommand": {
 					"markdownDescription": "When populated: Used by `fzf` to produce the preview when picking a file from git status. Use `{}` to indicate the filename. Example: `git diff --color=always -- {}`.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.pickFileFromGitStatus.previewWindowConfig": {
+				"fzf-picker.pickFileFromGitStatus.previewWindowConfig": {
 					"markdownDescription": "When populated: Used by `fzf` to determine position and look of the preview window when picking a file from git status. See the `fzf` documentation. Example: `right:50%:border-left`.",
 					"type": "string",
 					"default": ""
 				},
-				"find-it-faster.findTodoFixme.previewEnabled": {
+				"fzf-picker.findTodoFixme.previewEnabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable preview for TODO/FIXME search results"
 				},
-				"find-it-faster.findTodoFixme.previewCommand": {
+				"fzf-picker.findTodoFixme.previewCommand": {
 					"type": "string",
 					"default": "bat --decorations=always --color=always {1} --highlight-line {2} --style=header,grid",
 					"description": "Preview command for TODO/FIXME search results"
 				},
-				"find-it-faster.findTodoFixme.previewWindowConfig": {
+				"fzf-picker.findTodoFixme.previewWindowConfig": {
 					"type": "string",
 					"default": "right:border-left:50%:+{2}+3/3:~3",
 					"description": "Preview window configuration for TODO/FIXME search results"
 				},
-				"find-it-faster.findTodoFixme.searchPattern": {
+				"fzf-picker.findTodoFixme.searchPattern": {
 					"type": "string",
 					"default": "(TODO|FIXME|HACK|FIX):\\s",
 					"description": "Regular expression pattern for searching TODO/FIXME/HACK comments. Matches keywords followed by a colon and optional space."
 				},
-				"find-it-faster.customTasks": {
+				"fzf-picker.customTasks": {
 					"type": "array",
 					"items": {
 						"type": "object",
@@ -261,7 +258,7 @@
 					"default": [],
 					"description": "Custom tasks that can be executed by the extension"
 				},
-				"find-it-faster.general.openCommand": {
+				"fzf-picker.general.openCommand": {
 					"type": "string",
 					"default": "code -g",
 					"description": "CLI command to open files. Use 'code' for VS Code, 'cursor' for Cursor, or any other custom command."
