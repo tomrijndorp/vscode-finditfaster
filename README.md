@@ -1,12 +1,24 @@
-# FindItFaster
+<h1 align="center">Welcome to fzf-picker 👋</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.5.2-blue.svg?cacheSeconds=2592000" />
+  <img src="https://img.shields.io/badge/vscode-%5E1.92.0-blue.svg" />
+  <a href="https://github.com/jellydn/vscode-fzf-picker#readme" target="_blank">
+    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
+  </a>
+  <a href="https://github.com/jellydn/vscode-fzf-picker/graphs/commit-activity" target="_blank">
+    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+  </a>
+</p>
 
-[![CI pipeline - release](https://github.com/jellydn/vscode-finditfaster/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/jellydn/vscode-finditfaster/actions?query=branch%3Amain)
-![Platform support](<https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20(wsl)%20%7C%20windows%20powershell%20(experimental)-334488>)
+> File Picker with fzf and rg
 
-Finds files and text within files, but faster than VS Code normally does.
+## Prerequisites
 
-Make sure to check the [Requirements](#requirements) below (TL;DR: have `fzf`, `rg`, `bat` and `node` on your
-`PATH`).
+- vscode ^1.92.0
+- fzf
+- rg
+- bat
+- node
 
 ## Default Key Bindings
 
