@@ -14,9 +14,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - name: Install pre-commit
-        run: pip install pre-commit
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install pipx
+        run: python -m pip install --user pipx
+      - name: Install pre-commit with pipx
+        run: pipx install pre-commit
 
       - name: Run pre-commit
         run: pre-commit run --all-files

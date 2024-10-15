@@ -1,14 +1,21 @@
-April 2024 update:
+# Contributing to FindItFaster
 
-As of late, I haven't had a lot of time to work on this extension. There are some small issues, but
-on most systems, the extension works well and does what it's supposed to do. I therefore consider
-this extension feature complete and will likely no longer either implement or merge feature
-requests. This extension has remained largely ever since I released it almost three years ago, and
-I consider stability of the existing feature set more important than anything else.
+We welcome contributions to the FindItFaster extension! Here are some guidelines to help you get started.
 
-Due to its very nature, this extension relies heavily on bash scripts, which means it's hard to test
-and challenging to not regress when adding new functionality, which again can explain my reluctance
-to consider additional features at this point.
+## Reporting Issues
 
-Please feel free to report and fix issues, though. It may take time before I can get around to
-reviewing or fixing them.
+If you find a bug or have a suggestion for improving the extension, please first check the [existing issues](https://github.com/jellydn/vscode-finditfaster/issues) to see if it has already been reported. If not, feel free to open a new issue with as much detail as possible.
+
+## Contributing Code
+
+1. Fork the repository and create your branch from `main`.
+2. If you've added code that should be tested, add tests.
+3. Ensure the test suite passes.
+4. Make sure your code lints.
+5. Issue a pull request!
+
+## Development Setup
+
+1. Clone your fork of the repository.
+2. Install dependencies with `yarn install`.
+3. Make your changes.

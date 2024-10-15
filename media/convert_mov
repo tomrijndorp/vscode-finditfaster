@@ -1,7 +1,0 @@
-#!/bin/bash
-set -euxo pipefail
-
-IN="$1"
-OUT="$2"
-
-ffmpeg -i "$IN" -pix_fmt rgb8 -r 8 -filter:v scale=1024:-1 -f gif - | gifsicle -O3 > "$OUT"
