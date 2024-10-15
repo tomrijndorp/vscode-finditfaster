@@ -1,18 +1,16 @@
-name: Build
+name: CI
 
 on:
   push:
     branches:
-      - "*"
+      - main
+
   pull_request:
     branches:
       - main
-  release:
-    types:
-      - published
 
 jobs:
-   lint:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -90,84 +88,3 @@ jobs:
 
       - name: Test
         run: nr test
-
-  build:
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-
-      # --- fzf, rg, bat ---
-      - name: Install FZF, ripgrep, bat
-        run: src/test/install_deps.sh
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-
-      # --- deps ---
-      - name: Yarn install
-        run: yarn install
-
-      # --- build / test ---
-      - name: Test
-        run: xvfb-run -a npm test
-        if: runner.os == 'Linux'
-
-      - name: Test
-        run: npm test
-        if: runner.os != 'Linux'
-
-      # --- package ---
-      - name: Package
-        run: npm run vscode:package
-        if: runner.os == 'Linux'
-
-      # - uses: actions/upload-artifact@v2
-      #   if: runner.os == 'Linux'
-      #   with:
-      #     name: find-it-faster-vsix
-      #     path: "*.vsix"
-
-  publish:
-    if: github.event_name == 'release'
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-
-      # --- fzf, rg, bat ---
-      - name: Install FZF, ripgrep, bat
-        run: src/test/install_deps.sh
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-
-      # --- npm deps ---
-      - name: Yarn install
-        run: yarn install
-
-      # --- publish ---
-      - name: Publish!
-        env:
-          VSCE_PAT: ${{ secrets.FIND_IT_FASTER_AZURE_PAT }}
-          OPENVSX_TOKEN: ${{ secrets.FIND_IT_FASTER_OPENVSX_TOKEN }}
-        run: |
-          sudo apt-get install -y jq
-          FIF_TAG=$(cat package.json | jq -r .version)
-          npm run vscode:publish
-          echo "Tagging release with $FIF_TAG..."
-          git tag "$FIF_TAG"
-          git push origin "$FIF_TAG"
-
-          # Publish to openvsx
-          npx ovsx publish -p "$OPENVSX_TOKEN"
