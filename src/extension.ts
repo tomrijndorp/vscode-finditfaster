@@ -621,6 +621,9 @@ function handleCanaryFileChange() {
         // We set a timeout here to address #56. Don't have a good hypothesis as to why this works but
         // it seems to fix the issue consistently.
         setTimeout(() => term.dispose(), 100);
+        if (CFG.showMaximizedTerminal && isTerminalMaximized)
+            vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+        isTerminalMaximized = false;
     }
 
     fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
@@ -666,6 +669,9 @@ function handleTerminalFocusRestore(commandWasSuccess: boolean) {
                 previousActiveTerminal?.hide();
                 previousActiveTerminal = null;
                 isExtensionChangedTerminal = false;
+                if (CFG.showMaximizedTerminal && isTerminalMaximized)
+                    vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+                isTerminalMaximized = false;
                 disposable.dispose();
             }
         });
