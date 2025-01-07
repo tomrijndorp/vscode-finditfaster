@@ -7,13 +7,13 @@
  * [ ] Buffer of open files / show currently open files / always show at bottom => workspace.textDocuments is a bit curious / borked
  */
 
-import { tmpdir } from 'os';
-import * as vscode from 'vscode';
+import * as assert from 'assert';
 import * as cp from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as os from 'os';
-import * as assert from 'assert';
+import { tmpdir } from 'os';
+import * as path from 'path';
+import * as vscode from 'vscode';
 
 // Let's keep it DRY and load the package here so we can reuse some data from it
 let PACKAGE: any;
@@ -203,6 +203,7 @@ interface Config {
     restoreFocusTerminal: boolean,
     useTerminalInEditor: boolean,
     shellPathForTerminal: string,
+    shellArgsForTerminal: string[] | undefined,
 };
 const CFG: Config = {
     extensionName: undefined,
@@ -246,6 +247,7 @@ const CFG: Config = {
     restoreFocusTerminal: false,
     useTerminalInEditor: false,
     shellPathForTerminal: '',
+    shellArgsForTerminal: undefined,
 };
 
 /** Ensure that whatever command we expose in package.json actually exists */
@@ -332,7 +334,7 @@ function updateConfigWithUserSettings() {
     CFG.showMaximizedTerminal = getCFG('general.showMaximizedTerminal');
     CFG.batTheme = getCFG('general.batTheme');
     CFG.openFileInPreviewEditor = getCFG('general.openFileInPreviewEditor'),
-    CFG.findFilesPreviewEnabled = getCFG('findFiles.showPreview');
+        CFG.findFilesPreviewEnabled = getCFG('findFiles.showPreview');
     CFG.findFilesPreviewCommand = getCFG('findFiles.previewCommand');
     CFG.findFilesPreviewWindowConfig = getCFG('findFiles.previewWindowConfig');
     CFG.findWithinFilesPreviewEnabled = getCFG('findWithinFiles.showPreview');
@@ -342,6 +344,7 @@ function updateConfigWithUserSettings() {
     CFG.restoreFocusTerminal = getCFG('general.restoreFocusTerminal');
     CFG.useTerminalInEditor = getCFG('general.useTerminalInEditor');
     CFG.shellPathForTerminal = getCFG('general.shellPathForTerminal');
+    CFG.shellArgsForTerminal = getCFG('general.shellArgsForTerminal');
 }
 
 function collectSearchLocations() {
@@ -401,10 +404,10 @@ function collectSearchLocations() {
         const dirs = vscode.workspace.workspaceFolders.map(x => {
             const uri = decodeURIComponent(x.uri.toString());
             if (uri.substring(0, 7) === 'file://') {
-                if(os.platform() === 'win32') {
+                if (os.platform() === 'win32') {
                     return uri.substring(8)
-                              .replace(/\//g, "\\")
-                              .replace(/%3A/g, ":");
+                        .replace(/\//g, "\\")
+                        .replace(/%3A/g, ":");
                 } else {
                     return uri.substring(7);
                 }
@@ -576,7 +579,7 @@ function openFiles(data: string) {
         if (os.platform() === 'win32') {
             let re = /^\s*(?<file>([a-zA-Z][:])?[^:]+)([:](?<lineTmp>\d+))?\s*([:](?<charTmp>\d+))?.*/;
             let v = p.match(re);
-            if(v && v.groups) {
+            if (v && v.groups) {
                 file = v.groups['file'];
                 lineTmp = v.groups['lineTmp'];
                 charTmp = v.groups['charTmp'];
@@ -702,6 +705,10 @@ function createTerminal() {
         terminalOptions.shellPath = CFG.shellPathForTerminal;
     }
 
+    if (CFG.shellArgsForTerminal !== undefined) {
+        terminalOptions.shellArgs = CFG.shellArgsForTerminal;
+    }
+
     term = vscode.window.createTerminal(terminalOptions);
 }
 
@@ -740,7 +747,7 @@ function getCommandString(cmd: Command, withArgs: boolean = true, withTextSelect
     }
     // useTypeFilter should only be try if we activated the corresponding command
     if (CFG.useTypeFilter && CFG.findWithinFilesFilter.size > 0) {
-        ret += envVarToString('TYPE_FILTER', "'" +[...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + "'");
+        ret += envVarToString('TYPE_FILTER', "'" + [...CFG.findWithinFilesFilter].reduce((x, y) => x + ':' + y) + "'");
     }
     if (cmd.script === 'resume_search') {
         ret += envVarToString('RESUME_SEARCH', '1');
@@ -797,8 +804,7 @@ async function executeTerminalCommand(cmd: string) {
 
     if (!term || term.exitStatus !== undefined) {
         createTerminal();
-        if (os.platform() !== 'win32')
-        {
+        if (os.platform() !== 'win32') {
             term.sendText('bash');
             term.sendText('export PS1="::: Terminal allocated for FindItFaster. Do not use. ::: "; clear');
         }

@@ -230,6 +230,11 @@
           "markdownDescription": "Set the path for the shell (terminal type) to be used.",
           "type": "string",
           "default": ""
+        },
+        "find-it-faster.general.shellArgsForTerminal": {
+          "markdownDescription": "Set the args for the shell (terminal type) to be used.",
+          "type": "array | undefined",
+          "default": "undefined"
         }
       }
     }
