@@ -21,6 +21,7 @@ let PACKAGE: any;
 let term: vscode.Terminal;
 let previousActiveTerminal: vscode.Terminal | null;
 let isExtensionChangedTerminal = false;
+let isTerminalMaximized = false;
 
 //
 // Define the commands we expose. URIs are populated upon extension activation
@@ -623,6 +624,9 @@ function handleCanaryFileChange() {
         // We set a timeout here to address #56. Don't have a good hypothesis as to why this works but
         // it seems to fix the issue consistently.
         setTimeout(() => term.dispose(), 100);
+        if (CFG.showMaximizedTerminal && isTerminalMaximized)
+            vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+        isTerminalMaximized = false;
     }
 
     fs.readFile(CFG.canaryFile, { encoding: 'utf-8' }, (err, data) => {
@@ -643,9 +647,15 @@ function handleCanaryFileChange() {
             }
 
             if (commandWasSuccess && CFG.hideTerminalAfterSuccess) {
+                if (CFG.showMaximizedTerminal && isTerminalMaximized)
+                    vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
                 term.hide();
+                isTerminalMaximized = false;
             } else if (!commandWasSuccess && CFG.hideTerminalAfterFail) {
+                if (CFG.showMaximizedTerminal && isTerminalMaximized)
+                    vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
                 term.hide();
+                isTerminalMaximized = false;
             } else {
                 // Don't hide the terminal and make clippy angry
             }
@@ -662,6 +672,9 @@ function handleTerminalFocusRestore(commandWasSuccess: boolean) {
                 previousActiveTerminal?.hide();
                 previousActiveTerminal = null;
                 isExtensionChangedTerminal = false;
+                if (CFG.showMaximizedTerminal && isTerminalMaximized)
+                    vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+                isTerminalMaximized = false;
                 disposable.dispose();
             }
         });
@@ -817,7 +830,10 @@ async function executeTerminalCommand(cmd: string) {
     if (cbResult === true) {
         term.sendText(getCommandString(commands[cmd]));
         if (CFG.showMaximizedTerminal) {
-            vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+            await vscode.commands.executeCommand('workbench.action.closeSidebar');
+            await vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
+            await vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+            isTerminalMaximized = true;
         }
         if (CFG.restoreFocusTerminal) {
             previousActiveTerminal = vscode.window.activeTerminal ?? null;
